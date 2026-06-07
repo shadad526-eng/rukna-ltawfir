@@ -455,6 +455,8 @@ export type Database = {
           logo_asset_id: string | null
           parent_group_ar: string | null
           parent_group_en: string | null
+          strategic_positioning: string | null
+          tagline: string | null
           updated_at: string
           updated_by: string | null
           whatsapp_number: string
@@ -473,6 +475,8 @@ export type Database = {
           logo_asset_id?: string | null
           parent_group_ar?: string | null
           parent_group_en?: string | null
+          strategic_positioning?: string | null
+          tagline?: string | null
           updated_at?: string
           updated_by?: string | null
           whatsapp_number?: string
@@ -491,6 +495,8 @@ export type Database = {
           logo_asset_id?: string | null
           parent_group_ar?: string | null
           parent_group_en?: string | null
+          strategic_positioning?: string | null
+          tagline?: string | null
           updated_at?: string
           updated_by?: string | null
           whatsapp_number?: string
