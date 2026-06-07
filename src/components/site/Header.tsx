@@ -177,6 +177,9 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
             <div className="mt-3">
               <WhatsAppCTA number={whatsappNumber} className="w-full">استفسار عبر واتساب</WhatsAppCTA>
             </div>
+            <div className="mt-3 flex items-center justify-center border-t border-border pt-3">
+              <SocialLinks size="md" variant="header" whatsappNumber={whatsappNumber} />
+            </div>
           </nav>
         </div>
       ) : null}
