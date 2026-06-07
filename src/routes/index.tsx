@@ -4,23 +4,24 @@ import {
   getCorporateIdentity,
   listBrands,
   listFeaturedProducts,
+  listCatalogs,
 } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
+import { BrandMarquee } from "@/components/site/BrandMarquee";
+import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
   queryFn: () => getCorporateIdentity(),
 });
-const brandsQO = queryOptions({
-  queryKey: ["brands"],
-  queryFn: () => listBrands(),
-});
+const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 const featuredQO = queryOptions({
   queryKey: ["featured-products"],
   queryFn: () => listFeaturedProducts(),
 });
+const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,24 +41,65 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(brandsQO),
       context.queryClient.ensureQueryData(featuredQO),
+      context.queryClient.ensureQueryData(catalogsQO),
     ]);
   },
   component: Home,
 });
 
+const TRUST_BADGES = [
+  { i: "◇", t: "منتجات أصلية", d: "وكالة رسمية ١٠٠٪" },
+  { i: "✦", t: "جودة عالمية", d: "بمعايير معتمدة" },
+  { i: "❖", t: "شركاء موثوقون", d: "أكبر شبكة توزيع" },
+  { i: "✺", t: "توصيل وطني", d: "تغطية كل المحافظات" },
+];
+
 const WHY_CARDS = [
   { i: "◆", t: "وكالات حصرية", d: "تمثيل رسمي لعلامات دولية مختارة داخل السوق اليمنية." },
-  { i: "✦", t: "منتجات أصلية", d: "أصول رسمية وعبوات معتمدة، دون أي إعادة تصميم أو استبدال." },
+  { i: "✦", t: "منتجات أصلية", d: "أصول رسمية وعبوات معتمدة، دون أي إعادة تصميم." },
   { i: "✺", t: "جودة عالمية", d: "معايير تصنيع وتعبئة موثّقة من الشركات الأم." },
-  { i: "✪", t: "توزيع وطني", d: "شبكة شركاء معتمدين تغطّي جميع المحافظات اليمنية." },
-  { i: "❖", t: "شراكات قوية", d: "اتفاقيات طويلة الأمد مع موزعين وصيدليات ومحلات كبرى." },
-  { i: "✧", t: "دعم احترافي", d: "إسناد تقني وتجاري متواصل عبر قناة واتساب الأعمال الرسمية." },
+  { i: "✪", t: "توزيع وطني", d: "شبكة شركاء معتمدين تغطّي جميع المحافظات." },
+  { i: "❖", t: "شراكات قوية", d: "اتفاقيات طويلة الأمد مع موزعين وصيدليات ومحلات." },
+  { i: "✧", t: "دعم احترافي", d: "إسناد تقني وتجاري متواصل عبر واتساب الأعمال." },
+];
+
+const KNOWLEDGE = [
+  {
+    eyebrow: "نصائح صحية",
+    title: "فوائد المحليات الطبيعية للصحة اليومية",
+    body: "كيف تساهم المحليات الطبيعية في توازن السكر اليومي وتقليل السعرات.",
+  },
+  {
+    eyebrow: "دليل المنتجات",
+    title: "دليل فيتامين C وأهميته للمناعة والطاقة",
+    body: "نظرة عملية على دور فيتامين C في دعم المناعة وأفضل ممارسات الجرعة.",
+  },
+  {
+    eyebrow: "العناية الشخصية",
+    title: "كيف تحافظ على صحة أسنانك يوميًا",
+    body: "روتين بسيط من Y-Kelin للحفاظ على أسنان قوية ولثة سليمة طوال اليوم.",
+  },
 ];
 
 function Home() {
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: brands } = useSuspenseQuery(brandsQO);
   const { data: featured } = useSuspenseQuery(featuredQO);
+  const { data: catalogs } = useSuspenseQuery(catalogsQO);
+
+  // Pick 5 distinct product covers for the cinematic hero stage (real official packshots only)
+  const heroStage = (() => {
+    const seen = new Set<string>();
+    const picks: typeof featured = [];
+    for (const p of featured) {
+      if (!p.cover_url) continue;
+      if (seen.has(p.brand_slug)) continue;
+      seen.add(p.brand_slug);
+      picks.push(p);
+      if (picks.length >= 5) break;
+    }
+    return picks;
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,108 +110,137 @@ function Home() {
         logoUrl={id.logo_url}
       />
 
-      {/* ───────── 1. CINEMATIC HERO ───────── */}
-      <section className="relative overflow-hidden cinema-hero">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "linear-gradient(var(--trust-700) 1px, transparent 1px), linear-gradient(90deg, var(--trust-700) 1px, transparent 1px)",
-            backgroundSize: "72px 72px",
-          }}
-          aria-hidden
-        />
-        <div className="mx-auto grid max-w-7xl gap-14 px-4 py-20 md:grid-cols-[1.25fr_1fr] md:items-center md:gap-16 md:px-8 md:py-32">
-          <div className="relative prem-fade-up">
-            <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[11px] font-semibold tracking-wider text-trust-700">
+      {/* ───────── 1. CINEMATIC DARK HERO ───────── */}
+      <section className="relative overflow-hidden cinema-hero-dark">
+        <div className="hero-spotlight" aria-hidden />
+        {/* Floating leaf accents */}
+        <span className="leaf-drift absolute right-[10%] top-[18%] text-3xl text-leaf-300/70" aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[18%] top-[60%] text-2xl text-leaf-300/60" style={{ animationDelay: "1.4s" }} aria-hidden>🍃</span>
+        <span className="leaf-drift absolute right-[40%] top-[78%] text-2xl text-leaf-300/50" style={{ animationDelay: "2.6s" }} aria-hidden>🍃</span>
+
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 md:grid-cols-[1.1fr_1.2fr_auto] md:items-center md:gap-10 md:px-8 md:py-28">
+          {/* Left: copy block */}
+          <div className="prem-fade-up order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold tracking-wider text-leaf-300 trust-pill">
               <span className="size-1.5 rounded-full bg-leaf-500" />
-              الوكيل الحصري لمنظومة العلامات الصحية في اليمن
+              الوكيل الحصري — منظومة علامات صحية عالمية في اليمن
             </div>
-            <h1 className="mt-7 font-arabic text-[2.4rem] font-bold leading-[1.05] text-foreground md:text-[3.6rem] lg:text-[4.5rem]">
+            <h1 className="mt-7 font-arabic text-[2.2rem] font-bold leading-[1.1] md:text-[3.4rem] lg:text-[4rem]">
               {id.hero_headline_ar}
             </h1>
             <div className="mt-6 h-px w-28 prem-divider" />
-            <p className="mt-7 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">
+            <p className="mt-6 max-w-xl text-base leading-loose opacity-85 md:text-lg">
               {id.hero_sub_ar}
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <WhatsAppCTA number={id.whatsapp_number}>تواصل تجاري عبر واتساب</WhatsAppCTA>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <WhatsAppCTA number={id.whatsapp_number}>تواصل عبر واتساب</WhatsAppCTA>
               <Link
                 to="/brands"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:border-trust-700 hover:text-trust-700 hover:shadow-md"
+                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-sand-50 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-leaf-300 hover:text-leaf-300"
               >
-                اكتشف العلامات
+                استكشف المنتجات
                 <span className="mr-2" aria-hidden>←</span>
               </Link>
             </div>
-            <dl className="mt-14 grid max-w-xl grid-cols-3 gap-6 border-t border-border pt-6">
+            <dl className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6 text-sand-50">
               {[
-                { k: "٨", v: "علامات عالمية" },
-                { k: "١٠٠٪", v: "أصول رسمية" },
-                { k: "B2B", v: "قناة تجارية موحّدة" },
+                { k: "+٨", v: "علامات تجارية عالمية" },
+                { k: "+١٠٠٠", v: "عميل يعتمد علينا" },
+                { k: "٨", v: "سنوات من الخبرة" },
               ].map((s) => (
                 <div key={s.v}>
-                  <dt className="font-arabic text-3xl font-bold text-trust-700 md:text-4xl">{s.k}</dt>
-                  <dd className="mt-1 text-[11px] font-medium tracking-wider text-ink-600">{s.v}</dd>
+                  <dt className="font-arabic text-3xl font-bold text-leaf-300 md:text-4xl">{s.k}</dt>
+                  <dd className="mt-1 text-[11px] font-medium tracking-wider opacity-80">{s.v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          {/* Hero podium — corporate logo with brand constellation */}
-          <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-br from-trust-700/25 via-transparent to-leaf-500/25 blur-3xl" />
-            <div className="podium premium-shadow aspect-square w-full">
-              <div className="relative grid size-full place-items-center p-12">
-                <div className="halo-blue prem-float relative grid size-full place-items-center">
-                  {id.logo_url ? (
-                    <img
-                      src={id.logo_url}
-                      alt={`شعار ${id.legal_name_ar}`}
-                      className="relative max-h-[70%] w-auto object-contain"
-                    />
-                  ) : null}
-                </div>
-                <div className="pointer-events-none absolute inset-6">
-                  {brands.slice(0, 8).map((b, i) => {
-                    const angle = (i / Math.max(brands.length, 1)) * Math.PI * 2 - Math.PI / 2;
-                    const r = 46;
-                    const x = 50 + r * Math.cos(angle);
-                    const y = 50 + r * Math.sin(angle);
-                    return (
-                      <div
-                        key={b.id}
-                        className="absolute -translate-x-1/2 -translate-y-1/2"
-                        style={{ left: `${x}%`, top: `${y}%` }}
-                      >
-                        <div className="grid size-12 place-items-center overflow-hidden rounded-full border border-border bg-card shadow-md">
-                          {b.logo_url ? (
-                            <img src={b.logo_url} alt={b.name_ar} className="max-h-8 w-auto object-contain" loading="lazy" />
-                          ) : (
-                            <span className="text-[9px] font-bold text-muted-foreground">{b.name_en.slice(0, 4)}</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+          {/* Center: hero stage with real product packshots on a dark podium */}
+          <div className="relative order-1 mx-auto w-full max-w-xl md:order-2">
+            <div className="hero-ring -inset-4 size-[112%]" aria-hidden style={{ inset: "-6%" }} />
+            <div className="podium-dark premium-shadow relative aspect-square w-full">
+              {/* Soft ground glow */}
+              <div
+                className="pointer-events-none absolute inset-x-[12%] bottom-[10%] h-[18%] rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(50% 100% at 50% 0%, oklch(0.68 0.17 138 / 0.45), transparent 70%)",
+                  filter: "blur(20px)",
+                }}
+                aria-hidden
+              />
+              {/* Product arrangement (real official packshots, no humans, no stock) */}
+              <div className="absolute inset-0 grid place-items-end pb-[14%]">
+                <div className="relative flex h-[78%] w-[88%] items-end justify-center gap-[2%]">
+                  {heroStage.length === 0 ? (
+                    /* fallback: corporate logo if no products yet */
+                    id.logo_url ? (
+                      <img
+                        src={id.logo_url}
+                        alt={`شعار ${id.legal_name_ar}`}
+                        className="max-h-[70%] w-auto object-contain prem-float"
+                      />
+                    ) : null
+                  ) : (
+                    heroStage.map((p, i) => {
+                      const positions = [
+                        { h: "60%", z: 1, dy: "10%", dx: "0%" },
+                        { h: "72%", z: 2, dy: "4%", dx: "0%" },
+                        { h: "92%", z: 3, dy: "0%", dx: "0%" },
+                        { h: "78%", z: 2, dy: "3%", dx: "0%" },
+                        { h: "64%", z: 1, dy: "9%", dx: "0%" },
+                      ][i] ?? { h: "60%", z: 1, dy: "10%", dx: "0%" };
+                      return (
+                        <Link
+                          key={p.id}
+                          to="/brands/$slug/$productSlug"
+                          params={{ slug: p.brand_slug, productSlug: p.slug }}
+                          className="relative grid place-items-end transition-transform hover:-translate-y-2"
+                          style={{ height: positions.h, zIndex: positions.z, transform: `translateY(${positions.dy})` }}
+                          title={p.name_ar}
+                        >
+                          <img
+                            src={p.cover_url!}
+                            alt={p.name_ar}
+                            className="max-h-full w-auto object-contain prem-float"
+                            style={{ animationDelay: `${i * 0.4}s` }}
+                            loading="eager"
+                          />
+                        </Link>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-5 right-1/2 translate-x-1/2 rounded-full glass px-4 py-1.5 text-[11px] font-semibold text-trust-700 premium-shadow">
-              الوكيل الوحيد في اليمن
+            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-[11px] font-semibold text-leaf-300 trust-pill">
+              منظومة العلامات الصحية الرسمية
             </div>
           </div>
+
+          {/* Right: trust badges panel */}
+          <aside className="order-3 hidden flex-col gap-3 self-stretch md:flex">
+            {TRUST_BADGES.map((b) => (
+              <div key={b.t} className="trust-pill min-w-[210px]">
+                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-lg text-leaf-300">{b.i}</div>
+                <div>
+                  <div className="text-[13px] font-bold text-sand-50">{b.t}</div>
+                  <div className="text-[11px] opacity-75">{b.d}</div>
+                </div>
+              </div>
+            ))}
+          </aside>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center" aria-hidden>
-          <div className="grid h-9 w-6 place-items-start rounded-full border border-trust-700/30 p-1.5">
-            <span className="block size-1.5 rounded-full bg-trust-700 prem-scroll-cue" />
-          </div>
+        {/* Brand marquee strip docked at hero base */}
+        <div className="relative mx-auto -mb-12 max-w-6xl px-4 pb-4 md:px-8">
+          <BrandMarquee brands={brands} />
         </div>
       </section>
 
       {/* ───────── 2. WHY RUKN AL-TAWFIR ───────── */}
-      <section className="border-y border-border bg-card">
+      <section className="bg-card pt-28">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <div className="hq-eyebrow">لماذا ركن التوفير</div>
@@ -194,8 +265,8 @@ function Home() {
         </div>
       </section>
 
-      {/* ───────── 3. EXCLUSIVE INTERNATIONAL BRANDS ───────── */}
-      <section id="ecosystem" className="relative">
+      {/* ───────── 3. INTERNATIONAL BRAND ECOSYSTEM ───────── */}
+      <section id="ecosystem" className="relative border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="mb-12 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
@@ -276,10 +347,7 @@ function Home() {
                   لمحة من منتجات المنظومة
                 </h2>
               </div>
-              <Link
-                to="/brands"
-                className="text-sm font-semibold text-trust-700 hover:underline"
-              >
+              <Link to="/brands" className="text-sm font-semibold text-trust-700 hover:underline">
                 استعراض جميع العلامات ←
               </Link>
             </div>
@@ -305,7 +373,9 @@ function Home() {
                   </div>
                   <div className="flex-1 p-4">
                     <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-600">{p.brand_slug}</div>
-                    <div className="mt-1 font-arabic text-[13px] font-bold leading-tight text-foreground line-clamp-2">{p.name_ar}</div>
+                    <div className="mt-1 font-arabic text-[13px] font-bold leading-tight text-foreground line-clamp-2">
+                      {p.name_ar}
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -314,45 +384,97 @@ function Home() {
         </section>
       ) : null}
 
-      {/* ───────── 5. ABOUT EXCERPT ───────── */}
-      <section className="relative overflow-hidden">
-        <div className="aurora-mesh text-sand-50">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:grid-cols-[1.1fr_1fr] md:gap-16 md:px-8 md:py-24">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-leaf-300">عن الشركة</div>
-              <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight md:text-5xl">
-                مقرّ رقمي لمنظومة عالمية متكاملة
-              </h2>
-              <p className="mt-5 max-w-xl text-[15px] leading-loose opacity-85">
-                نمثّل علامات صحية دولية بشكل حصري داخل اليمن، ضمن منظومة تجارية محكمة الحوكمة،
-                تحمي العلامة من الاستخدامات غير الرسمية، وتمنح الشريك التجاري قناة موثوقة للوصول
-                إلى المنتجات الأصلية.
-              </p>
+      {/* ───────── 5. BRAND COLLECTIONS (Bento, equal weight, official logos only) ───────── */}
+      <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
+        <div className="mb-10 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="hq-eyebrow">المجموعات الرسمية</div>
+            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+              تصفّح المجموعات حسب العلامة
+            </h2>
+          </div>
+          <Link to="/brands" className="text-sm font-semibold text-trust-700 hover:underline">
+            عرض الكل ←
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {brands.map((b) => {
+            const accent = (b.brand_tokens?.accent as string) || "var(--leaf-500)";
+            return (
               <Link
-                to="/about"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-sand-50 px-5 py-2.5 text-sm font-semibold text-trust-900 transition-transform hover:-translate-y-0.5"
+                key={b.id}
+                to="/brands/$slug"
+                params={{ slug: b.slug }}
+                className="prem-card group relative flex flex-col items-stretch overflow-hidden"
               >
-                المزيد عن الشركة <span aria-hidden>←</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { t: "قصتنا", d: "ذراع تجاري متخصص في العلامات الصحية الدولية." },
-                { t: "مهمتنا", d: "إيصال المنتج الأصلي إلى المستهلك اليمني بأعلى المعايير." },
-                { t: "رؤيتنا", d: "أن نكون البوابة المرجعية للعلامات الصحية العالمية." },
-                { t: "قيمنا", d: "أصالة، شفافية، حماية للعلامة، التزام بالحوكمة." },
-              ].map((c) => (
-                <div key={c.t} className="glass-dark rounded-2xl p-5">
-                  <div className="font-arabic text-base font-bold">{c.t}</div>
-                  <div className="mt-2 text-[13px] leading-relaxed opacity-85">{c.d}</div>
+                <div
+                  className="absolute inset-x-0 top-0 h-1 opacity-90"
+                  style={{ background: accent }}
+                  aria-hidden
+                />
+                <div className="podium grid h-40 place-items-center p-6">
+                  {b.logo_url ? (
+                    <img
+                      src={b.logo_url}
+                      alt={`شعار ${b.name_ar}`}
+                      className="max-h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-muted-foreground">{b.name_en}</span>
+                  )}
                 </div>
-              ))}
+                <div className="border-t border-border bg-card/60 p-4 text-center">
+                  <div className="font-arabic text-sm font-bold text-foreground">{b.name_ar}</div>
+                  <div
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold"
+                    style={{ color: accent }}
+                  >
+                    استكشف المجموعة <span aria-hidden>←</span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ───────── 6. KNOWLEDGE CENTER ───────── */}
+      <section className="border-y border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
+          <div className="mb-10 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="hq-eyebrow">المركز المعرفي</div>
+              <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+                مقالات ودلائل من خبراء المنظومة
+              </h2>
             </div>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {KNOWLEDGE.map((k) => (
+              <article key={k.title} className="prem-card group flex flex-col overflow-hidden">
+                <div className="relative h-44 overflow-hidden">
+                  <div className="absolute inset-0 aurora-mesh" aria-hidden />
+                  <div className="absolute inset-0 grid place-items-center">
+                    <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
+                      {k.eyebrow}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 p-5">
+                  <h3 className="font-arabic text-base font-bold leading-snug text-foreground">{k.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{k.body}</p>
+                </div>
+                <div className="border-t border-border bg-secondary/40 px-5 py-3 text-xs font-bold text-trust-700">
+                  قراءة المزيد ←
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ───────── 6. PARTNERSHIP BAND ───────── */}
+      {/* ───────── 7. PARTNERSHIP ───────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
         <div className="grid gap-6 md:grid-cols-2">
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 premium-shadow md:p-10">
@@ -362,7 +484,9 @@ function Home() {
               تصفّح مكتبة الكتالوجات
             </h3>
             <p className="mt-3 max-w-md text-sm leading-loose text-ink-600">
-              كتالوجات رسمية لكل علامة، مع ملفات قابلة للتنزيل وفق سياسة الوصول المعتمدة.
+              {catalogs.length > 0
+                ? `${catalogs.length} كتالوج رسمي قابل للتنزيل أو الطلب وفق سياسة الوصول.`
+                : "كتالوجات رسمية لكل علامة، مع ملفات قابلة للتنزيل وفق سياسة الوصول."}
             </p>
             <Link
               to="/catalogs"
@@ -399,7 +523,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ───────── 7. CONTACT STRIP ───────── */}
+      {/* ───────── 8. CONTACT ───────── */}
       <section className="border-t border-border bg-card">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 md:grid-cols-[1fr_auto] md:items-center md:px-8">
           <div>
@@ -445,6 +569,8 @@ function Home() {
         email={id.email}
         addressAr={id.address_ar}
       />
+
+      <StickyWhatsApp number={id.whatsapp_number} />
     </div>
   );
 }
