@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
 import rukn from "@/assets/brands/rukn.json";
 import steviola from "@/assets/brands/steviola.json";
 import nocal from "@/assets/brands/nocal.json";
@@ -12,43 +13,78 @@ import bambo from "@/assets/brands/bambo.json";
 export const RUKN_LOGO_URL = rukn.url;
 
 const BRANDS = [
-  { name: "iSiS", slug: "isis", url: isis.url },
+  { name: "Monivo", slug: "monivo", url: monivo.url },
+  { name: "Y-Kelin", slug: "y-kelin", url: vkelin.url },
+  { name: "Baby Tawfir", slug: "baby-tawfir", url: babyTawfir.url },
   { name: "SEKEM", slug: "sekem", url: sekem.url },
   { name: "Steviola", slug: "steviola", url: steviola.url },
   { name: "NO CAL", slug: "no-cal", url: nocal.url },
-  { name: "Monivo", slug: "monivo", url: monivo.url },
-  { name: "Baby Tawfir", slug: "baby-tawfir", url: babyTawfir.url },
   { name: "Bambo Fresh", slug: "bambo", url: bambo.url },
-  { name: "Y-Kelin", slug: "y-kelin", url: vkelin.url },
+  { name: "iSiS", slug: "isis", url: isis.url },
 ];
 
+/* ─────────────── HERO STAGE: Glass orb on a 3-tier blue podium ─────────────── */
 export function HeroLogoStage() {
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+    <div className="relative mx-auto aspect-square w-full max-w-[560px]">
+      {/* Decorative curved blue wave behind orb (outer side) */}
+      <svg
+        className="pointer-events-none absolute -right-[18%] -top-[10%] h-[130%] w-[130%] opacity-90"
+        viewBox="0 0 600 600"
+        fill="none"
+        aria-hidden
+      >
+        <defs>
+          <linearGradient id="wave1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.55" />
+          </linearGradient>
+          <linearGradient id="wave2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="oklch(0.32 0.13 245)" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.35" />
+          </linearGradient>
+        </defs>
+        <path d="M620 80 C 520 220, 560 380, 640 520 L 700 700 L 700 0 Z" fill="url(#wave1)" />
+        <path d="M640 60 C 470 220, 520 420, 700 560 L 700 700 L 700 0 Z" fill="url(#wave2)" opacity="0.7" />
+      </svg>
+
       {/* Outer soft halo */}
       <div
-        className="absolute inset-0 rounded-full"
+        className="absolute inset-[4%] rounded-full"
         style={{
           background:
             "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.18), transparent 70%)",
-          filter: "blur(20px)",
+          filter: "blur(24px)",
         }}
         aria-hidden
       />
 
       {/* Glass orb */}
-      <div className="absolute inset-[6%] rounded-full border border-leaf-300/60 bg-white/70 shadow-[0_30px_80px_-30px_oklch(0.32_0.13_245/0.35),inset_0_1px_0_oklch(1_0_0/0.9)] backdrop-blur-xl" />
-
-      {/* Inner ring */}
-      <div className="absolute inset-[12%] rounded-full border border-trust-300/40" aria-hidden />
-
-      {/* Podium */}
       <div
-        className="absolute inset-x-[20%] bottom-[18%] h-[10%] rounded-[50%]"
+        className="absolute inset-[8%] rounded-full border border-white/80 backdrop-blur-xl"
         style={{
           background:
-            "radial-gradient(50% 100% at 50% 0%, oklch(0.46 0.16 245 / 0.25), transparent 70%)",
-          filter: "blur(14px)",
+            "radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.95) 0%, oklch(0.97 0.02 245 / 0.7) 45%, oklch(0.92 0.05 245 / 0.55) 75%, oklch(0.85 0.07 245 / 0.45) 100%)",
+          boxShadow:
+            "0 40px 100px -30px oklch(0.32 0.13 245 / 0.45), inset 0 2px 0 oklch(1 0 0 / 0.95), inset 0 -30px 60px oklch(0.46 0.16 245 / 0.12)",
+        }}
+        aria-hidden
+      />
+      {/* Inner green ring */}
+      <div
+        className="pointer-events-none absolute inset-[10%] rounded-full"
+        style={{
+          border: "1.5px solid oklch(0.68 0.17 138 / 0.55)",
+          boxShadow: "inset 0 0 40px oklch(0.68 0.17 138 / 0.10)",
+        }}
+        aria-hidden
+      />
+      {/* Highlight glare */}
+      <div
+        className="pointer-events-none absolute inset-[10%] rounded-full"
+        style={{
+          background:
+            "radial-gradient(40% 25% at 30% 18%, oklch(1 0 0 / 0.85), transparent 70%)",
         }}
         aria-hidden
       />
@@ -58,54 +94,148 @@ export function HeroLogoStage() {
         <img
           src={rukn.url}
           alt="شعار ركن التوفير كوزمتك للتجارة"
-          className="prem-float h-[58%] w-auto object-contain drop-shadow-[0_12px_24px_oklch(0.32_0.13_245/0.25)]"
+          className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
           loading="eager"
         />
       </div>
 
-      {/* Floating brand logos orbiting the orb */}
-      {BRANDS.map((b, i) => {
-        // Distribute evenly around the orb in a circle
-        const angle = (i / BRANDS.length) * Math.PI * 2 - Math.PI / 2;
-        const radius = 50; // % from center
-        const x = 50 + Math.cos(angle) * radius;
-        const y = 50 + Math.sin(angle) * radius;
-        return (
+      {/* 3-tier blue podium under orb */}
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+        {/* Top tier */}
+        <div
+          className="h-3 w-[58%] rounded-[50%]"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.58 0.15 245) 0%, oklch(0.46 0.16 245) 60%, oklch(0.32 0.13 245) 100%)",
+            boxShadow:
+              "0 12px 24px -8px oklch(0.32 0.13 245 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.4)",
+          }}
+        />
+        <div
+          className="-mt-[6px] h-7 w-[58%] rounded-b-[16px]"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.46 0.16 245) 0%, oklch(0.32 0.13 245) 100%)",
+          }}
+        />
+        {/* Middle tier */}
+        <div
+          className="mt-1 h-3 w-[72%] rounded-[50%]"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.58 0.15 245) 0%, oklch(0.42 0.15 245) 100%)",
+            boxShadow: "0 10px 20px -6px oklch(0.32 0.13 245 / 0.45)",
+          }}
+        />
+        <div
+          className="-mt-[6px] h-5 w-[72%]"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.42 0.15 245) 0%, oklch(0.30 0.12 245) 100%)",
+          }}
+        />
+        {/* Base */}
+        <div
+          className="mt-1 h-3 w-[88%] rounded-[50%]"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.52 0.15 245) 0%, oklch(0.36 0.13 245) 100%)",
+            boxShadow: "0 14px 30px -8px oklch(0.32 0.13 245 / 0.55)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── Colored brand strip (white pill below hero) ─────────────── */
+export function HeroBrandStrip() {
+  return (
+    <div
+      className="relative overflow-hidden rounded-[28px] border border-white/80 bg-white/95 backdrop-blur"
+      style={{
+        boxShadow:
+          "0 30px 60px -25px oklch(0.32 0.13 245 / 0.35), 0 2px 0 oklch(1 0 0 / 0.9) inset",
+      }}
+    >
+      <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 py-5 md:grid-cols-8 md:gap-x-4 md:px-8 md:py-6">
+        {BRANDS.map((b) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className="absolute grid size-[18%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border border-border bg-card/95 p-2.5 shadow-[0_10px_24px_-10px_oklch(0.32_0.13_245/0.30)] backdrop-blur transition-all hover:-translate-y-[55%] hover:scale-105 hover:border-leaf-300"
-            style={{ left: `${x}%`, top: `${y}%`, animation: `prem-float 7s ease-in-out infinite`, animationDelay: `${i * 0.35}s` }}
+            className="group grid h-16 place-items-center transition-transform hover:-translate-y-0.5"
           >
-            <img src={b.url} alt={`شعار ${b.name}`} className="max-h-full max-w-full object-contain" loading="lazy" />
+            <img
+              src={b.url}
+              alt={`شعار ${b.name}`}
+              className="max-h-14 w-auto object-contain"
+              loading="lazy"
+            />
           </Link>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
 
-export function HeroBrandStrip() {
-  const loop = [...BRANDS, ...BRANDS];
+/* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
+const FEATURES = [
+  { i: ShieldCheck, t: "وكالات حصرية", d: "لأكبر العلامات العالمية" },
+  { i: Award, t: "جودة عالية", d: "معايير عالمية ومنتجات موثوقة" },
+  { i: Truck, t: "توزيع وطني", d: "شبكة تغطي جميع المحافظات" },
+  { i: Headphones, t: "خدمة عملاء متميزة", d: "دعم سريع واحترافي" },
+];
+
+export function HeroFeaturesStrip() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur premium-shadow">
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-card to-transparent" aria-hidden />
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-card to-transparent" aria-hidden />
-      <div className="marquee-track flex w-max items-center gap-10 py-5 px-8">
-        {loop.map((b, i) => (
-          <Link
-            key={`${b.slug}-${i}`}
-            to="/brands/$slug"
-            params={{ slug: b.slug }}
-            title={b.name}
-            className="grid h-14 w-28 shrink-0 place-items-center grayscale transition hover:grayscale-0"
-          >
-            <img src={b.url} alt={`شعار ${b.name}`} className="max-h-12 w-auto object-contain" loading="lazy" />
-          </Link>
-        ))}
-      </div>
+    <div
+      className="relative overflow-hidden rounded-[28px] border border-white/10"
+      style={{
+        background:
+          "linear-gradient(135deg, oklch(0.32 0.13 245) 0%, oklch(0.42 0.15 245) 60%, oklch(0.32 0.13 245) 100%)",
+        boxShadow: "0 30px 60px -25px oklch(0.32 0.13 245 / 0.55)",
+      }}
+    >
+      {/* Subtle texture overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        style={{
+          background:
+            "radial-gradient(60% 80% at 20% 0%, oklch(0.58 0.15 245 / 0.5), transparent 60%), radial-gradient(60% 80% at 90% 100%, oklch(0.68 0.17 138 / 0.15), transparent 60%)",
+        }}
+        aria-hidden
+      />
+      <ul className="relative grid grid-cols-2 gap-y-6 px-4 py-6 md:grid-cols-4 md:gap-0 md:px-8 md:py-7">
+        {FEATURES.map((f, i) => {
+          const Icon = f.i;
+          return (
+            <li
+              key={f.t}
+              className={`flex items-center gap-4 px-2 text-sand-50 md:px-6 ${
+                i < FEATURES.length - 1 ? "md:border-l md:border-white/15" : ""
+              }`}
+              dir="rtl"
+            >
+              <div
+                className="grid size-12 shrink-0 place-items-center rounded-full border border-white/40 bg-white/95 text-trust-700 shadow-[0_8px_20px_-6px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.9)]"
+                aria-hidden
+              >
+                <Icon className="size-5" strokeWidth={2.25} />
+              </div>
+              <div className="min-w-0">
+                <div className="font-arabic text-sm font-bold leading-tight md:text-base">
+                  {f.t}
+                </div>
+                <div className="mt-0.5 text-[11px] leading-snug text-white/75 md:text-xs">
+                  {f.d}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
