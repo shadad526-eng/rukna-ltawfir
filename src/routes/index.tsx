@@ -192,7 +192,7 @@ function Home() {
 
 
       {/* ───────── 2. WHY RUKN AL-TAWFIR ───────── */}
-      <section className="bg-card pt-28">
+      <section className="bg-card pt-36 md:pt-44">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <div className="hq-eyebrow">لماذا ركن التوفير</div>
