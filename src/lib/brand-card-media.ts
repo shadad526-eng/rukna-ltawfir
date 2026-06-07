@@ -7,6 +7,7 @@ import yKelinCard from "@/assets/brand-cards/y-kelin-card.json";
 
 export const brandCardMediaBySlug: Record<string, string> = {
   steviola: steviolaCard.url,
+  nocal: nocalCard.url,
   "no-cal": nocalCard.url,
   "baby-tawfir": babyTawfirCard.url,
   monivo: monivoCard.url,
