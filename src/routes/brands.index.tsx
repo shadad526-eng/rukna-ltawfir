@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site/Footer";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
-export const Route = createFileRoute("/brands")({
+export const Route = createFileRoute("/brands/")({
   head: () => ({
     meta: [
       { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },
