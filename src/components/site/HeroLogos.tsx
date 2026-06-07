@@ -212,7 +212,7 @@ export function HeroBrandStrip() {
       />
       <div className="relative grid grid-cols-4 gap-x-2 gap-y-8 px-5 py-10 md:grid-cols-8 md:gap-x-4 md:px-14 md:py-14">
         {BRANDS.map((b, i) => (
-          <Link
+          <LLink
             key={b.slug}
             to="/$lang/brands/$slug"
             params={{ slug: b.slug }}

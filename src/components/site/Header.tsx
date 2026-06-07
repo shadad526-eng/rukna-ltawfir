@@ -59,7 +59,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
               onMouseEnter={() => n.hasMega && setMegaOpen(true)}
               onMouseLeave={() => n.hasMega && setMegaOpen(false)}
             >
-              <Link
+              <LLink
                 to={n.to}
                 activeProps={{ className: "text-trust-700 bg-trust-50" }}
                 activeOptions={{ exact: n.to === "/" }}
@@ -81,7 +81,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                     </div>
                     <div className="grid grid-cols-4 gap-2 p-4">
                       {brands.map((b) => (
-                        <Link
+                        <LLink
                           key={b.id}
                           to="/$lang/brands/$slug"
                           params={{ slug: b.slug }}
@@ -141,7 +141,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
             <ul className="grid gap-1">
               {navItems.map((n) => (
                 <li key={n.to}>
-                  <Link
+                  <LLink
                     to={n.to}
                     onClick={() => setMobileOpen(false)}
                     activeProps={{ className: "bg-trust-50 text-trust-700" }}
@@ -158,7 +158,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                 <div className="hq-eyebrow mb-2">العلامات</div>
                 <div className="grid grid-cols-4 gap-2">
                   {brands.map((b) => (
-                    <Link
+                    <LLink
                       key={b.id}
                       to="/$lang/brands/$slug"
                       params={{ slug: b.slug }}

@@ -83,7 +83,7 @@ function AboutPage() {
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => (
-              <Link
+              <LLink
                 key={b.id}
                 to="/$lang/brands/$slug"
                 params={{ slug: b.slug }}
@@ -108,7 +108,7 @@ function AboutPage() {
         <p className="mt-4 text-ink-600">جميع الاستفسارات التجارية تمرّ عبر واتساب الأعمال الرسمي.</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <WhatsAppCTA number={id.whatsapp_number}>تواصل تجاري عبر واتساب</WhatsAppCTA>
-          <Link
+          <LLink
             to="/$lang/partners"
             className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
           >

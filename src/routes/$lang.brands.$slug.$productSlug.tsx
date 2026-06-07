@@ -119,7 +119,7 @@ function ProductDetailPage() {
                 <img src={p.brand.logo_url} alt={p.brand.name_ar} className="size-full object-contain" />
               ) : null}
             </div>
-            <Link
+            <LLink
               to="/$lang/brands/$slug"
               params={{ slug: p.brand.slug }}
               className="text-sm font-semibold text-primary hover:underline"
@@ -164,7 +164,7 @@ function ProductDetailPage() {
             >
               استفسار عن هذا المنتج
             </WhatsAppCTA>
-            <Link
+            <LLink
               to="/$lang/catalogs"
               className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
             >
@@ -250,7 +250,7 @@ function ProductDetailPage() {
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {related.map((r) => (
-                <Link
+                <LLink
                   key={r.id}
                   to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: p.brand.slug, productSlug: r.slug }}

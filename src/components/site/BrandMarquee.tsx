@@ -12,7 +12,7 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card to-transparent" aria-hidden />
       <div className="marquee-track flex w-max gap-8 py-5 px-6">
         {loop.map((b, i) => (
-          <Link
+          <LLink
             key={`${b.id}-${i}`}
             to="/$lang/brands/$slug"
             params={{ slug: b.slug }}

@@ -23,7 +23,7 @@ export function BrandCard({
   const mediaUrl = getBrandCardMedia(brand.slug);
 
   return (
-    <Link
+    <LLink
       to="/$lang/brands/$slug"
       params={{ slug: brand.slug }}
       className={`brand-card brand-card--${compact ? "compact" : "full"} group relative flex flex-col ${className}`.trim()}

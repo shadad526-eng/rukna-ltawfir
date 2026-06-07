@@ -192,7 +192,7 @@ function Home() {
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link
+              <LLink
                 to="/$lang/brands"
                 className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 md:text-[15px]"
                 style={{
@@ -278,7 +278,7 @@ function Home() {
                 دون تفضيل أو ترتيب أولوية.
               </p>
             </div>
-            <Link
+            <LLink
               to="/$lang/brands"
               className="inline-flex items-center gap-1.5 rounded-full border border-trust-700/20 bg-secondary px-4 py-2 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-sand-50"
             >
@@ -311,7 +311,7 @@ function Home() {
             </div>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {featured.map((p) => (
-                <Link
+                <LLink
                   key={p.id}
                   to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: p.brand_slug, productSlug: p.slug }}
@@ -427,7 +427,7 @@ function Home() {
                 ? `${catalogs.length} كتالوج رسمي قابل للتنزيل أو الطلب وفق سياسة الوصول.`
                 : "كتالوجات رسمية لكل علامة، مع ملفات قابلة للتنزيل وفق سياسة الوصول."}
             </p>
-            <Link
+            <LLink
               to="/$lang/catalogs"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-trust-700 px-5 py-2.5 text-sm font-semibold text-sand-50 transition-transform hover:-translate-y-0.5"
             >
@@ -444,7 +444,7 @@ function Home() {
               للموزعين والمشترين بالجملة: قناة موحّدة عبر واتساب الأعمال للحصول على شروط الشراكة.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link
+              <LLink
                 to="/$lang/partners"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
               >
@@ -491,7 +491,7 @@ function Home() {
           </div>
           <div className="flex flex-wrap gap-3 md:justify-end">
             <WhatsAppCTA number={id.whatsapp_number}>تواصل واتساب</WhatsAppCTA>
-            <Link
+            <LLink
               to="/$lang/contact"
               className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
             >
