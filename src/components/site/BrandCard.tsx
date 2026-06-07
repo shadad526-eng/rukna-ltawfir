@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import type { BrandSummary } from "@/lib/site.functions";
 import { getBrandCardMedia } from "@/lib/brand-card-media";
 
@@ -24,28 +25,38 @@ export function BrandCard({
     <Link
       to="/brands/$slug"
       params={{ slug: brand.slug }}
-      className={`brand-card brand-card--${compact ? "compact" : "full"} group relative flex flex-col overflow-hidden ${className}`.trim()}
+      className={`brand-card brand-card--${compact ? "compact" : "full"} group relative flex flex-col ${className}`.trim()}
     >
+      {/* Compact number badge */}
       {typeof index === "number" ? (
-        <div className="absolute right-4 top-4 z-20 rounded-full glass px-2.5 py-1 text-[10px] font-bold tracking-widest text-trust-700">
+        <div
+          className="absolute right-3 top-3 z-30 grid size-7 place-items-center rounded-full bg-white/95 text-[10px] font-bold tracking-wider text-trust-700"
+          style={{
+            boxShadow:
+              "0 1px 0 oklch(1 0 0 / 0.9) inset, 0 6px 14px -6px oklch(0.32 0.13 245 / 0.35)",
+            border: "1px solid oklch(0.46 0.16 245 / 0.15)",
+          }}
+        >
           {String(index + 1).padStart(2, "0")}
         </div>
       ) : null}
 
-      <div className="absolute inset-x-0 top-0 z-10 h-px opacity-80" style={{ background: accent }} aria-hidden />
+      {/* Accent hairline */}
+      <div
+        className="absolute inset-x-0 top-0 z-20 h-px opacity-80"
+        style={{ background: accent }}
+        aria-hidden
+      />
 
+      {/* Cover image area — clean, no bottom fade */}
       <div className="brand-card__media relative overflow-hidden">
         {mediaUrl ? (
-          <>
-            <img
-              src={mediaUrl}
-              alt={`الصورة الرسمية لعلامة ${brand.name_ar}`}
-              className="brand-card__image size-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.035]"
-              loading="lazy"
-            />
-            <div className="brand-card__overlay absolute inset-0" aria-hidden />
-            <div className="brand-card__glow absolute inset-x-[10%] bottom-2 h-20 rounded-full" aria-hidden />
-          </>
+          <img
+            src={mediaUrl}
+            alt={`الصورة الرسمية لعلامة ${brand.name_ar}`}
+            className="brand-card__image size-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
+            loading="lazy"
+          />
         ) : (
           <div className="podium relative grid h-full place-items-center p-6 md:p-8">
             {brand.logo_url ? (
@@ -58,16 +69,20 @@ export function BrandCard({
             ) : (
               <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
             )}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
           </div>
         )}
       </div>
 
-      <div className="brand-card__content relative z-10 flex flex-1 flex-col p-5 md:p-6">
+      {/* Floating white info panel overlapping the image */}
+      <div className="brand-card__panel relative z-10 -mt-7 mx-3 mb-3 rounded-[22px] bg-white p-5 md:-mt-9 md:mx-4 md:mb-4 md:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-arabic text-lg font-bold text-foreground md:text-xl">{brand.name_ar}</h3>
-            <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-ink-600">{brand.name_en}</div>
+            <h3 className="font-arabic text-lg font-bold leading-tight text-foreground md:text-xl">
+              {brand.name_ar}
+            </h3>
+            <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-ink-600">
+              {brand.name_en}
+            </div>
           </div>
           {brand.is_partner ? (
             <span className="brand-card__badge shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold text-leaf-700">
@@ -82,11 +97,17 @@ export function BrandCard({
           </p>
         ) : null}
 
-        <div className="mt-auto pt-5">
-          <div className="brand-card__footer inline-flex items-center gap-2 text-xs font-bold text-trust-700 md:text-sm">
+        {/* Premium CTA */}
+        <div className="mt-5">
+          <span className="brand-card__cta group/cta inline-flex items-center gap-2 rounded-full bg-trust-50 px-4 py-2.5 text-xs font-bold text-trust-700 transition-all duration-300 group-hover:bg-trust-700 group-hover:text-white md:text-[13px]">
             <span>{ctaLabel}</span>
-            <span aria-hidden className="transition-transform group-hover:-translate-x-1">←</span>
-          </div>
+            <span
+              className="grid size-5 place-items-center rounded-full bg-white/80 text-trust-700 transition-all duration-300 group-hover:-translate-x-0.5 group-hover:bg-white"
+              aria-hidden
+            >
+              <ArrowLeft className="size-3" strokeWidth={2.5} />
+            </span>
+          </span>
         </div>
       </div>
     </Link>

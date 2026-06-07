@@ -183,17 +183,21 @@ function Home() {
           </div>
         </div>
 
-        {/* Brand strip + features strip docked at hero base */}
-        <div className="relative mx-auto -mb-12 max-w-6xl space-y-5 px-4 pb-6 md:-mb-16 md:px-8 md:space-y-6">
+        {/* Brand strip docked floating between hero and next section */}
+        <div className="relative z-20 mx-auto -mb-20 max-w-6xl px-4 md:-mb-24 md:px-8">
           <HeroBrandStrip />
+        </div>
+      </section>
+
+      {/* Features strip — sits cleanly on white background below floating bar */}
+      <section className="bg-card pt-28 md:pt-32">
+        <div className="mx-auto max-w-6xl px-4 md:px-8">
           <HeroFeaturesStrip />
         </div>
       </section>
 
-
-
       {/* ───────── 2. WHY RUKN AL-TAWFIR ───────── */}
-      <section className="bg-card pt-36 md:pt-44">
+      <section className="bg-card pt-16 md:pt-20">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <div className="hq-eyebrow">لماذا ركن التوفير</div>
