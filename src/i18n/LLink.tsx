@@ -17,7 +17,7 @@ export const LLink = forwardRef<HTMLAnchorElement, AnyProps>(function LLink(
 ) {
   const cur = useParams({ strict: false }) as Record<string, unknown>;
   const { lang } = useLocale();
-  const merged = { lang: (cur?.lang as string) ?? lang, ...(params ?? {}) };
+  const merged = { lang: (cur?.lang as string) ?? lang, ...((params ?? {}) as Record<string, unknown>) };
   // Cast: type-safe `to` would require per-route typing; the wrapper is
   // intentionally loose so existing call sites compile unchanged.
   return <Link ref={ref as never} {...(rest as never)} params={merged as never} />;
