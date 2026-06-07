@@ -1,0 +1,19 @@
+import steviolaCard from "@/assets/brand-cards/steviola-card.json";
+import nocalCard from "@/assets/brand-cards/nocal-card.json";
+import babyTawfirCard from "@/assets/brand-cards/baby-tawfir-card.json";
+import monivoCard from "@/assets/brand-cards/monivo-card.json";
+import bamboCard from "@/assets/brand-cards/bambo-card.json";
+import yKelinCard from "@/assets/brand-cards/y-kelin-card.json";
+
+export const brandCardMediaBySlug: Record<string, string> = {
+  steviola: steviolaCard.url,
+  "no-cal": nocalCard.url,
+  "baby-tawfir": babyTawfirCard.url,
+  monivo: monivoCard.url,
+  bambo: bamboCard.url,
+  "y-kelin": yKelinCard.url,
+};
+
+export function getBrandCardMedia(slug: string) {
+  return brandCardMediaBySlug[slug] ?? null;
+}
