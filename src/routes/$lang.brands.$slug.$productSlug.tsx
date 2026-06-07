@@ -15,7 +15,7 @@ const productQO = (brandSlug: string, productSlug: string) =>
 const brandProductsQO = (brandSlug: string) =>
   queryOptions({ queryKey: ["brand-products", brandSlug], queryFn: () => listBrandProducts({ data: { brandSlug } }) });
 
-export const Route = createFileRoute("/brands/$slug/$productSlug")({
+export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
   loader: async ({ context, params }) => {
     const p = await context.queryClient.ensureQueryData(productQO(params.slug, params.productSlug));
     if (!p) throw notFound();

@@ -8,7 +8,7 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
-export const Route = createFileRoute("/about")({
+export const Route = createFileRoute("/$lang/about")({
   head: () => ({
     meta: [
       { title: "من نحن — ركن التوفير كوزمتك للتجارة" },

@@ -24,7 +24,7 @@ const featuredQO = queryOptions({
 });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/$lang/")({
   head: () => ({
     meta: [
       { title: "ركن التوفير كوزمتك للتجارة — المقرّ الرقمي الرسمي" },

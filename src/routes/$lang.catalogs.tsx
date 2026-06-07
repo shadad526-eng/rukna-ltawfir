@@ -10,7 +10,7 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
-export const Route = createFileRoute("/catalogs")({
+export const Route = createFileRoute("/$lang/catalogs")({
   head: () => ({
     meta: [
       { title: "الكتالوجات الرسمية — ركن التوفير كوزمتك للتجارة" },

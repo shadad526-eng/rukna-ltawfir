@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 
-export const Route = createFileRoute("/contact")({
+export const Route = createFileRoute("/$lang/contact")({
   head: () => ({
     meta: [
       { title: "تواصل معنا — ركن التوفير كوزمتك للتجارة" },
