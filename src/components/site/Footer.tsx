@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { WhatsAppCTA } from "./WhatsAppCTA";
 import { SocialLinks } from "./SocialLinks";
@@ -38,12 +39,12 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
           <div className="md:col-span-3">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">المنظومة</div>
             <ul className="space-y-2 text-sm opacity-90">
-              <li><Link to="/$lang/" className="hover:text-leaf-300">الرئيسية</Link></li>
-              <li><Link to="/$lang/brands" className="hover:text-leaf-300">العلامات التجارية</Link></li>
-              <li><Link to="/$lang/catalogs" className="hover:text-leaf-300">الكتالوجات الرسمية</Link></li>
-              <li><Link to="/$lang/about" className="hover:text-leaf-300">من نحن</Link></li>
-              <li><Link to="/$lang/partners" className="hover:text-leaf-300">الشراكة التجارية</Link></li>
-              <li><Link to="/$lang/contact" className="hover:text-leaf-300">تواصل معنا</Link></li>
+              <li><LLink to="/$lang/" className="hover:text-leaf-300">الرئيسية</LLink></li>
+              <li><LLink to="/$lang/brands" className="hover:text-leaf-300">العلامات التجارية</LLink></li>
+              <li><LLink to="/$lang/catalogs" className="hover:text-leaf-300">الكتالوجات الرسمية</LLink></li>
+              <li><LLink to="/$lang/about" className="hover:text-leaf-300">من نحن</LLink></li>
+              <li><LLink to="/$lang/partners" className="hover:text-leaf-300">الشراكة التجارية</LLink></li>
+              <li><LLink to="/$lang/contact" className="hover:text-leaf-300">تواصل معنا</LLink></li>
             </ul>
           </div>
 

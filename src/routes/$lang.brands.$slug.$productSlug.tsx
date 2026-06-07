@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -34,9 +35,9 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="text-2xl font-bold text-foreground">المنتج غير موجود</h1>
-      <Link to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+      <LLink to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
         ← العودة إلى العلامات
-      </Link>
+      </LLink>
     </div>
   ),
   errorComponent: ({ error }) => (
@@ -70,11 +71,11 @@ function ProductDetailPage() {
 
       <section className="mx-auto max-w-7xl px-4 pt-8 md:px-6">
         <nav className="text-xs text-muted-foreground">
-          <Link to="/$lang/" className="hover:text-primary">الرئيسية</Link>
+          <LLink to="/$lang/" className="hover:text-primary">الرئيسية</LLink>
           <span className="mx-2">/</span>
-          <Link to="/$lang/brands" className="hover:text-primary">العلامات</Link>
+          <LLink to="/$lang/brands" className="hover:text-primary">العلامات</LLink>
           <span className="mx-2">/</span>
-          <Link to="/$lang/brands/$slug" params={{ slug: p.brand.slug }} className="hover:text-primary">{p.brand.name_ar}</Link>
+          <LLink to="/$lang/brands/$slug" params={{ slug: p.brand.slug }} className="hover:text-primary">{p.brand.name_ar}</LLink>
           <span className="mx-2">/</span>
           <span className="text-foreground">{p.name_ar}</span>
         </nav>
@@ -124,7 +125,7 @@ function ProductDetailPage() {
               className="text-sm font-semibold text-primary hover:underline"
             >
               {p.brand.name_ar}
-            </Link>
+            </LLink>
           </div>
           <h1 className="mt-4 font-arabic text-3xl font-bold text-foreground md:text-4xl">{p.name_ar}</h1>
           <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{p.name_en}</div>
@@ -168,7 +169,7 @@ function ProductDetailPage() {
               className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
             >
               عرض الكتالوج الرسمي
-            </Link>
+            </LLink>
           </div>
 
           <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
@@ -266,7 +267,7 @@ function ProductDetailPage() {
                     <div className="font-arabic text-sm font-bold text-foreground line-clamp-2">{r.name_ar}</div>
                     <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-ink-600">{r.name_en}</div>
                   </div>
-                </Link>
+                </LLink>
               ))}
             </div>
           </div>

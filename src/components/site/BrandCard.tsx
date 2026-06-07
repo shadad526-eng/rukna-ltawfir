@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import type { BrandSummary } from "@/lib/site.functions";
@@ -110,6 +111,6 @@ export function BrandCard({
           </span>
         </div>
       </div>
-    </Link>
+    </LLink>
   );
 }

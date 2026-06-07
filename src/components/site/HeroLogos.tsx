@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
 import rukn from "@/assets/brands/rukn.json";
@@ -228,7 +229,7 @@ export function HeroBrandStrip() {
               decoding="async"
               style={{ imageRendering: "auto" }}
             />
-          </Link>
+          </LLink>
         ))}
       </div>
     </div>

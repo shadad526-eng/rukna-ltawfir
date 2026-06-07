@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 
 type BrandLite = { id: string; slug: string; name_ar: string; name_en: string; logo_url: string | null };
@@ -28,7 +29,7 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
             ) : (
               <span className="text-[11px] font-bold text-muted-foreground">{b.name_en}</span>
             )}
-          </Link>
+          </LLink>
         ))}
       </div>
     </div>

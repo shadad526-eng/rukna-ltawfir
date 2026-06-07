@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
@@ -94,7 +95,7 @@ function AboutPage() {
                 ) : (
                   <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                 )}
-              </Link>
+              </LLink>
             ))}
           </div>
         </div>
@@ -112,7 +113,7 @@ function AboutPage() {
             className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
           >
             صفحة الشراكات
-          </Link>
+          </LLink>
         </div>
       </section>
 

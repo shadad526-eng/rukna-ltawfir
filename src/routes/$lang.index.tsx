@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -211,7 +212,7 @@ function Home() {
                 />
                 <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">←</span>
                 <span className="relative">استكشف المنتجات</span>
-              </Link>
+              </LLink>
               <WhatsAppCTA number={id.whatsapp_number}>تواصل معنا</WhatsAppCTA>
             </div>
           </div>
@@ -282,7 +283,7 @@ function Home() {
               className="inline-flex items-center gap-1.5 rounded-full border border-trust-700/20 bg-secondary px-4 py-2 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-sand-50"
             >
               دليل العلامات الكامل <span aria-hidden>←</span>
-            </Link>
+            </LLink>
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -304,9 +305,9 @@ function Home() {
                   لمحة من منتجات المنظومة
                 </h2>
               </div>
-              <Link to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
+              <LLink to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
                 استعراض جميع العلامات ←
-              </Link>
+              </LLink>
             </div>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {featured.map((p) => (
@@ -334,7 +335,7 @@ function Home() {
                       {p.name_ar}
                     </div>
                   </div>
-                </Link>
+                </LLink>
               ))}
             </div>
           </div>
@@ -350,9 +351,9 @@ function Home() {
               تصفّح المجموعات حسب العلامة
             </h2>
           </div>
-          <Link to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
+          <LLink to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
             عرض الكل ←
-          </Link>
+          </LLink>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {brands.map((b) => (
@@ -431,7 +432,7 @@ function Home() {
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-trust-700 px-5 py-2.5 text-sm font-semibold text-sand-50 transition-transform hover:-translate-y-0.5"
             >
               دخول مكتبة الكتالوجات <span aria-hidden>←</span>
-            </Link>
+            </LLink>
           </div>
           <div className="premium-panel overflow-hidden p-8 md:p-10">
             <div className="absolute -left-16 -top-16 size-56 rounded-full bg-leaf-500/15 blur-3xl" aria-hidden />
@@ -448,7 +449,7 @@ function Home() {
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
               >
                 صفحة الشراكات
-              </Link>
+              </LLink>
               <WhatsAppCTA
                 number={id.whatsapp_number}
                 message="السلام عليكم، أرغب في فتح حساب شراكة تجارية مع ركن التوفير."
@@ -495,7 +496,7 @@ function Home() {
               className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
             >
               صفحة التواصل الكاملة
-            </Link>
+            </LLink>
           </div>
         </div>
       </section>

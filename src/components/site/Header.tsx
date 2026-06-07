@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -34,7 +35,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
     <header className="sticky top-0 z-40 glass">
       <div className="h-0.5 w-full hq-rule" />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
-        <Link to="/$lang/" className="flex min-w-0 items-center gap-3">
+        <LLink to="/$lang/" className="flex min-w-0 items-center gap-3">
           <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             {logoUrl ? (
               <img src={logoUrl} alt={`شعار ${legalNameAr}`} className="size-full object-contain p-1" />
@@ -48,7 +49,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
               <div className="truncate text-[10px] font-medium tracking-wider text-ink-600">{parentGroupAr}</div>
             ) : null}
           </div>
-        </Link>
+        </LLink>
 
         <nav className="hidden items-center gap-1 text-[13px] font-semibold text-ink-600 lg:flex">
           {navItems.map((n) => (
@@ -68,7 +69,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                 {n.hasMega ? (
                   <span aria-hidden className="text-[10px] opacity-60">▾</span>
                 ) : null}
-              </Link>
+              </LLink>
               {n.hasMega && megaOpen && brands && brands.length > 0 ? (
                 <div className="absolute right-0 top-full pt-3" dir="rtl">
                   <div className="w-[640px] overflow-hidden rounded-2xl border border-border bg-card premium-shadow prem-fade-up">
@@ -97,14 +98,14 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                           <div className="font-arabic text-[12px] font-bold text-foreground group-hover:text-trust-700">
                             {b.name_ar}
                           </div>
-                        </Link>
+                        </LLink>
                       ))}
                     </div>
                     <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs">
                       <span className="text-ink-600">دليل العلامات الكامل والكتالوجات</span>
-                      <Link to="/$lang/brands" className="font-bold text-trust-700 hover:underline" onClick={() => setMegaOpen(false)}>
+                      <LLink to="/$lang/brands" className="font-bold text-trust-700 hover:underline" onClick={() => setMegaOpen(false)}>
                         دخول الدليل ←
-                      </Link>
+                      </LLink>
                     </div>
                   </div>
                 </div>
@@ -148,7 +149,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                     className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
                   >
                     {n.label}
-                  </Link>
+                  </LLink>
                 </li>
               ))}
             </ul>
@@ -169,7 +170,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                       ) : (
                         <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                       )}
-                    </Link>
+                    </LLink>
                   ))}
                 </div>
               </div>
