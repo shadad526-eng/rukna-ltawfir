@@ -337,26 +337,36 @@ function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {KNOWLEDGE.map((k) => (
-              <article key={k.title} className="prem-card group flex h-full flex-col overflow-hidden">
-                <div className="relative h-48 overflow-hidden rounded-b-[2rem]">
-                  <div className="absolute inset-0 aurora-mesh" aria-hidden />
-                  <div className="absolute inset-x-6 top-6 flex justify-start">
-                    <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
-                      {k.eyebrow}
+            {KNOWLEDGE.map((k) => {
+              const waText = `السلام عليكم، أرغب بمعرفة المزيد حول: ${k.title}`;
+              const waHref = `https://wa.me/967${id.whatsapp_number}?text=${encodeURIComponent(waText)}`;
+              return (
+                <a
+                  key={k.title}
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="prem-card group flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-1"
+                >
+                  <div className="relative h-48 overflow-hidden rounded-b-[2rem]">
+                    <div className="absolute inset-0 aurora-mesh" aria-hidden />
+                    <div className="absolute inset-x-6 top-6 flex justify-start">
+                      <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
+                        {k.eyebrow}
+                      </div>
+                    </div>
+                    <div className="absolute inset-x-6 bottom-5 h-px prem-divider opacity-70" aria-hidden />
+                  </div>
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
+                    <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
+                    <div className="mt-auto pt-6 text-xs font-bold text-trust-700 transition-transform group-hover:-translate-x-1">
+                      استفسر عبر واتساب ←
                     </div>
                   </div>
-                  <div className="absolute inset-x-6 bottom-5 h-px prem-divider opacity-70" aria-hidden />
-                </div>
-                <div className="flex flex-1 flex-col p-6">
-                  <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
-                  <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
-                  <div className="mt-auto pt-6 text-xs font-bold text-trust-700">
-                    قراءة المزيد ←
-                  </div>
-                </div>
-              </article>
-            ))}
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>
