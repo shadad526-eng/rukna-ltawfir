@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { WhatsAppCTA } from "./WhatsAppCTA";
+import { SocialLinks } from "./SocialLinks";
 import { listBrands } from "@/lib/site.functions";
 
 type Props = {
