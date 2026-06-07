@@ -16,7 +16,7 @@ import { Route as BrandsRouteImport } from './routes/brands'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandsIndexRouteImport } from './routes/brands.index'
-import { Route as BrandsSlugRouteImport } from './routes/brands.$slug'
+import { Route as BrandsSlugIndexRouteImport } from './routes/brands.$slug.index'
 import { Route as BrandsSlugProductSlugRouteImport } from './routes/brands.$slug.$productSlug'
 
 const PartnersRoute = PartnersRouteImport.update({
@@ -54,15 +54,15 @@ const BrandsIndexRoute = BrandsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BrandsRoute,
 } as any)
-const BrandsSlugRoute = BrandsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
+const BrandsSlugIndexRoute = BrandsSlugIndexRouteImport.update({
+  id: '/$slug/',
+  path: '/$slug/',
   getParentRoute: () => BrandsRoute,
 } as any)
 const BrandsSlugProductSlugRoute = BrandsSlugProductSlugRouteImport.update({
-  id: '/$productSlug',
-  path: '/$productSlug',
-  getParentRoute: () => BrandsSlugRoute,
+  id: '/$slug/$productSlug',
+  path: '/$slug/$productSlug',
+  getParentRoute: () => BrandsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -72,9 +72,9 @@ export interface FileRoutesByFullPath {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
-  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug/': typeof BrandsSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,9 +82,9 @@ export interface FileRoutesByTo {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
-  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug': typeof BrandsSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,9 +94,9 @@ export interface FileRoutesById {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
-  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug/': typeof BrandsSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,9 +107,9 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
-    | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,9 +117,9 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
-    | '/brands/$slug'
     | '/brands'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug'
   id:
     | '__root__'
     | '/'
@@ -128,9 +128,9 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
-    | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -193,43 +193,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsIndexRouteImport
       parentRoute: typeof BrandsRoute
     }
-    '/brands/$slug': {
-      id: '/brands/$slug'
+    '/brands/$slug/': {
+      id: '/brands/$slug/'
       path: '/$slug'
-      fullPath: '/brands/$slug'
-      preLoaderRoute: typeof BrandsSlugRouteImport
+      fullPath: '/brands/$slug/'
+      preLoaderRoute: typeof BrandsSlugIndexRouteImport
       parentRoute: typeof BrandsRoute
     }
     '/brands/$slug/$productSlug': {
       id: '/brands/$slug/$productSlug'
-      path: '/$productSlug'
+      path: '/$slug/$productSlug'
       fullPath: '/brands/$slug/$productSlug'
       preLoaderRoute: typeof BrandsSlugProductSlugRouteImport
-      parentRoute: typeof BrandsSlugRoute
+      parentRoute: typeof BrandsRoute
     }
   }
 }
 
-interface BrandsSlugRouteChildren {
-  BrandsSlugProductSlugRoute: typeof BrandsSlugProductSlugRoute
-}
-
-const BrandsSlugRouteChildren: BrandsSlugRouteChildren = {
-  BrandsSlugProductSlugRoute: BrandsSlugProductSlugRoute,
-}
-
-const BrandsSlugRouteWithChildren = BrandsSlugRoute._addFileChildren(
-  BrandsSlugRouteChildren,
-)
-
 interface BrandsRouteChildren {
-  BrandsSlugRoute: typeof BrandsSlugRouteWithChildren
   BrandsIndexRoute: typeof BrandsIndexRoute
+  BrandsSlugProductSlugRoute: typeof BrandsSlugProductSlugRoute
+  BrandsSlugIndexRoute: typeof BrandsSlugIndexRoute
 }
 
 const BrandsRouteChildren: BrandsRouteChildren = {
-  BrandsSlugRoute: BrandsSlugRouteWithChildren,
   BrandsIndexRoute: BrandsIndexRoute,
+  BrandsSlugProductSlugRoute: BrandsSlugProductSlugRoute,
+  BrandsSlugIndexRoute: BrandsSlugIndexRoute,
 }
 
 const BrandsRouteWithChildren =
