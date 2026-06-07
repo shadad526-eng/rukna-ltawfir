@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { WhatsAppCTA } from "./WhatsAppCTA";
+import { SocialLinks } from "./SocialLinks";
 
 type Props = {
   legalNameAr: string;
@@ -55,6 +56,10 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
             </ul>
             <div className="mt-5">
               <WhatsAppCTA number={whatsappNumber} variant="pill">بدء استفسار تجاري</WhatsAppCTA>
+            </div>
+            <div className="mt-6">
+              <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">تابعنا</div>
+              <SocialLinks />
             </div>
           </div>
         </div>

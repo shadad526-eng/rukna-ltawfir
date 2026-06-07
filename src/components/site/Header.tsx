@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { WhatsAppCTA } from "./WhatsAppCTA";
+import { SocialLinks } from "./SocialLinks";
 import { listBrands } from "@/lib/site.functions";
 
 type Props = {
@@ -113,6 +114,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         </nav>
 
         <div className="flex items-center gap-2">
+          <SocialLinks size="sm" className="hidden lg:flex" />
           <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
             استفسار سريع
           </WhatsAppCTA>
