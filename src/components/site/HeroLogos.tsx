@@ -164,49 +164,66 @@ export function HeroLogoStage() {
 export function HeroBrandStrip() {
   return (
     <div
-      className="relative overflow-hidden rounded-[36px] border border-white/80"
+      className="relative overflow-hidden rounded-[40px] border border-white/90"
       style={{
         background:
-          "linear-gradient(180deg, oklch(1 0 0 / 0.94) 0%, oklch(0.99 0.005 245 / 0.88) 100%)",
-        backdropFilter: "saturate(200%) blur(32px)",
-        WebkitBackdropFilter: "saturate(200%) blur(32px)",
+          "linear-gradient(180deg, oklch(1 0 0 / 0.96) 0%, oklch(0.99 0.005 245 / 0.90) 100%)",
+        backdropFilter: "saturate(220%) blur(36px)",
+        WebkitBackdropFilter: "saturate(220%) blur(36px)",
         boxShadow:
-          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.06), 0 6px 14px oklch(0.32 0.13 245 / 0.06), 0 36px 70px -28px oklch(0.32 0.13 245 / 0.36), 0 70px 140px -55px oklch(0.32 0.13 245 / 0.30)",
+          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.07), 0 8px 18px oklch(0.32 0.13 245 / 0.08), 0 40px 80px -30px oklch(0.32 0.13 245 / 0.40), 0 80px 160px -60px oklch(0.32 0.13 245 / 0.34)",
       }}
     >
       {/* Top hairline gradient */}
       <div
-        className="pointer-events-none absolute inset-x-10 top-0 h-px"
+        className="pointer-events-none absolute inset-x-12 top-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.45) 30%, oklch(0.68 0.17 138 / 0.45) 70%, transparent)",
+            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.50) 30%, oklch(0.68 0.17 138 / 0.50) 70%, transparent)",
         }}
         aria-hidden
       />
       {/* Soft inner top sheen */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-16"
+        className="pointer-events-none absolute inset-x-0 top-0 h-20"
         style={{
           background:
-            "linear-gradient(180deg, oklch(1 0 0 / 0.6), transparent)",
+            "linear-gradient(180deg, oklch(1 0 0 / 0.65), transparent)",
         }}
         aria-hidden
       />
-      <div className="relative grid grid-cols-4 gap-x-3 gap-y-8 px-5 py-9 md:grid-cols-8 md:gap-x-6 md:px-12 md:py-12">
+      {/* Premium corner glow */}
+      <div
+        className="pointer-events-none absolute -right-20 -top-20 size-60 rounded-full opacity-50"
+        style={{
+          background:
+            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.20), transparent 70%)",
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full opacity-50"
+        style={{
+          background:
+            "radial-gradient(closest-side, oklch(0.68 0.17 138 / 0.18), transparent 70%)",
+        }}
+        aria-hidden
+      />
+      <div className="relative grid grid-cols-4 gap-x-2 gap-y-8 px-5 py-10 md:grid-cols-8 md:gap-x-4 md:px-14 md:py-14">
         {BRANDS.map((b, i) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className={`group relative grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32 ${
-              i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+12px)] md:before:top-1/2 md:before:h-10 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/40 md:before:to-transparent" : ""
+            className={`group relative grid h-28 place-items-center transition-all duration-300 hover:-translate-y-1.5 md:h-36 ${
+              i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+8px)] md:before:top-1/2 md:before:h-12 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/50 md:before:to-transparent" : ""
             }`}
           >
             <img
               src={b.url}
               alt={`شعار ${b.name}`}
-              className="max-h-[88px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.08] md:max-h-[120px]"
+              className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
               loading="lazy"
               decoding="async"
               style={{ imageRendering: "auto" }}
