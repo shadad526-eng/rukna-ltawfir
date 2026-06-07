@@ -213,22 +213,40 @@
 }
 
 @utility glass {
-  background: color-mix(in oklab, var(--card) 70%, transparent);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.88), oklch(0.985 0.004 95 / 0.72));
   backdrop-filter: saturate(180%) blur(18px);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 78%, white 12%);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.9) inset,
+    0 18px 44px -28px oklch(0.32 0.13 245 / 0.22);
 }
 
 @utility glass-dark {
-  background: color-mix(in oklab, oklch(0.18 0.02 250) 55%, transparent);
+  background: color-mix(in oklab, oklch(0.18 0.02 250) 64%, transparent);
   backdrop-filter: saturate(160%) blur(20px);
-  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.12) inset;
 }
 
 @utility premium-shadow {
   box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.6) inset,
+    0 1px 0 oklch(1 0 0 / 0.72) inset,
     0 12px 32px -12px oklch(0.32 0.13 245 / 0.22),
-    0 24px 60px -24px oklch(0.32 0.13 245 / 0.18);
+    0 28px 70px -28px oklch(0.32 0.13 245 / 0.18),
+    0 40px 90px -40px oklch(0.68 0.17 138 / 0.10);
+}
+
+@utility premium-panel {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--border) 86%, white 10%);
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.96), oklch(0.985 0.004 95 / 0.94) 52%, oklch(0.975 0.01 245 / 0.9));
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.85) inset,
+    0 20px 48px -24px oklch(0.32 0.13 245 / 0.22),
+    0 44px 90px -52px oklch(0.32 0.13 245 / 0.16);
 }
 
 @utility halo-blue {
@@ -261,10 +279,14 @@
 @utility podium {
   position: relative;
   background:
-    radial-gradient(120% 80% at 50% 0%, oklch(1 0 0) 0%, oklch(0.985 0.004 95) 40%, oklch(0.95 0.01 245) 100%);
+    radial-gradient(120% 82% at 50% 0%, oklch(1 0 0) 0%, oklch(0.988 0.004 95) 36%, oklch(0.965 0.012 245) 100%);
   border-radius: 28px;
   overflow: hidden;
   isolation: isolate;
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white 10%);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.84) inset,
+    0 18px 42px -24px oklch(0.32 0.13 245 / 0.20);
 }
 .podium::before {
   content: "";
@@ -284,30 +306,99 @@
   border-radius: 999px;
 }
 
-/* Premium card baseline upgrade for brand tiles */
+/* Premium card baseline upgrade for system cards */
 @utility prem-card {
   position: relative;
-  background: linear-gradient(180deg, var(--card), color-mix(in oklab, var(--sand-50) 60%, var(--card)));
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  transition: transform .45s cubic-bezier(.2,.7,.2,1), border-color .35s ease, box-shadow .45s ease;
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.96), color-mix(in oklab, var(--sand-50) 70%, var(--card)) 58%, oklch(0.975 0.01 245 / 0.9));
+  border: 1px solid color-mix(in oklab, var(--border) 82%, white 10%);
+  border-radius: 30px;
+  transition: transform .45s cubic-bezier(.2,.7,.2,1), border-color .35s ease, box-shadow .45s ease, background .45s ease;
   overflow: hidden;
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.86) inset,
+    0 16px 38px -20px oklch(0.32 0.13 245 / 0.18),
+    0 28px 70px -38px oklch(0.32 0.13 245 / 0.14);
 }
 .prem-card:hover {
-  transform: translateY(-4px);
-  border-color: oklch(0.46 0.16 245 / 0.45);
+  transform: translateY(-6px);
+  border-color: oklch(0.46 0.16 245 / 0.38);
   box-shadow:
-    0 18px 40px -18px oklch(0.32 0.13 245 / 0.30),
-    0 30px 70px -30px oklch(0.32 0.13 245 / 0.22);
+    0 1px 0 oklch(1 0 0 / 0.92) inset,
+    0 24px 52px -24px oklch(0.32 0.13 245 / 0.26),
+    0 48px 100px -52px oklch(0.32 0.13 245 / 0.18),
+    0 52px 120px -68px oklch(0.68 0.17 138 / 0.14);
 }
 .prem-card::before {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 60%, oklch(0.68 0.17 138 / 0.08));
+  background:
+    linear-gradient(135deg, oklch(1 0 0 / 0.05), transparent 42%, oklch(0.68 0.17 138 / 0.08) 100%);
   opacity: 0; transition: opacity .45s ease;
   pointer-events: none;
 }
 .prem-card:hover::before { opacity: 1; }
+
+.brand-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid color-mix(in oklab, var(--border) 82%, white 10%);
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.98), oklch(0.985 0.004 95 / 0.95) 48%, oklch(0.975 0.01 245 / 0.92));
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.88) inset,
+    0 18px 48px -28px oklch(0.32 0.13 245 / 0.20),
+    0 42px 96px -60px oklch(0.32 0.13 245 / 0.18);
+  transition: transform .5s cubic-bezier(.2,.7,.2,1), border-color .35s ease, box-shadow .45s ease;
+}
+.brand-card:hover {
+  transform: translateY(-8px);
+  border-color: oklch(0.46 0.16 245 / 0.34);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.92) inset,
+    0 28px 62px -28px oklch(0.32 0.13 245 / 0.24),
+    0 56px 120px -70px oklch(0.68 0.17 138 / 0.16);
+}
+.brand-card__media {
+  position: relative;
+  min-height: 260px;
+  background: linear-gradient(180deg, oklch(0.995 0.003 95), oklch(0.975 0.01 245));
+}
+.brand-card--compact .brand-card__media {
+  min-height: 220px;
+}
+.brand-card__overlay {
+  background:
+    linear-gradient(180deg, transparent 0%, transparent 48%, oklch(1 0 0 / 0.68) 78%, oklch(1 0 0 / 0.96) 100%),
+    linear-gradient(135deg, transparent 55%, oklch(0.46 0.16 245 / 0.06) 100%);
+}
+.brand-card__glow {
+  background: radial-gradient(closest-side, oklch(0.32 0.13 245 / 0.18), transparent 72%);
+  filter: blur(18px);
+}
+.brand-card__content {
+  background:
+    linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(0.99 0.004 95 / 0.96) 26%, oklch(0.982 0.008 245 / 0.98));
+}
+.brand-card__badge {
+  background: linear-gradient(180deg, oklch(0.97 0.025 138), oklch(0.94 0.03 138));
+  border: 1px solid oklch(0.68 0.17 138 / 0.18);
+  box-shadow: 0 10px 22px -18px oklch(0.68 0.17 138 / 0.35);
+}
+.brand-card__footer {
+  position: relative;
+}
+.brand-card__footer::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: -0.45rem;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, oklch(0.46 0.16 245 / 0.35), transparent 80%);
+}
+
 
 /* Subtle premium animations */
 @keyframes prem-fade-up {
