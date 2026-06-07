@@ -1,10 +1,11 @@
 import { LLink } from "@/i18n/LLink";
-import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { WhatsAppCTA } from "./WhatsAppCTA";
 import { SocialLinks } from "./SocialLinks";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { listBrands } from "@/lib/site.functions";
+import { useT } from "@/i18n/LocaleProvider";
 
 type Props = {
   legalNameAr: string;
@@ -13,16 +14,8 @@ type Props = {
   logoUrl: string | null;
 };
 
-const navItems = [
-  { to: "/", label: "الرئيسية" },
-  { to: "/brands", label: "العلامات", hasMega: true },
-  { to: "/catalogs", label: "الكتالوجات" },
-  { to: "/about", label: "من نحن" },
-  { to: "/partners", label: "الشراكة" },
-  { to: "/contact", label: "تواصل" },
-];
-
 export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl }: Props) {
+  const t = useT();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: brands } = useQuery({
@@ -30,6 +23,18 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
     queryFn: () => listBrands(),
     staleTime: 60_000,
   });
+
+  const navItems = useMemo(
+    () => [
+      { to: "/$lang/", label: t("nav.home"), exact: true },
+      { to: "/$lang/brands", label: t("nav.brands"), hasMega: true },
+      { to: "/$lang/catalogs", label: t("nav.catalogs") },
+      { to: "/$lang/about", label: t("nav.about") },
+      { to: "/$lang/partners", label: t("nav.partners") },
+      { to: "/$lang/contact", label: t("nav.contact") },
+    ],
+    [t],
+  );
 
   return (
     <header className="sticky top-0 z-40 glass">
@@ -62,7 +67,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
               <LLink
                 to={n.to}
                 activeProps={{ className: "text-trust-700 bg-trust-50" }}
-                activeOptions={{ exact: n.to === "/" }}
+                activeOptions={{ exact: !!n.exact }}
                 className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-colors hover:bg-secondary hover:text-trust-700"
               >
                 {n.label}
@@ -71,12 +76,12 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                 ) : null}
               </LLink>
               {n.hasMega && megaOpen && brands && brands.length > 0 ? (
-                <div className="absolute right-0 top-full pt-3" dir="rtl">
+                <div className="absolute right-0 top-full pt-3">
                   <div className="w-[640px] overflow-hidden rounded-2xl border border-border bg-card premium-shadow prem-fade-up">
                     <div className="border-b border-border bg-secondary/40 px-5 py-3">
-                      <div className="hq-eyebrow">منظومة العلامات</div>
+                      <div className="hq-eyebrow">{t("header.brandsSystem")}</div>
                       <div className="mt-1 text-[13px] text-ink-600">
-                        ثمانٍ علامات صحية رسمية ضمن مظلة ركن التوفير
+                        {t("header.brandsSystemSub")}
                       </div>
                     </div>
                     <div className="grid grid-cols-4 gap-2 p-4">
@@ -102,9 +107,9 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                       ))}
                     </div>
                     <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs">
-                      <span className="text-ink-600">دليل العلامات الكامل والكتالوجات</span>
+                      <span className="text-ink-600">{t("header.brandsGuide")}</span>
                       <LLink to="/$lang/brands" className="font-bold text-trust-700 hover:underline" onClick={() => setMegaOpen(false)}>
-                        دخول الدليل ←
+                        {t("header.enterGuide")}
                       </LLink>
                     </div>
                   </div>
@@ -115,13 +120,14 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         </nav>
 
         <div className="flex items-center gap-2">
-          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pr-2 mr-1" />
+          <LanguageSwitcher className="hidden sm:inline-flex" />
+          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pe-2 me-1" />
           <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
-            استفسار سريع
+            {t("header.quickInquiry")}
           </WhatsAppCTA>
           <button
             type="button"
-            aria-label="القائمة"
+            aria-label={t("header.menu")}
             onClick={() => setMobileOpen((s) => !s)}
             className="grid size-11 place-items-center rounded-full border border-border bg-card text-trust-700 lg:hidden"
           >
@@ -145,7 +151,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                     to={n.to}
                     onClick={() => setMobileOpen(false)}
                     activeProps={{ className: "bg-trust-50 text-trust-700" }}
-                    activeOptions={{ exact: n.to === "/" }}
+                    activeOptions={{ exact: !!n.exact }}
                     className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
                   >
                     {n.label}
@@ -155,7 +161,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
             </ul>
             {brands && brands.length > 0 ? (
               <div className="mt-3 border-t border-border pt-3">
-                <div className="hq-eyebrow mb-2">العلامات</div>
+                <div className="hq-eyebrow mb-2">{t("nav.brands")}</div>
                 <div className="grid grid-cols-4 gap-2">
                   {brands.map((b) => (
                     <LLink
@@ -176,9 +182,10 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
               </div>
             ) : null}
             <div className="mt-3">
-              <WhatsAppCTA number={whatsappNumber} className="w-full">استفسار عبر واتساب</WhatsAppCTA>
+              <WhatsAppCTA number={whatsappNumber} className="w-full">{t("header.whatsappInquiry")}</WhatsAppCTA>
             </div>
-            <div className="mt-3 flex items-center justify-center border-t border-border pt-3">
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
+              <LanguageSwitcher />
               <SocialLinks size="md" variant="header" whatsappNumber={whatsappNumber} />
             </div>
           </nav>
