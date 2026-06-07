@@ -37,9 +37,12 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
           <div className="md:col-span-3">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">المنظومة</div>
             <ul className="space-y-2 text-sm opacity-90">
+              <li><Link to="/" className="hover:text-leaf-300">الرئيسية</Link></li>
               <li><Link to="/brands" className="hover:text-leaf-300">العلامات التجارية</Link></li>
               <li><Link to="/catalogs" className="hover:text-leaf-300">الكتالوجات الرسمية</Link></li>
-              <li><Link to="/" hash="ecosystem" className="hover:text-leaf-300">المنظومة الكاملة</Link></li>
+              <li><Link to="/about" className="hover:text-leaf-300">من نحن</Link></li>
+              <li><Link to="/partners" className="hover:text-leaf-300">الشراكة التجارية</Link></li>
+              <li><Link to="/contact" className="hover:text-leaf-300">تواصل معنا</Link></li>
             </ul>
           </div>
 
