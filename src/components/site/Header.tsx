@@ -5,26 +5,26 @@ type Props = {
   legalNameAr: string;
   parentGroupAr: string | null;
   whatsappNumber: string;
+  logoUrl: string | null;
 };
 
 const navItems = [
   { to: "/", label: "الرئيسية" },
-  { to: "/brands", label: "علاماتنا" },
-  { to: "/about", label: "من نحن" },
-  { to: "/b2b", label: "شركاء الجملة" },
-  { to: "/contact", label: "تواصل" },
+  { to: "/brands", label: "العلامات التجارية" },
+  { to: "/catalogs", label: "الكتالوجات" },
 ];
 
-export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber }: Props) {
+export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl }: Props) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-6">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <div
-            className="grid size-10 place-items-center rounded-lg text-sm font-bold text-primary-foreground"
-            style={{ background: "linear-gradient(135deg, var(--trust-700), var(--leaf-700))" }}
-          >
-            رت
+          <div className="grid size-11 place-items-center overflow-hidden rounded-full border border-border bg-card">
+            {logoUrl ? (
+              <img src={logoUrl} alt={`شعار ${legalNameAr}`} className="size-full object-contain" />
+            ) : (
+              <span className="text-xs font-bold text-primary">رت</span>
+            )}
           </div>
           <div className="min-w-0 leading-tight">
             <div className="truncate text-sm font-bold text-foreground md:text-base">{legalNameAr}</div>
@@ -34,12 +34,13 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber }: Props
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-foreground/80 lg:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-foreground/80 lg:flex">
           {navItems.map((n) => (
             <Link
               key={n.to}
               to={n.to}
               activeProps={{ className: "text-primary" }}
+              activeOptions={{ exact: n.to === "/" }}
               className="transition-colors hover:text-primary"
             >
               {n.label}
