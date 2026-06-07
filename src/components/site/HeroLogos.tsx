@@ -27,6 +27,18 @@ const BRANDS = [
 export function HeroLogoStage() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[560px]">
+      {/* Ambient conic glow behind orb (very subtle premium lighting) */}
+      <div
+        className="pointer-events-none absolute inset-[-6%] rounded-full"
+        style={{
+          background:
+            "conic-gradient(from 210deg at 50% 50%, oklch(0.46 0.16 245 / 0.16), oklch(0.68 0.17 138 / 0.08), oklch(0.46 0.16 245 / 0.14), oklch(0.32 0.13 245 / 0.20), oklch(0.46 0.16 245 / 0.16))",
+          filter: "blur(46px)",
+          opacity: 0.85,
+        }}
+        aria-hidden
+      />
+
       {/* Decorative curved blue wave behind orb (outer side) */}
       <svg
         className="pointer-events-none absolute -right-[18%] -top-[10%] h-[130%] w-[130%] opacity-90"
@@ -53,8 +65,8 @@ export function HeroLogoStage() {
         className="absolute inset-[4%] rounded-full"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.18), transparent 70%)",
-          filter: "blur(24px)",
+            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.20), transparent 70%)",
+          filter: "blur(28px)",
         }}
         aria-hidden
       />
@@ -64,9 +76,9 @@ export function HeroLogoStage() {
         className="absolute inset-[8%] rounded-full border border-white/80 backdrop-blur-xl"
         style={{
           background:
-            "radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.95) 0%, oklch(0.97 0.02 245 / 0.7) 45%, oklch(0.92 0.05 245 / 0.55) 75%, oklch(0.85 0.07 245 / 0.45) 100%)",
+            "radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.96) 0%, oklch(0.97 0.02 245 / 0.72) 45%, oklch(0.92 0.05 245 / 0.55) 75%, oklch(0.85 0.07 245 / 0.45) 100%)",
           boxShadow:
-            "0 40px 100px -30px oklch(0.32 0.13 245 / 0.45), inset 0 2px 0 oklch(1 0 0 / 0.95), inset 0 -30px 60px oklch(0.46 0.16 245 / 0.12)",
+            "0 50px 120px -32px oklch(0.32 0.13 245 / 0.50), 0 20px 50px -20px oklch(0.32 0.13 245 / 0.32), inset 0 2px 0 oklch(1 0 0 / 0.96), inset 0 -30px 60px oklch(0.46 0.16 245 / 0.14), inset 0 0 0 1px oklch(0.68 0.17 138 / 0.06)",
         }}
         aria-hidden
       />
