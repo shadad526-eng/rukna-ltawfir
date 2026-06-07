@@ -98,60 +98,93 @@ function Home() {
         logoUrl={id.logo_url}
       />
 
-      {/* ───────── 1. PREMIUM LIGHT HERO (reference-matched) ───────── */}
+      {/* ───────── 1. FLAGSHIP HERO ───────── */}
       <section
         className="relative overflow-hidden"
         style={{
           background:
-            "linear-gradient(180deg, #F4F8FC 0%, #E6EFF8 55%, #DDEAF6 100%)",
+            "radial-gradient(120% 80% at 100% 0%, oklch(0.86 0.07 245) 0%, transparent 55%), radial-gradient(90% 70% at 0% 100%, oklch(0.96 0.025 138) 0%, transparent 55%), linear-gradient(180deg, #F6FAFE 0%, #EAF2FB 55%, #DCE8F5 100%)",
         }}
       >
-        {/* Soft floating leaves (no faces, no humans) */}
-        <span
-          className="leaf-drift absolute right-[6%] top-[14%] text-4xl text-leaf-500/80 md:text-5xl"
+        {/* Layered abstract curves — premium depth */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          viewBox="0 0 1440 900"
+          preserveAspectRatio="xMidYMid slice"
           aria-hidden
         >
-          🍃
-        </span>
-        <span
-          className="leaf-drift absolute left-[6%] top-[55%] text-3xl text-leaf-500/70 md:text-4xl"
-          style={{ animationDelay: "1.8s" }}
-          aria-hidden
-        >
-          🍃
-        </span>
-        <span
-          className="leaf-drift absolute left-[14%] bottom-[22%] text-2xl text-leaf-500/60 md:text-3xl"
-          style={{ animationDelay: "3.2s" }}
-          aria-hidden
-        >
-          🍃
-        </span>
+          <defs>
+            <linearGradient id="heroCurve1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.35" />
+            </linearGradient>
+            <linearGradient id="heroCurve2" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.04" />
+            </linearGradient>
+            <pattern id="heroDots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="oklch(0.46 0.16 245 / 0.10)" />
+            </pattern>
+          </defs>
+          <rect width="1440" height="900" fill="url(#heroDots)" opacity="0.55" />
+          <path d="M0 720 C 320 620, 540 760, 820 660 S 1280 540, 1440 620 L 1440 900 L 0 900 Z" fill="url(#heroCurve1)" />
+          <path d="M1440 0 C 1180 120, 1240 320, 1080 420 S 800 540, 720 460 L 720 0 Z" fill="url(#heroCurve2)" />
+          <path d="M0 80 C 200 40, 380 160, 540 120" stroke="oklch(0.46 0.16 245 / 0.18)" strokeWidth="1" fill="none" />
+        </svg>
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pt-12 pb-28 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-12 md:px-8 md:pt-20 md:pb-40">
-          {/* RTL: text right (order-2 desktop), stage left (order-1 desktop) */}
+        {/* Soft floating leaves */}
+        <span className="leaf-drift absolute right-[6%] top-[14%] text-4xl text-leaf-500/80 md:text-5xl" aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[6%] top-[55%] text-3xl text-leaf-500/70 md:text-4xl" style={{ animationDelay: "1.8s" }} aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[14%] bottom-[28%] text-2xl text-leaf-500/60 md:text-3xl" style={{ animationDelay: "3.2s" }} aria-hidden>🍃</span>
+
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pt-14 pb-32 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-14 md:px-8 md:pt-24 md:pb-48">
           <div className="prem-fade-up order-2 md:order-1">
             <div
               className="inline-flex items-center gap-2 rounded-full border border-trust-300/60 px-5 py-2 text-[11px] font-semibold tracking-wider text-trust-700 md:text-xs"
               style={{
                 background:
-                  "linear-gradient(180deg, oklch(1 0 0 / 0.85), oklch(0.97 0.018 245 / 0.7))",
+                  "linear-gradient(180deg, oklch(1 0 0 / 0.92), oklch(0.97 0.018 245 / 0.78))",
                 boxShadow:
-                  "0 8px 20px -10px oklch(0.32 0.13 245 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.9)",
+                  "0 10px 24px -10px oklch(0.32 0.13 245 / 0.28), inset 0 1px 0 oklch(1 0 0 / 0.95)",
               }}
             >
-              <span className="size-1.5 rounded-full bg-leaf-500" />
+              <span className="size-1.5 rounded-full bg-leaf-500 shadow-[0_0_0_4px_oklch(0.68_0.17_138/0.18)]" />
               منظومة علامات عالمية في مظلّة واحدة
             </div>
 
-            <h1 className="mt-7 font-arabic font-bold leading-[1.05] tracking-tight">
-              <span className="block text-[2.2rem] text-trust-900 md:text-[3.4rem] lg:text-[4rem]">
+            <h1 className="mt-7 font-arabic font-bold leading-[1.04] tracking-tight">
+              <span
+                className="block text-[2.2rem] md:text-[3.4rem] lg:text-[4.1rem]"
+                style={{
+                  background:
+                    "linear-gradient(180deg, oklch(0.32 0.13 245) 0%, oklch(0.42 0.15 245) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
                 نبني حياة أكثر صحة...
               </span>
-              <span className="mt-2 block text-[2.1rem] text-leaf-700 md:text-[3.2rem] lg:text-[3.8rem]">
+              <span
+                className="mt-2 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
+                style={{
+                  background:
+                    "linear-gradient(180deg, oklch(0.62 0.17 138) 0%, oklch(0.50 0.16 138) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
                 ونصنع مستقبلاً أقوى
               </span>
             </h1>
+
+            {/* Premium accent rule */}
+            <div className="mt-6 flex items-center gap-3">
+              <span className="h-px w-14 bg-gradient-to-l from-transparent to-trust-700/60" />
+              <span className="size-1.5 rounded-full bg-leaf-500" />
+              <span className="h-px w-24 bg-gradient-to-r from-transparent via-trust-700/40 to-transparent" />
+            </div>
 
             <p className="mt-6 max-w-xl text-base leading-loose text-ink-600 md:text-lg">
               الشريك الاستراتيجي والبوابة الأولى للعلامات التجارية الصحية في اليمن.
@@ -160,12 +193,12 @@ function Home() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 to="/brands"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 md:text-[15px]"
                 style={{
                   background:
-                    "linear-gradient(180deg, oklch(0.54 0.16 245), oklch(0.40 0.15 245))",
+                    "linear-gradient(180deg, oklch(0.56 0.16 245), oklch(0.38 0.15 245))",
                   boxShadow:
-                    "0 18px 36px -14px oklch(0.32 0.13 245 / 0.60), 0 4px 10px -4px oklch(0.32 0.13 245 / 0.30), inset 0 1px 0 oklch(1 0 0 / 0.28), inset 0 -1px 0 oklch(0 0 0 / 0.10)",
+                    "0 22px 44px -16px oklch(0.32 0.13 245 / 0.65), 0 6px 14px -6px oklch(0.32 0.13 245 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.30), inset 0 -1px 0 oklch(0 0 0 / 0.12)",
                 }}
               >
                 <span
@@ -173,17 +206,14 @@ function Home() {
                   className="pointer-events-none absolute inset-x-0 top-0 h-1/2 opacity-60"
                   style={{
                     background:
-                      "linear-gradient(180deg, oklch(1 0 0 / 0.18), transparent)",
+                      "linear-gradient(180deg, oklch(1 0 0 / 0.20), transparent)",
                   }}
                 />
-                <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">
-                  ←
-                </span>
+                <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">←</span>
                 <span className="relative">استكشف المنتجات</span>
               </Link>
               <WhatsAppCTA number={id.whatsapp_number}>تواصل معنا</WhatsAppCTA>
             </div>
-
           </div>
 
           {/* Glass orb stage */}
@@ -191,15 +221,17 @@ function Home() {
             <HeroLogoStage />
           </div>
         </div>
-
-        {/* Brand strip docked floating between hero and next section */}
-        <div className="relative z-20 mx-auto -mb-16 max-w-6xl px-4 md:-mb-20 md:px-8">
-          <HeroBrandStrip />
-        </div>
       </section>
 
+      {/* ───────── TRUE FLOATING BRAND BAR — between hero and features ───────── */}
+      <div aria-hidden className="relative h-0">
+        <div className="relative z-30 mx-auto -mt-20 max-w-6xl px-4 md:-mt-28 md:px-8">
+          <HeroBrandStrip />
+        </div>
+      </div>
+
       {/* Features strip — sits cleanly on white background below floating bar */}
-      <section className="bg-card pt-24 md:pt-28">
+      <section className="bg-card pt-28 md:pt-40">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <HeroFeaturesStrip />
         </div>
