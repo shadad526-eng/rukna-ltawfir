@@ -1,57 +1,101 @@
 import React from "react";
 
-const socials = [
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/share/198SE8GVYT/",
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036c-2.03 0-2.804.61-2.804 2.397v1.57h3.99l-.532 3.667h-3.458v8.041A11.965 11.965 0 0 1 0 12C0 5.373 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12c-1.023 0-2.02-.128-2.973-.369z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Instagram",
-    href: "https://www.instagram.com/rkn.altwfyr/",
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
-      </svg>
-    ),
-  },
-  {
-    name: "TikTok",
-    href: "https://www.tiktok.com/@ruknaltawfersochi",
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.83 2.89 2.89 0 0 1-2.88-2.89 2.89 2.89 0 0 1 2.88-2.88c.34 0 .67.06.97.16v-3.5a6.33 6.33 0 0 0-1-.08A6.4 6.4 0 0 0 2 16.72 6.4 6.4 0 0 0 8.4 23.12a6.4 6.4 0 0 0 6.4-6.4V9.12a8.17 8.17 0 0 0 4.79 1.54V7.33a4.85 4.85 0 0 1-1.03-.64z" />
-      </svg>
-    ),
-  },
-];
+type Social = {
+  name: string;
+  label: string;
+  href: string;
+  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+};
+
+const buildSocials = (whatsappNumber?: string): Social[] => {
+  const list: Social[] = [];
+  if (whatsappNumber) {
+    const digits = whatsappNumber.replace(/\D/g, "");
+    list.push({
+      name: "WhatsApp",
+      label: "واتساب",
+      href: `https://wa.me/967${digits}`,
+      icon: (props) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+          <path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z" />
+        </svg>
+      ),
+    });
+  }
+  list.push(
+    {
+      name: "Instagram",
+      label: "إنستجرام",
+      href: "https://www.instagram.com/rkn.altwfyr/",
+      icon: (props) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...props}>
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      ),
+    },
+    {
+      name: "Facebook",
+      label: "فيسبوك",
+      href: "https://www.facebook.com/share/198SE8GVYT/",
+      icon: (props) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+          <path d="M13.5 21.95V13.5h2.86l.43-3.33H13.5V8.04c0-.96.27-1.62 1.65-1.62h1.76V3.44c-.3-.04-1.35-.13-2.57-.13-2.55 0-4.29 1.56-4.29 4.41v2.45H7.18v3.33h2.87v8.45h3.45z" />
+        </svg>
+      ),
+    },
+    {
+      name: "TikTok",
+      label: "تيك توك",
+      href: "https://www.tiktok.com/@ruknaltawfersochi",
+      icon: (props) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 3.31-4.42v-3.5a6.4 6.4 0 1 0 5.34 6.31V9.12a8.17 8.17 0 0 0 4.79 1.54V7.33a4.85 4.85 0 0 1-1.02-.64z" />
+        </svg>
+      ),
+    },
+  );
+  return list;
+};
 
 type SocialLinksProps = {
   className?: string;
-  iconClassName?: string;
   size?: "sm" | "md";
+  variant?: "header" | "footer";
+  whatsappNumber?: string;
 };
 
-export function SocialLinks({ className = "", iconClassName = "", size = "md" }: SocialLinksProps) {
-  const sizeClasses = size === "sm" ? "size-8" : "size-9";
-  const iconSize = size === "sm" ? "size-4" : "size-[18px]";
+export function SocialLinks({
+  className = "",
+  size = "sm",
+  variant = "header",
+  whatsappNumber,
+}: SocialLinksProps) {
+  const socials = buildSocials(whatsappNumber);
+  const iconSize = size === "sm" ? "size-[15px]" : "size-[17px]";
+  const padding = size === "sm" ? "p-1.5" : "p-2";
+
+  const base =
+    variant === "footer"
+      ? "text-white/55 hover:text-white"
+      : "text-ink-500 hover:text-trust-700";
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-0.5 ${className}`} dir="ltr">
       {socials.map((s) => (
         <a
           key={s.name}
           href={s.href}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={s.name}
-          className={`grid ${sizeClasses} place-items-center rounded-full border border-border/50 bg-card/50 text-ink-600 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:border-trust-300/70 hover:bg-trust-50/70 hover:text-trust-700 hover:shadow-md ${iconClassName}`}
+          aria-label={s.label}
+          title={s.label}
+          className={`group inline-flex items-center justify-center rounded-md ${padding} transition-all duration-300 ease-out ${base} hover:-translate-y-px`}
         >
-          <s.icon className={iconSize} />
+          <s.icon
+            className={`${iconSize} transition-transform duration-300 ease-out group-hover:scale-110`}
+          />
         </a>
       ))}
     </div>
