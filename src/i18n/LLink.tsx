@@ -1,4 +1,4 @@
-import { Link, useParams, type LinkComponentProps } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { forwardRef } from "react";
 import { useLocale } from "./LocaleProvider";
 
@@ -9,16 +9,13 @@ import { useLocale } from "./LocaleProvider";
  * Usage: <LLink to="/$lang/about">…</LLink>
  *        <LLink to="/$lang/brands/$slug" params={{ slug }}>…</LLink>
  */
-type AnyProps = LinkComponentProps<"a"> & { params?: Record<string, unknown> };
-
-export const LLink = forwardRef<HTMLAnchorElement, AnyProps>(function LLink(
-  { params, ...rest },
+export const LLink = forwardRef<HTMLAnchorElement, any>(function LLink(
+  { params, ...rest }: any,
   ref,
 ) {
-  const cur = useParams({ strict: false }) as Record<string, unknown>;
+  const cur = useParams({ strict: false }) as Record<string, unknown> | undefined;
   const { lang } = useLocale();
-  const merged = { lang: (cur?.lang as string) ?? lang, ...((params ?? {}) as Record<string, unknown>) };
-  // Cast: type-safe `to` would require per-route typing; the wrapper is
-  // intentionally loose so existing call sites compile unchanged.
-  return <Link ref={ref as never} {...(rest as never)} params={merged as never} />;
+  const incoming = (params && typeof params === "object" ? params : {}) as Record<string, unknown>;
+  const merged: Record<string, unknown> = { lang: (cur?.lang as string) ?? lang, ...incoming };
+  return <Link ref={ref as never} {...rest} params={merged as never} />;
 });
