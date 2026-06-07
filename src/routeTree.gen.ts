@@ -16,6 +16,7 @@ import { Route as BrandsRouteImport } from './routes/brands'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandsIndexRouteImport } from './routes/brands.index'
+import { Route as BrandsSlugRouteImport } from './routes/brands.$slug'
 import { Route as BrandsSlugIndexRouteImport } from './routes/brands.$slug.index'
 import { Route as BrandsSlugProductSlugRouteImport } from './routes/brands.$slug.$productSlug'
 
@@ -54,15 +55,20 @@ const BrandsIndexRoute = BrandsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BrandsRoute,
 } as any)
-const BrandsSlugIndexRoute = BrandsSlugIndexRouteImport.update({
-  id: '/$slug/',
-  path: '/$slug/',
+const BrandsSlugRoute = BrandsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => BrandsRoute,
 } as any)
+const BrandsSlugIndexRoute = BrandsSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BrandsSlugRoute,
+} as any)
 const BrandsSlugProductSlugRoute = BrandsSlugProductSlugRouteImport.update({
-  id: '/$slug/$productSlug',
-  path: '/$slug/$productSlug',
-  getParentRoute: () => BrandsRoute,
+  id: '/$productSlug',
+  path: '/$productSlug',
+  getParentRoute: () => BrandsSlugRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
+  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
   '/brands/$slug/': typeof BrandsSlugIndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesById {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
+  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
   '/brands/$slug/': typeof BrandsSlugIndexRoute
@@ -107,6 +115,7 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
+    | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
     | '/brands/$slug/'
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
+    | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
     | '/brands/$slug/'
@@ -193,33 +203,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsIndexRouteImport
       parentRoute: typeof BrandsRoute
     }
+    '/brands/$slug': {
+      id: '/brands/$slug'
+      path: '/$slug'
+      fullPath: '/brands/$slug'
+      preLoaderRoute: typeof BrandsSlugRouteImport
+      parentRoute: typeof BrandsRoute
+    }
     '/brands/$slug/': {
       id: '/brands/$slug/'
-      path: '/$slug'
+      path: '/'
       fullPath: '/brands/$slug/'
       preLoaderRoute: typeof BrandsSlugIndexRouteImport
-      parentRoute: typeof BrandsRoute
+      parentRoute: typeof BrandsSlugRoute
     }
     '/brands/$slug/$productSlug': {
       id: '/brands/$slug/$productSlug'
-      path: '/$slug/$productSlug'
+      path: '/$productSlug'
       fullPath: '/brands/$slug/$productSlug'
       preLoaderRoute: typeof BrandsSlugProductSlugRouteImport
-      parentRoute: typeof BrandsRoute
+      parentRoute: typeof BrandsSlugRoute
     }
   }
 }
 
-interface BrandsRouteChildren {
-  BrandsIndexRoute: typeof BrandsIndexRoute
+interface BrandsSlugRouteChildren {
   BrandsSlugProductSlugRoute: typeof BrandsSlugProductSlugRoute
   BrandsSlugIndexRoute: typeof BrandsSlugIndexRoute
 }
 
-const BrandsRouteChildren: BrandsRouteChildren = {
-  BrandsIndexRoute: BrandsIndexRoute,
+const BrandsSlugRouteChildren: BrandsSlugRouteChildren = {
   BrandsSlugProductSlugRoute: BrandsSlugProductSlugRoute,
   BrandsSlugIndexRoute: BrandsSlugIndexRoute,
+}
+
+const BrandsSlugRouteWithChildren = BrandsSlugRoute._addFileChildren(
+  BrandsSlugRouteChildren,
+)
+
+interface BrandsRouteChildren {
+  BrandsSlugRoute: typeof BrandsSlugRouteWithChildren
+  BrandsIndexRoute: typeof BrandsIndexRoute
+}
+
+const BrandsRouteChildren: BrandsRouteChildren = {
+  BrandsSlugRoute: BrandsSlugRouteWithChildren,
+  BrandsIndexRoute: BrandsIndexRoute,
 }
 
 const BrandsRouteWithChildren =
