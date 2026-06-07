@@ -98,6 +98,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "نبني حياة أكثر صحة... ونصنع مستقبلًا أقوى.",
       },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "ركن التوفير كوزمتك للتجارة" },
+      { name: "description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
+      { property: "og:description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
+      { name: "twitter:description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Ns6wyimbyrbMqmjH3Dg7bkm1Ue13/social-images/social-1780873368377-1000203342.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Ns6wyimbyrbMqmjH3Dg7bkm1Ue13/social-images/social-1780873368377-1000203342.webp" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
