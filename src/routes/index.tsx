@@ -160,21 +160,30 @@ function Home() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 to="/brands"
-                className="group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5"
                 style={{
                   background:
-                    "linear-gradient(180deg, oklch(0.52 0.16 245), oklch(0.40 0.15 245))",
+                    "linear-gradient(180deg, oklch(0.54 0.16 245), oklch(0.40 0.15 245))",
                   boxShadow:
-                    "0 16px 32px -12px oklch(0.32 0.13 245 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.25)",
+                    "0 18px 36px -14px oklch(0.32 0.13 245 / 0.60), 0 4px 10px -4px oklch(0.32 0.13 245 / 0.30), inset 0 1px 0 oklch(1 0 0 / 0.28), inset 0 -1px 0 oklch(0 0 0 / 0.10)",
                 }}
               >
-                <span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-1/2 opacity-60"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, oklch(1 0 0 / 0.18), transparent)",
+                  }}
+                />
+                <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">
                   ←
                 </span>
-                استكشف المنتجات
+                <span className="relative">استكشف المنتجات</span>
               </Link>
               <WhatsAppCTA number={id.whatsapp_number}>تواصل معنا</WhatsAppCTA>
             </div>
+
           </div>
 
           {/* Glass orb stage */}

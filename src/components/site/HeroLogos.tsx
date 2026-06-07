@@ -27,6 +27,18 @@ const BRANDS = [
 export function HeroLogoStage() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[560px]">
+      {/* Ambient conic glow behind orb (very subtle premium lighting) */}
+      <div
+        className="pointer-events-none absolute inset-[-6%] rounded-full"
+        style={{
+          background:
+            "conic-gradient(from 210deg at 50% 50%, oklch(0.46 0.16 245 / 0.16), oklch(0.68 0.17 138 / 0.08), oklch(0.46 0.16 245 / 0.14), oklch(0.32 0.13 245 / 0.20), oklch(0.46 0.16 245 / 0.16))",
+          filter: "blur(46px)",
+          opacity: 0.85,
+        }}
+        aria-hidden
+      />
+
       {/* Decorative curved blue wave behind orb (outer side) */}
       <svg
         className="pointer-events-none absolute -right-[18%] -top-[10%] h-[130%] w-[130%] opacity-90"
@@ -53,8 +65,8 @@ export function HeroLogoStage() {
         className="absolute inset-[4%] rounded-full"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.18), transparent 70%)",
-          filter: "blur(24px)",
+            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.20), transparent 70%)",
+          filter: "blur(28px)",
         }}
         aria-hidden
       />
@@ -64,9 +76,9 @@ export function HeroLogoStage() {
         className="absolute inset-[8%] rounded-full border border-white/80 backdrop-blur-xl"
         style={{
           background:
-            "radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.95) 0%, oklch(0.97 0.02 245 / 0.7) 45%, oklch(0.92 0.05 245 / 0.55) 75%, oklch(0.85 0.07 245 / 0.45) 100%)",
+            "radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.96) 0%, oklch(0.97 0.02 245 / 0.72) 45%, oklch(0.92 0.05 245 / 0.55) 75%, oklch(0.85 0.07 245 / 0.45) 100%)",
           boxShadow:
-            "0 40px 100px -30px oklch(0.32 0.13 245 / 0.45), inset 0 2px 0 oklch(1 0 0 / 0.95), inset 0 -30px 60px oklch(0.46 0.16 245 / 0.12)",
+            "0 50px 120px -32px oklch(0.32 0.13 245 / 0.50), 0 20px 50px -20px oklch(0.32 0.13 245 / 0.32), inset 0 2px 0 oklch(1 0 0 / 0.96), inset 0 -30px 60px oklch(0.46 0.16 245 / 0.14), inset 0 0 0 1px oklch(0.68 0.17 138 / 0.06)",
         }}
         aria-hidden
       />
@@ -155,11 +167,11 @@ export function HeroBrandStrip() {
       className="relative overflow-hidden rounded-[36px] border border-white/80"
       style={{
         background:
-          "linear-gradient(180deg, oklch(1 0 0 / 0.92) 0%, oklch(0.99 0.005 245 / 0.86) 100%)",
-        backdropFilter: "saturate(200%) blur(28px)",
-        WebkitBackdropFilter: "saturate(200%) blur(28px)",
+          "linear-gradient(180deg, oklch(1 0 0 / 0.94) 0%, oklch(0.99 0.005 245 / 0.88) 100%)",
+        backdropFilter: "saturate(200%) blur(32px)",
+        WebkitBackdropFilter: "saturate(200%) blur(32px)",
         boxShadow:
-          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.05), 0 4px 10px oklch(0.32 0.13 245 / 0.06), 0 30px 60px -24px oklch(0.32 0.13 245 / 0.32), 0 60px 120px -50px oklch(0.32 0.13 245 / 0.28)",
+          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.06), 0 6px 14px oklch(0.32 0.13 245 / 0.06), 0 36px 70px -28px oklch(0.32 0.13 245 / 0.36), 0 70px 140px -55px oklch(0.32 0.13 245 / 0.30)",
       }}
     >
       {/* Top hairline gradient */}
@@ -167,23 +179,34 @@ export function HeroBrandStrip() {
         className="pointer-events-none absolute inset-x-10 top-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.4) 30%, oklch(0.68 0.17 138 / 0.4) 70%, transparent)",
+            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.45) 30%, oklch(0.68 0.17 138 / 0.45) 70%, transparent)",
         }}
         aria-hidden
       />
-      <div className="grid grid-cols-4 gap-x-4 gap-y-7 px-6 py-8 md:grid-cols-8 md:gap-x-7 md:px-12 md:py-11">
-        {BRANDS.map((b) => (
+      {/* Soft inner top sheen */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-16"
+        style={{
+          background:
+            "linear-gradient(180deg, oklch(1 0 0 / 0.6), transparent)",
+        }}
+        aria-hidden
+      />
+      <div className="relative grid grid-cols-4 gap-x-3 gap-y-8 px-5 py-9 md:grid-cols-8 md:gap-x-6 md:px-12 md:py-12">
+        {BRANDS.map((b, i) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className="group grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32"
+            className={`group relative grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32 ${
+              i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+12px)] md:before:top-1/2 md:before:h-10 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/40 md:before:to-transparent" : ""
+            }`}
           >
             <img
               src={b.url}
               alt={`شعار ${b.name}`}
-              className="max-h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-110 md:max-h-28"
+              className="max-h-[88px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.08] md:max-h-[120px]"
               loading="lazy"
               decoding="async"
               style={{ imageRendering: "auto" }}
@@ -194,6 +217,7 @@ export function HeroBrandStrip() {
     </div>
   );
 }
+
 
 /* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
 const FEATURES = [
