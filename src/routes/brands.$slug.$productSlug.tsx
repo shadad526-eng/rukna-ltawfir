@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getCorporateIdentity, getProductBySlug } from "@/lib/site.functions";
+import { getCorporateIdentity, getProductBySlug, listBrandProducts } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
@@ -12,12 +12,17 @@ const productQO = (brandSlug: string, productSlug: string) =>
     queryKey: ["product", brandSlug, productSlug],
     queryFn: () => getProductBySlug({ data: { brandSlug, productSlug } }),
   });
+const brandProductsQO = (brandSlug: string) =>
+  queryOptions({ queryKey: ["brand-products", brandSlug], queryFn: () => listBrandProducts({ data: { brandSlug } }) });
 
 export const Route = createFileRoute("/brands/$slug/$productSlug")({
   loader: async ({ context, params }) => {
     const p = await context.queryClient.ensureQueryData(productQO(params.slug, params.productSlug));
     if (!p) throw notFound();
-    await context.queryClient.ensureQueryData(identityQO);
+    await Promise.all([
+      context.queryClient.ensureQueryData(identityQO),
+      context.queryClient.ensureQueryData(brandProductsQO(params.slug)),
+    ]);
   },
   head: ({ params }) => ({
     meta: [
