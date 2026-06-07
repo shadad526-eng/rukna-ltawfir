@@ -152,39 +152,41 @@ export function HeroLogoStage() {
 export function HeroBrandStrip() {
   return (
     <div
-      className="relative overflow-hidden rounded-[32px] border border-white/70"
+      className="relative overflow-hidden rounded-[36px] border border-white/80"
       style={{
         background:
-          "linear-gradient(180deg, oklch(1 0 0 / 0.96) 0%, oklch(0.99 0.005 245 / 0.92) 100%)",
-        backdropFilter: "saturate(180%) blur(22px)",
-        WebkitBackdropFilter: "saturate(180%) blur(22px)",
+          "linear-gradient(180deg, oklch(1 0 0 / 0.92) 0%, oklch(0.99 0.005 245 / 0.86) 100%)",
+        backdropFilter: "saturate(200%) blur(28px)",
+        WebkitBackdropFilter: "saturate(200%) blur(28px)",
         boxShadow:
-          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 2px 4px oklch(0.32 0.13 245 / 0.04), 0 24px 48px -20px oklch(0.32 0.13 245 / 0.28), 0 48px 96px -40px oklch(0.32 0.13 245 / 0.22)",
+          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.05), 0 4px 10px oklch(0.32 0.13 245 / 0.06), 0 30px 60px -24px oklch(0.32 0.13 245 / 0.32), 0 60px 120px -50px oklch(0.32 0.13 245 / 0.28)",
       }}
     >
       {/* Top hairline gradient */}
       <div
-        className="pointer-events-none absolute inset-x-8 top-0 h-px"
+        className="pointer-events-none absolute inset-x-10 top-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.35) 30%, oklch(0.68 0.17 138 / 0.35) 70%, transparent)",
+            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.4) 30%, oklch(0.68 0.17 138 / 0.4) 70%, transparent)",
         }}
         aria-hidden
       />
-      <div className="grid grid-cols-4 gap-x-3 gap-y-6 px-5 py-7 md:grid-cols-8 md:gap-x-6 md:px-10 md:py-9">
+      <div className="grid grid-cols-4 gap-x-4 gap-y-7 px-6 py-8 md:grid-cols-8 md:gap-x-7 md:px-12 md:py-11">
         {BRANDS.map((b) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className="group grid h-20 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-24"
+            className="group grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32"
           >
             <img
               src={b.url}
               alt={`شعار ${b.name}`}
-              className="max-h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105 md:max-h-20"
+              className="max-h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-110 md:max-h-28"
               loading="lazy"
+              decoding="async"
+              style={{ imageRendering: "auto" }}
             />
           </Link>
         ))}
