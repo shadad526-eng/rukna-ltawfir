@@ -5,26 +5,30 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Rukn Al-Tawfir Cosmetic Trading — Corporate Design System (Phase C locked).
- * All values in oklch. Arabic-first / RTL. No human faces in generated visuals.
+ * Rukn Al-Tawfir Cosmetic Trading — Corporate Design System.
+ * Palette extracted directly from the official corporate logo:
+ *   Corporate Blue  #0C6CB4  → trust
+ *   Corporate Green #6CA848  → leaf / accent
+ * Enterprise tone: restrained gradients, premium neutrals, Arabic-first RTL.
  */
 
 @theme inline {
-  /* Radius scale */
   --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-2xl: 36px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
 
-  /* Corporate palette */
+  /* Corporate palette (logo-derived, locked) */
   --color-trust-900: var(--trust-900);
   --color-trust-700: var(--trust-700);
   --color-trust-500: var(--trust-500);
+  --color-trust-300: var(--trust-300);
+  --color-trust-50:  var(--trust-50);
   --color-leaf-700: var(--leaf-700);
   --color-leaf-500: var(--leaf-500);
   --color-leaf-300: var(--leaf-300);
-  --color-gold-500: var(--gold-500);
+  --color-leaf-50:  var(--leaf-50);
   --color-sand-50: var(--sand-50);
   --color-sand-100: var(--sand-100);
   --color-ink-900: var(--ink-900);
@@ -51,75 +55,77 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Typography */
   --font-arabic: "IBM Plex Sans Arabic", "Noto Sans Arabic", system-ui, sans-serif;
   --font-arabic-body: "Noto Sans Arabic", "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-latin: "Inter Tight", "Inter", system-ui, sans-serif;
 }
 
 :root {
-  /* Corporate palette — Phase C locked */
-  --trust-900: oklch(0.24 0.07 258);
-  --trust-700: oklch(0.36 0.12 258);
-  --trust-500: oklch(0.52 0.13 258);
-  --leaf-700: oklch(0.46 0.14 148);
-  --leaf-500: oklch(0.62 0.17 148);
-  --leaf-300: oklch(0.82 0.10 148);
-  --gold-500: oklch(0.78 0.15 85);
-  --sand-50: oklch(0.985 0.005 95);
-  --sand-100: oklch(0.965 0.008 90);
-  --ink-900: oklch(0.18 0.02 260);
-  --ink-600: oklch(0.42 0.02 260);
+  /* === Corporate palette — derived directly from the official logo === */
+  /* Blue #0C6CB4 */
+  --trust-900: oklch(0.32 0.13 245);
+  --trust-700: oklch(0.46 0.16 245);  /* primary corporate */
+  --trust-500: oklch(0.58 0.15 245);
+  --trust-300: oklch(0.80 0.08 245);
+  --trust-50:  oklch(0.97 0.018 245);
+  /* Green #6CA848 */
+  --leaf-700: oklch(0.58 0.16 138);
+  --leaf-500: oklch(0.68 0.17 138);   /* accent / leaf */
+  --leaf-300: oklch(0.84 0.10 138);
+  --leaf-50:  oklch(0.97 0.025 138);
 
-  /* Shadows tinted with trust-blue */
-  --shadow-sm: 0 1px 2px oklch(0.24 0.07 258 / 0.06);
-  --shadow-md: 0 6px 18px oklch(0.24 0.07 258 / 0.12);
-  --shadow-lg: 0 18px 40px oklch(0.24 0.07 258 / 0.18);
-  --shadow-glow-green: 0 8px 32px oklch(0.62 0.17 148 / 0.35);
+  --sand-50:  oklch(0.985 0.004 95);
+  --sand-100: oklch(0.965 0.006 95);
+  --ink-900:  oklch(0.18 0.02 250);
+  --ink-600:  oklch(0.42 0.02 250);
 
-  /* Semantic mapping */
-  --radius: 12px;
-  --background: oklch(0.985 0.005 95);
-  --foreground: oklch(0.18 0.02 260);
+  --shadow-sm: 0 1px 2px oklch(0.32 0.13 245 / 0.06);
+  --shadow-md: 0 4px 14px oklch(0.32 0.13 245 / 0.10);
+  --shadow-lg: 0 16px 36px oklch(0.32 0.13 245 / 0.14);
+  --shadow-glow-green: 0 6px 24px oklch(0.68 0.17 138 / 0.30);
+
+  --radius: 10px;
+  --background: oklch(0.985 0.004 95);
+  --foreground: oklch(0.18 0.02 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 260);
+  --card-foreground: oklch(0.18 0.02 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 260);
-  --primary: oklch(0.36 0.12 258);
-  --primary-foreground: oklch(0.985 0.005 95);
-  --secondary: oklch(0.46 0.14 148);
-  --secondary-foreground: oklch(0.985 0.005 95);
-  --muted: oklch(0.965 0.008 90);
-  --muted-foreground: oklch(0.42 0.02 260);
-  --accent: oklch(0.62 0.17 148);
-  --accent-foreground: oklch(0.985 0.005 95);
+  --popover-foreground: oklch(0.18 0.02 250);
+  --primary: oklch(0.46 0.16 245);              /* corporate blue */
+  --primary-foreground: oklch(0.985 0.004 95);
+  --secondary: oklch(0.97 0.018 245);           /* soft trust tint */
+  --secondary-foreground: oklch(0.32 0.13 245);
+  --muted: oklch(0.965 0.006 95);
+  --muted-foreground: oklch(0.42 0.02 250);
+  --accent: oklch(0.68 0.17 138);               /* corporate green */
+  --accent-foreground: oklch(0.985 0.004 95);
   --destructive: oklch(0.55 0.22 27);
-  --destructive-foreground: oklch(0.985 0.005 95);
-  --border: oklch(0.90 0.01 90);
-  --input: oklch(0.90 0.01 90);
-  --ring: oklch(0.36 0.12 258);
+  --destructive-foreground: oklch(0.985 0.004 95);
+  --border: oklch(0.91 0.008 250);
+  --input: oklch(0.91 0.008 250);
+  --ring: oklch(0.46 0.16 245);
 }
 
 .dark {
-  --background: oklch(0.18 0.02 260);
-  --foreground: oklch(0.985 0.005 95);
-  --card: oklch(0.24 0.07 258);
-  --card-foreground: oklch(0.985 0.005 95);
-  --popover: oklch(0.24 0.07 258);
-  --popover-foreground: oklch(0.985 0.005 95);
-  --primary: oklch(0.62 0.17 148);
-  --primary-foreground: oklch(0.18 0.02 260);
-  --secondary: oklch(0.36 0.12 258);
-  --secondary-foreground: oklch(0.985 0.005 95);
-  --muted: oklch(0.28 0.04 260);
-  --muted-foreground: oklch(0.72 0.02 260);
-  --accent: oklch(0.78 0.15 85);
-  --accent-foreground: oklch(0.18 0.02 260);
+  --background: oklch(0.18 0.02 250);
+  --foreground: oklch(0.985 0.004 95);
+  --card: oklch(0.24 0.06 245);
+  --card-foreground: oklch(0.985 0.004 95);
+  --popover: oklch(0.24 0.06 245);
+  --popover-foreground: oklch(0.985 0.004 95);
+  --primary: oklch(0.68 0.17 138);
+  --primary-foreground: oklch(0.18 0.02 250);
+  --secondary: oklch(0.32 0.13 245);
+  --secondary-foreground: oklch(0.985 0.004 95);
+  --muted: oklch(0.28 0.04 250);
+  --muted-foreground: oklch(0.72 0.02 250);
+  --accent: oklch(0.68 0.17 138);
+  --accent-foreground: oklch(0.18 0.02 250);
   --destructive: oklch(0.70 0.19 22);
-  --destructive-foreground: oklch(0.985 0.005 95);
+  --destructive-foreground: oklch(0.985 0.004 95);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.62 0.17 148);
+  --ring: oklch(0.68 0.17 138);
 }
 
 @layer base {
@@ -143,6 +149,6 @@
 }
 
 @keyframes wa-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.17 148 / 0.45); }
-  50% { box-shadow: 0 0 0 14px oklch(0.62 0.17 148 / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.68 0.17 138 / 0.45); }
+  50% { box-shadow: 0 0 0 12px oklch(0.68 0.17 138 / 0); }
 }

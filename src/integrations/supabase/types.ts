@@ -269,6 +269,63 @@ export type Database = {
           },
         ]
       }
+      catalog_requests: {
+        Row: {
+          catalog_id: string
+          company: string | null
+          country: string | null
+          created_at: string
+          email: string
+          full_name: string
+          handled_by: string | null
+          id: string
+          ip_hash: string | null
+          phone: string | null
+          purpose: string | null
+          source_url: string | null
+          staff_notes: string | null
+          status: Database["public"]["Enums"]["inquiry_status"]
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          catalog_id: string
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          phone?: string | null
+          purpose?: string | null
+          source_url?: string | null
+          staff_notes?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          catalog_id?: string
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          phone?: string | null
+          purpose?: string | null
+          source_url?: string | null
+          staff_notes?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       catalogs: {
         Row: {
           brand_id: string | null
