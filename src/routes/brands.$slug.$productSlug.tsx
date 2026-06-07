@@ -271,7 +271,7 @@ function ProductDetailPage() {
             </div>
           </div>
         </section>
-      ) : null
+      ) : null}
 
       <SiteFooter
         legalNameAr={id.legal_name_ar}
