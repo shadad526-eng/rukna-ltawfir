@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandMarquee } from "@/components/site/BrandMarquee";
 import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
+import { HeroLogoStage, HeroBrandStrip } from "@/components/site/HeroLogos";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
