@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getCorporateIdentity, getProductBySlug } from "@/lib/site.functions";
+import { getCorporateIdentity, getProductBySlug, listBrandProducts } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
@@ -12,12 +12,17 @@ const productQO = (brandSlug: string, productSlug: string) =>
     queryKey: ["product", brandSlug, productSlug],
     queryFn: () => getProductBySlug({ data: { brandSlug, productSlug } }),
   });
+const brandProductsQO = (brandSlug: string) =>
+  queryOptions({ queryKey: ["brand-products", brandSlug], queryFn: () => listBrandProducts({ data: { brandSlug } }) });
 
 export const Route = createFileRoute("/brands/$slug/$productSlug")({
   loader: async ({ context, params }) => {
     const p = await context.queryClient.ensureQueryData(productQO(params.slug, params.productSlug));
     if (!p) throw notFound();
-    await context.queryClient.ensureQueryData(identityQO);
+    await Promise.all([
+      context.queryClient.ensureQueryData(identityQO),
+      context.queryClient.ensureQueryData(brandProductsQO(params.slug)),
+    ]);
   },
   head: ({ params }) => ({
     meta: [
@@ -46,8 +51,10 @@ function ProductDetailPage() {
   const params = Route.useParams();
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: p } = useSuspenseQuery(productQO(params.slug, params.productSlug));
+  const { data: brandProducts } = useSuspenseQuery(brandProductsQO(params.slug));
   const [activeImage, setActiveImage] = useState<string | null>(null);
   if (!p) return null;
+  const related = brandProducts.filter((x) => x.slug !== p.slug).slice(0, 4);
 
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
   const hero = activeImage ?? p.cover_url;
@@ -230,6 +237,39 @@ function ProductDetailPage() {
           ) : null}
         </div>
       </section>
+
+      {related.length > 0 ? (
+        <section className="border-t border-border bg-card">
+          <div className="mx-auto max-w-7xl px-4 py-14 md:px-8">
+            <div className="hq-eyebrow" style={{ color: accent as string }}>منتجات ذات صلة</div>
+            <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
+              المزيد من {p.brand.name_ar}
+            </h2>
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {related.map((r) => (
+                <Link
+                  key={r.id}
+                  to="/brands/$slug/$productSlug"
+                  params={{ slug: p.brand.slug, productSlug: r.slug }}
+                  className="prem-card group flex flex-col"
+                >
+                  <div className="podium grid aspect-square place-items-center p-5">
+                    {r.cover_url ? (
+                      <img src={r.cover_url} alt={r.name_ar} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">عبوة رسمية</span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <div className="font-arabic text-sm font-bold text-foreground line-clamp-2">{r.name_ar}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-ink-600">{r.name_en}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <SiteFooter
         legalNameAr={id.legal_name_ar}
