@@ -67,44 +67,45 @@ function CatalogsHub() {
 
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         {catalogs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-            <h3 className="text-lg font-bold text-foreground">لم يتم نشر كتالوجات بعد</h3>
-            <p className="mt-2 text-sm text-muted-foreground">سيتم رفع الكتالوجات الرسمية قريبًا من قبل فريق المحتوى.</p>
+          <div className="prem-card p-10 text-center">
+            <h3 className="font-arabic text-xl font-bold text-foreground">لم يتم نشر كتالوجات بعد</h3>
+            <p className="mt-3 text-sm leading-loose text-ink-600">سيتم رفع الكتالوجات الرسمية قريبًا من قبل فريق المحتوى.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {catalogs.map((c) => {
               const vis = VISIBILITY_LABEL[c.visibility];
               return (
-                <article key={c.id} className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-                  <div className="flex aspect-[3/4] items-center justify-center overflow-hidden border-b border-border bg-background p-6">
+                <article key={c.id} className="prem-card group flex h-full flex-col overflow-hidden">
+                  <div className="podium relative flex aspect-[3/4] items-center justify-center border-b border-border/70 p-6">
                     {c.cover_url ? (
-                      <img src={c.cover_url} alt={c.title_ar} className="size-full object-contain" loading="lazy" />
+                      <img src={c.cover_url} alt={c.title_ar} className="size-full object-contain transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
                     ) : (
                       <span className="text-xs text-muted-foreground">غلاف الكتالوج</span>
                     )}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
                   </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <span className={`inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${vis.tone}`}>
+                  <div className="flex flex-1 flex-col p-6">
+                    <span className={`inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${vis.tone}`}>
                       {vis.label}
                     </span>
-                    <h3 className="mt-3 text-base font-bold text-foreground">{c.title_ar}</h3>
+                    <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{c.title_ar}</h3>
                     {c.brand_name_ar ? (
-                      <div className="mt-0.5 text-xs text-muted-foreground">{c.brand_name_ar}{c.year ? ` · ${c.year}` : ""}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{c.brand_name_ar}{c.year ? ` · ${c.year}` : ""}</div>
                     ) : c.year ? (
-                      <div className="mt-0.5 text-xs text-muted-foreground">{c.year}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{c.year}</div>
                     ) : null}
                     {c.description_ar ? (
-                      <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">{c.description_ar}</p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-loose text-ink-600">{c.description_ar}</p>
                     ) : null}
 
-                    <div className="mt-auto pt-4">
+                    <div className="mt-auto pt-5">
                       {c.visibility === "public" && c.pdf_url ? (
                         <a
                           href={c.pdf_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                         >
                           تحميل الكتالوج PDF
                         </a>
@@ -112,7 +113,7 @@ function CatalogsHub() {
                         <button
                           type="button"
                           onClick={() => setRequestFor(c)}
-                          className="inline-flex w-full items-center justify-center rounded-lg border border-primary bg-background px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-secondary"
+                          className="inline-flex w-full items-center justify-center rounded-xl border border-primary/40 bg-background px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-secondary"
                         >
                           طلب وصول للكتالوج
                         </button>
@@ -128,7 +129,7 @@ function CatalogsHub() {
 
       {/* Governance note */}
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6">
-        <div className="rounded-2xl border border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground">
+        <div className="prem-card p-6 text-sm leading-loose text-ink-600 md:p-7">
           <span className="font-semibold text-foreground">حوكمة الكتالوجات:</span> الكتالوجات المقيدة و B2B لا يتم تنزيلها مباشرة.
           بعد تقديم الطلب يقوم فريقنا بمراجعة الجهة الطالبة ثم يتم إرسال رابط آمن للوصول إلى الكتالوج المطلوب.
           لا تتضمن الكتالوجات العامة أي بيانات تجارية أو أسعار جملة.

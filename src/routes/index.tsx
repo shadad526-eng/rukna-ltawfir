@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 import { HeroLogoStage, HeroBrandStrip, HeroFeaturesStrip } from "@/components/site/HeroLogos";
+import { BrandCard } from "@/components/site/BrandCard";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
@@ -240,50 +241,9 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {brands.map((b, idx) => {
-              const accent = (b.brand_tokens?.accent as string) || "var(--trust-700)";
-              return (
-                <Link
-                  key={b.id}
-                  to="/brands/$slug"
-                  params={{ slug: b.slug }}
-                  className="prem-card group relative flex flex-col"
-                >
-                  <div className="absolute right-4 top-4 z-10 rounded-full glass px-2 py-0.5 text-[10px] font-bold tracking-widest text-trust-700">
-                    {String(idx + 1).padStart(2, "0")}
-                  </div>
-                  <div
-                    className="absolute inset-x-0 top-0 h-0.5 opacity-70"
-                    style={{ background: accent }}
-                    aria-hidden
-                  />
-                  <div className="podium relative grid h-44 place-items-center p-6">
-                    {b.logo_url ? (
-                      <img
-                        src={b.logo_url}
-                        alt={`شعار ${b.name_ar}`}
-                        className="relative max-h-24 w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="text-sm font-bold text-muted-foreground">{b.name_en}</span>
-                    )}
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
-                  </div>
-                  <div className="flex-1 p-5">
-                    <h3 className="font-arabic text-lg font-bold text-foreground">{b.name_ar}</h3>
-                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-600">{b.name_en}</div>
-                    {b.tagline_ar ? (
-                      <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-ink-600">{b.tagline_ar}</p>
-                    ) : null}
-                  </div>
-                  <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs font-semibold text-trust-700">
-                    <span>دخول بوابة العلامة</span>
-                    <span aria-hidden className="transition-transform group-hover:-translate-x-1">←</span>
-                  </div>
-                </Link>
-              );
-            })}
+            {brands.map((b, idx) => (
+              <BrandCard key={b.id} brand={b} index={idx} ctaLabel="دخول بوابة العلامة" />
+            ))}
           </div>
         </div>
       </section>
@@ -350,44 +310,14 @@ function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {brands.map((b) => {
-            const accent = (b.brand_tokens?.accent as string) || "var(--leaf-500)";
-            return (
-              <Link
-                key={b.id}
-                to="/brands/$slug"
-                params={{ slug: b.slug }}
-                className="prem-card group relative flex flex-col items-stretch overflow-hidden"
-              >
-                <div
-                  className="absolute inset-x-0 top-0 h-1 opacity-90"
-                  style={{ background: accent }}
-                  aria-hidden
-                />
-                <div className="podium grid h-40 place-items-center p-6">
-                  {b.logo_url ? (
-                    <img
-                      src={b.logo_url}
-                      alt={`شعار ${b.name_ar}`}
-                      className="max-h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="text-sm font-bold text-muted-foreground">{b.name_en}</span>
-                  )}
-                </div>
-                <div className="border-t border-border bg-card/60 p-4 text-center">
-                  <div className="font-arabic text-sm font-bold text-foreground">{b.name_ar}</div>
-                  <div
-                    className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold"
-                    style={{ color: accent }}
-                  >
-                    استكشف المجموعة <span aria-hidden>←</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {brands.map((b) => (
+            <BrandCard
+              key={b.id}
+              brand={b}
+              compact
+              ctaLabel="استكشف المجموعة"
+            />
+          ))}
         </div>
       </section>
 
@@ -404,21 +334,22 @@ function Home() {
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {KNOWLEDGE.map((k) => (
-              <article key={k.title} className="prem-card group flex flex-col overflow-hidden">
-                <div className="relative h-44 overflow-hidden">
+              <article key={k.title} className="prem-card group flex h-full flex-col overflow-hidden">
+                <div className="relative h-48 overflow-hidden rounded-b-[2rem]">
                   <div className="absolute inset-0 aurora-mesh" aria-hidden />
-                  <div className="absolute inset-0 grid place-items-center">
+                  <div className="absolute inset-x-6 top-6 flex justify-start">
                     <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
                       {k.eyebrow}
                     </div>
                   </div>
+                  <div className="absolute inset-x-6 bottom-5 h-px prem-divider opacity-70" aria-hidden />
                 </div>
-                <div className="flex-1 p-5">
-                  <h3 className="font-arabic text-base font-bold leading-snug text-foreground">{k.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{k.body}</p>
-                </div>
-                <div className="border-t border-border bg-secondary/40 px-5 py-3 text-xs font-bold text-trust-700">
-                  قراءة المزيد ←
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
+                  <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
+                  <div className="mt-auto pt-6 text-xs font-bold text-trust-700">
+                    قراءة المزيد ←
+                  </div>
                 </div>
               </article>
             ))}
@@ -429,7 +360,7 @@ function Home() {
       {/* ───────── 7. PARTNERSHIP ───────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 premium-shadow md:p-10">
+          <div className="premium-panel overflow-hidden p-8 md:p-10">
             <div className="absolute -right-16 -top-16 size-56 rounded-full bg-trust-700/10 blur-3xl" aria-hidden />
             <div className="hq-eyebrow">الكتالوجات الرسمية</div>
             <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
@@ -447,7 +378,7 @@ function Home() {
               دخول مكتبة الكتالوجات <span aria-hidden>←</span>
             </Link>
           </div>
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 premium-shadow md:p-10">
+          <div className="premium-panel overflow-hidden p-8 md:p-10">
             <div className="absolute -left-16 -top-16 size-56 rounded-full bg-leaf-500/15 blur-3xl" aria-hidden />
             <div className="hq-eyebrow" style={{ color: "var(--leaf-700)" }}>شراكات الأعمال</div>
             <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">

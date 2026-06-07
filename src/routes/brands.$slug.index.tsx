@@ -10,6 +10,7 @@ import {
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
+import { BrandCard } from "@/components/site/BrandCard";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -252,23 +253,23 @@ function BrandDetail() {
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {brandCatalogs.map((c) => (
-              <article key={c.id} className="prem-card flex items-center gap-4 p-5">
-                <div className="grid size-16 shrink-0 place-items-center rounded-xl bg-secondary text-2xl text-trust-700">📕</div>
+              <article key={c.id} className="prem-card flex items-center gap-4 p-5 md:p-6">
+                <div className="grid size-16 shrink-0 place-items-center rounded-[1.35rem] border border-border/70 bg-secondary/75 text-2xl text-trust-700 shadow-[0_18px_32px_-24px_oklch(0.32_0.13_245/0.32)]">📕</div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-arabic text-sm font-bold text-foreground">{c.title_ar}</div>
-                  {c.year ? <div className="text-[11px] text-ink-600">{c.year}</div> : null}
-                  <div className="mt-2">
+                  <div className="font-arabic text-sm font-bold text-foreground md:text-base">{c.title_ar}</div>
+                  {c.year ? <div className="mt-1 text-[11px] text-ink-600">{c.year}</div> : null}
+                  <div className="mt-3">
                     {c.pdf_url ? (
                       <a
                         href={c.pdf_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-bold text-trust-700 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline"
                       >
                         تنزيل الكتالوج (PDF) ↗
                       </a>
                     ) : (
-                      <Link to="/catalogs" className="text-xs font-bold text-trust-700 hover:underline">
+                      <Link to="/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
                         طلب الوصول للكتالوج ←
                       </Link>
                     )}
@@ -290,23 +291,12 @@ function BrandDetail() {
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {related.map((b) => (
-                <Link
+                <BrandCard
                   key={b.id}
-                  to="/brands/$slug"
-                  params={{ slug: b.slug }}
-                  className="prem-card group flex flex-col"
-                >
-                  <div className="podium grid h-28 place-items-center p-4">
-                    {b.logo_url ? (
-                      <img src={b.logo_url} alt={b.name_ar} className="max-h-16 w-auto object-contain" loading="lazy" />
-                    ) : (
-                      <span className="text-xs font-bold text-muted-foreground">{b.name_en}</span>
-                    )}
-                  </div>
-                  <div className="p-3 text-center">
-                    <div className="font-arabic text-sm font-bold text-foreground">{b.name_ar}</div>
-                  </div>
-                </Link>
+                  brand={b}
+                  compact
+                  ctaLabel="استكشف العلامة"
+                />
               ))}
             </div>
           </div>
