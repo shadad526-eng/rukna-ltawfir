@@ -97,61 +97,98 @@ function Home() {
         logoUrl={id.logo_url}
       />
 
-      {/* ───────── 1. PREMIUM LIGHT HERO ───────── */}
-      <section className="relative overflow-hidden cinema-hero">
-        {/* Soft floating leaf accents (no faces, no humans) */}
-        <span className="leaf-drift absolute right-[8%] top-[20%] text-3xl text-leaf-500/70" aria-hidden>🍃</span>
-        <span className="leaf-drift absolute left-[12%] bottom-[28%] text-2xl text-leaf-500/60" style={{ animationDelay: "1.8s" }} aria-hidden>🍃</span>
+      {/* ───────── 1. PREMIUM LIGHT HERO (reference-matched) ───────── */}
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, #F4F8FC 0%, #E6EFF8 55%, #DDEAF6 100%)",
+        }}
+      >
+        {/* Soft floating leaves (no faces, no humans) */}
+        <span
+          className="leaf-drift absolute right-[6%] top-[14%] text-4xl text-leaf-500/80 md:text-5xl"
+          aria-hidden
+        >
+          🍃
+        </span>
+        <span
+          className="leaf-drift absolute left-[6%] top-[55%] text-3xl text-leaf-500/70 md:text-4xl"
+          style={{ animationDelay: "1.8s" }}
+          aria-hidden
+        >
+          🍃
+        </span>
+        <span
+          className="leaf-drift absolute left-[14%] bottom-[22%] text-2xl text-leaf-500/60 md:text-3xl"
+          style={{ animationDelay: "3.2s" }}
+          aria-hidden
+        >
+          🍃
+        </span>
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-16 md:px-8 md:py-24">
-          {/* RTL: text right, stage left (in DOM order, text first for RTL) */}
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pt-12 pb-28 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-12 md:px-8 md:pt-20 md:pb-40">
+          {/* RTL: text right (order-2 desktop), stage left (order-1 desktop) */}
           <div className="prem-fade-up order-2 md:order-1">
-            <div className="inline-flex items-center gap-2 rounded-full border border-trust-300/50 bg-white/70 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-trust-700 backdrop-blur">
+            <div
+              className="inline-flex items-center gap-2 rounded-full border border-trust-300/60 px-5 py-2 text-[11px] font-semibold tracking-wider text-trust-700 md:text-xs"
+              style={{
+                background:
+                  "linear-gradient(180deg, oklch(1 0 0 / 0.85), oklch(0.97 0.018 245 / 0.7))",
+                boxShadow:
+                  "0 8px 20px -10px oklch(0.32 0.13 245 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.9)",
+              }}
+            >
               <span className="size-1.5 rounded-full bg-leaf-500" />
-              الوكيل الحصري — منظومة علامات صحية عالمية في اليمن
+              منظومة علامات عالمية في مظلّة واحدة
             </div>
-            <h1 className="mt-7 font-arabic text-[2.1rem] font-bold leading-[1.1] text-trust-900 md:text-[3.4rem] lg:text-[4rem]">
-              <span className="text-trust-700">{id.hero_headline_ar}</span>
+
+            <h1 className="mt-7 font-arabic font-bold leading-[1.05] tracking-tight">
+              <span className="block text-[2.2rem] text-trust-900 md:text-[3.4rem] lg:text-[4rem]">
+                نبني حياة أكثر صحة...
+              </span>
+              <span className="mt-2 block text-[2.1rem] text-leaf-700 md:text-[3.2rem] lg:text-[3.8rem]">
+                ونصنع مستقبلاً أقوى
+              </span>
             </h1>
-            <div className="mt-5 h-px w-28 prem-divider" />
-            <p className="mt-5 max-w-xl text-base leading-loose text-ink-600 md:text-lg">
-              {id.hero_sub_ar}
+
+            <p className="mt-6 max-w-xl text-base leading-loose text-ink-600 md:text-lg">
+              الشريك الاستراتيجي والبوابة الأولى للعلامات التجارية الصحية في اليمن.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <WhatsAppCTA number={id.whatsapp_number}>تواصل عبر واتساب</WhatsAppCTA>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 to="/brands"
-                className="inline-flex items-center justify-center rounded-full border border-trust-700/20 bg-white px-6 py-3 text-sm font-semibold text-trust-700 transition-all hover:-translate-y-0.5 hover:border-trust-700 hover:shadow-md"
+                className="group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                style={{
+                  background:
+                    "linear-gradient(180deg, oklch(0.52 0.16 245), oklch(0.40 0.15 245))",
+                  boxShadow:
+                    "0 16px 32px -12px oklch(0.32 0.13 245 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.25)",
+                }}
               >
-                استكشف العلامات
-                <span className="mr-2" aria-hidden>←</span>
+                <span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
+                  ←
+                </span>
+                استكشف المنتجات
               </Link>
+              <WhatsAppCTA number={id.whatsapp_number}>تواصل معنا</WhatsAppCTA>
             </div>
-            <dl className="mt-10 grid max-w-xl grid-cols-3 gap-6 border-t border-border pt-6">
-              {[
-                { k: "+٨", v: "علامات عالمية" },
-                { k: "+١٠٠٠", v: "عميل يعتمد علينا" },
-                { k: "٨", v: "سنوات من الخبرة" },
-              ].map((s) => (
-                <div key={s.v}>
-                  <dt className="font-arabic text-3xl font-bold text-trust-700 md:text-4xl">{s.k}</dt>
-                  <dd className="mt-1 text-[11px] font-medium tracking-wider text-ink-600">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
-          {/* Glass orb stage with official logos */}
+          {/* Glass orb stage */}
           <div className="order-1 md:order-2">
             <HeroLogoStage />
           </div>
         </div>
 
-        {/* Brand strip docked at hero base */}
-        <div className="relative mx-auto -mb-10 max-w-6xl px-4 pb-4 md:px-8">
+        {/* Brand strip + features strip docked at hero base */}
+        <div className="relative mx-auto -mb-12 max-w-6xl space-y-5 px-4 pb-6 md:-mb-16 md:px-8 md:space-y-6">
           <HeroBrandStrip />
+          <HeroFeaturesStrip />
         </div>
       </section>
+
 
 
       {/* ───────── 2. WHY RUKN AL-TAWFIR ───────── */}
