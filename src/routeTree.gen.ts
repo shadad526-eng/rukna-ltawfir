@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LangRouteImport } from './routes/$lang'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
 import { Route as LangContactRouteImport } from './routes/$lang.contact'
@@ -24,6 +25,11 @@ import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.br
 const LangRoute = LangRouteImport.update({
   id: '/$lang',
   path: '/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LangIndexRoute = LangIndexRouteImport.update({
@@ -79,6 +85,7 @@ const LangBrandsSlugProductSlugRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
   '/$lang/about': typeof LangAboutRoute
   '/$lang/brands': typeof LangBrandsRouteWithChildren
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/$lang/about': typeof LangAboutRoute
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
@@ -103,6 +111,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
   '/$lang/about': typeof LangAboutRoute
   '/$lang/brands': typeof LangBrandsRouteWithChildren
@@ -118,6 +127,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/$lang'
     | '/$lang/about'
     | '/$lang/brands'
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/$lang/brands/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/$lang/about'
     | '/$lang/catalogs'
     | '/$lang/contact'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/$lang/brands/$slug'
   id:
     | '__root__'
+    | '/'
     | '/$lang'
     | '/$lang/about'
     | '/$lang/brands'
@@ -155,6 +167,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       path: '/$lang'
       fullPath: '/$lang'
       preLoaderRoute: typeof LangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$lang/': {
@@ -289,6 +309,7 @@ const LangRouteChildren: LangRouteChildren = {
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
 }
 export const routeTree = rootRouteImport
