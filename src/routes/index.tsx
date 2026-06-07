@@ -10,7 +10,7 @@ import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
-import { HeroLogoStage, HeroBrandStrip } from "@/components/site/HeroLogos";
+import { HeroLogoStage, HeroBrandStrip, HeroFeaturesStrip } from "@/components/site/HeroLogos";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
