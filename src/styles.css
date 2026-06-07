@@ -345,3 +345,72 @@
 }
 @utility prem-scroll-cue { animation: prem-scroll-cue 1.8s ease-in-out infinite; }
 
+/* ============================================================
+ * CINEMATIC DARK HERO + MARQUEE + EXTRAS
+ * ============================================================ */
+
+@utility cinema-hero-dark {
+  background-color: oklch(0.18 0.05 245);
+  background-image:
+    radial-gradient(60% 55% at 50% 30%, oklch(0.46 0.16 245 / 0.55), transparent 65%),
+    radial-gradient(45% 50% at 80% 80%, oklch(0.68 0.17 138 / 0.30), transparent 70%),
+    radial-gradient(40% 40% at 10% 90%, oklch(0.32 0.13 245 / 0.55), transparent 70%),
+    linear-gradient(180deg, oklch(0.16 0.05 245), oklch(0.22 0.08 245));
+  color: var(--sand-50);
+}
+
+@utility hero-spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 30% at 50% 35%, oklch(1 0 0 / 0.10), transparent 70%),
+    radial-gradient(20% 18% at 50% 38%, oklch(0.68 0.17 138 / 0.35), transparent 70%);
+  filter: blur(2px);
+}
+
+@utility hero-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid oklch(0.68 0.17 138 / 0.35);
+  box-shadow:
+    inset 0 0 80px oklch(0.46 0.16 245 / 0.35),
+    0 0 60px oklch(0.68 0.17 138 / 0.25);
+}
+
+@utility podium-dark {
+  position: relative;
+  background:
+    radial-gradient(120% 80% at 50% 0%, oklch(0.30 0.10 245) 0%, oklch(0.22 0.08 245) 40%, oklch(0.16 0.05 245) 100%);
+  border-radius: 28px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid oklch(1 0 0 / 0.08);
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@utility marquee-track { animation: marquee 32s linear infinite; }
+@utility marquee-track:hover { animation-play-state: paused; }
+
+@keyframes leaf-drift {
+  0%   { transform: translate(0,0) rotate(0deg); opacity: 0.6; }
+  50%  { transform: translate(10px,-14px) rotate(8deg); opacity: 0.9; }
+  100% { transform: translate(0,0) rotate(0deg); opacity: 0.6; }
+}
+@utility leaf-drift { animation: leaf-drift 7s ease-in-out infinite; }
+
+@utility trust-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  background: color-mix(in oklab, white 8%, transparent);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+
