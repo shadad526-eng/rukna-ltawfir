@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import type { BrandSummary } from "@/lib/site.functions";
@@ -22,8 +23,8 @@ export function BrandCard({
   const mediaUrl = getBrandCardMedia(brand.slug);
 
   return (
-    <Link
-      to="/brands/$slug"
+    <LLink
+      to="/$lang/brands/$slug"
       params={{ slug: brand.slug }}
       className={`brand-card brand-card--${compact ? "compact" : "full"} group relative flex flex-col ${className}`.trim()}
     >
@@ -110,6 +111,6 @@ export function BrandCard({
           </span>
         </div>
       </div>
-    </Link>
+    </LLink>
   );
 }

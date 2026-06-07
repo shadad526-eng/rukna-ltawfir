@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
 import rukn from "@/assets/brands/rukn.json";
@@ -211,9 +212,9 @@ export function HeroBrandStrip() {
       />
       <div className="relative grid grid-cols-4 gap-x-2 gap-y-8 px-5 py-10 md:grid-cols-8 md:gap-x-4 md:px-14 md:py-14">
         {BRANDS.map((b, i) => (
-          <Link
+          <LLink
             key={b.slug}
-            to="/brands/$slug"
+            to="/$lang/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
             className={`group relative grid h-28 place-items-center transition-all duration-300 hover:-translate-y-1.5 md:h-36 ${
@@ -228,7 +229,7 @@ export function HeroBrandStrip() {
               decoding="async"
               style={{ imageRendering: "auto" }}
             />
-          </Link>
+          </LLink>
         ))}
       </div>
     </div>

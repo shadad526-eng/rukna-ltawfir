@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "brands": "العلامات",
+    "catalogs": "الكتالوجات",
+    "about": "من نحن",
+    "partners": "الشراكة",
+    "contact": "تواصل"
+  },
+  "header": {
+    "menu": "القائمة",
+    "brandsSystem": "منظومة العلامات",
+    "brandsSystemSub": "ثمانٍ علامات صحية رسمية ضمن مظلة ركن التوفير",
+    "brandsGuide": "دليل العلامات الكامل والكتالوجات",
+    "enterGuide": "دخول الدليل ←",
+    "quickInquiry": "استفسار سريع",
+    "whatsappInquiry": "استفسار عبر واتساب"
+  },
+  "footer": {
+    "navColumn": "تصفّح",
+    "contactColumn": "التواصل",
+    "follow": "تابعنا",
+    "startInquiry": "بدء استفسار تجاري",
+    "whatsapp": "واتساب",
+    "email": "البريد",
+    "address": "العنوان",
+    "rightsReserved": "جميع الحقوق محفوظة.",
+    "noticePrices": "الأسعار التجارية لا تُعرض على الموقع العام — تُمنح عبر القنوات الرسمية."
+  },
+  "language": {
+    "switcherLabel": "اللغة",
+    "ar": "العربية",
+    "en": "English"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "back": "رجوع",
+    "goHome": "العودة للرئيسية"
+  },
+  "errors": {
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundBody": "الرابط الذي تبحث عنه غير متاح أو تم نقله.",
+    "errorTitle": "تعذّر تحميل الصفحة",
+    "errorBody": "حدث خلل تقني. يمكنك المحاولة مرة أخرى أو العودة للرئيسية.",
+    "tryAgain": "إعادة المحاولة"
+  },
+  "social": {
+    "whatsapp": "واتساب",
+    "instagram": "إنستجرام",
+    "facebook": "فيسبوك",
+    "tiktok": "تيك توك"
+  }
+}

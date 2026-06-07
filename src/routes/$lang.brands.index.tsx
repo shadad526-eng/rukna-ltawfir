@@ -9,7 +9,7 @@ import { BrandCard } from "@/components/site/BrandCard";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
-export const Route = createFileRoute("/brands/")({
+export const Route = createFileRoute("/$lang/brands/")({
   head: () => ({
     meta: [
       { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },

@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -20,7 +21,7 @@ const productsQO = (brandSlug: string) =>
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
-export const Route = createFileRoute("/brands/$slug/")({
+export const Route = createFileRoute("/$lang/brands/$slug/")({
   loader: async ({ context, params }) => {
     const brand = await context.queryClient.ensureQueryData(brandQO(params.slug));
     if (!brand) throw notFound();
@@ -41,9 +42,9 @@ export const Route = createFileRoute("/brands/$slug/")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="text-2xl font-bold text-foreground">العلامة غير موجودة</h1>
-      <Link to="/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+      <LLink to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
         ← العودة إلى العلامات
-      </Link>
+      </LLink>
     </div>
   ),
   errorComponent: ({ error }) => (
@@ -102,9 +103,9 @@ function BrandDetail() {
           </div>
           <div className="prem-fade-up">
             <nav className="text-xs text-ink-600">
-              <Link to="/" className="hover:text-trust-700">الرئيسية</Link>
+              <LLink to="/$lang/" className="hover:text-trust-700">الرئيسية</LLink>
               <span className="mx-2">/</span>
-              <Link to="/brands" className="hover:text-trust-700">العلامات</Link>
+              <LLink to="/$lang/brands" className="hover:text-trust-700">العلامات</LLink>
               <span className="mx-2">/</span>
               <span className="text-foreground">{brand.name_ar}</span>
             </nav>
@@ -181,9 +182,9 @@ function BrandDetail() {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
-              <Link
+              <LLink
                 key={p.id}
-                to="/brands/$slug/$productSlug"
+                to="/$lang/brands/$slug/$productSlug"
                 params={{ slug: brand.slug, productSlug: p.slug }}
                 className="prem-card group flex flex-col"
               >
@@ -211,7 +212,7 @@ function BrandDetail() {
                   <span>تفاصيل المنتج</span>
                   <span aria-hidden className="transition-transform group-hover:-translate-x-1">←</span>
                 </div>
-              </Link>
+              </LLink>
             ))}
           </div>
         )}
@@ -227,9 +228,9 @@ function BrandDetail() {
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {gallery.map((p) => (
-                <Link
+                <LLink
                   key={p.id}
-                  to="/brands/$slug/$productSlug"
+                  to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: brand.slug, productSlug: p.slug }}
                   className="podium grid aspect-square place-items-center p-4 transition-transform hover:-translate-y-1"
                   title={p.name_ar}
@@ -237,7 +238,7 @@ function BrandDetail() {
                   {p.cover_url ? (
                     <img src={p.cover_url} alt={p.name_ar} className="max-h-full w-auto object-contain" loading="lazy" />
                   ) : null}
-                </Link>
+                </LLink>
               ))}
             </div>
           </div>
@@ -269,9 +270,9 @@ function BrandDetail() {
                         تنزيل الكتالوج (PDF) ↗
                       </a>
                     ) : (
-                      <Link to="/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
+                      <LLink to="/$lang/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
                         طلب الوصول للكتالوج ←
-                      </Link>
+                      </LLink>
                     )}
                   </div>
                 </div>

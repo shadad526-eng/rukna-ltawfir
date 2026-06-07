@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 
 type BrandLite = { id: string; slug: string; name_ar: string; name_en: string; logo_url: string | null };
@@ -11,9 +12,9 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card to-transparent" aria-hidden />
       <div className="marquee-track flex w-max gap-8 py-5 px-6">
         {loop.map((b, i) => (
-          <Link
+          <LLink
             key={`${b.id}-${i}`}
-            to="/brands/$slug"
+            to="/$lang/brands/$slug"
             params={{ slug: b.slug }}
             className="group grid h-16 w-36 shrink-0 place-items-center rounded-xl border border-border bg-card/70 px-4 transition-transform hover:-translate-y-0.5"
             title={b.name_ar}
@@ -28,7 +29,7 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
             ) : (
               <span className="text-[11px] font-bold text-muted-foreground">{b.name_en}</span>
             )}
-          </Link>
+          </LLink>
         ))}
       </div>
     </div>

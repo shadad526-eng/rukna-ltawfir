@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "Home",
+    "brands": "Brands",
+    "catalogs": "Catalogs",
+    "about": "About",
+    "partners": "Partnership",
+    "contact": "Contact"
+  },
+  "header": {
+    "menu": "Menu",
+    "brandsSystem": "Brand Ecosystem",
+    "brandsSystemSub": "Eight official health brands under Rukn Al Tawfir",
+    "brandsGuide": "Full brand directory and catalogs",
+    "enterGuide": "Enter directory →",
+    "quickInquiry": "Quick Inquiry",
+    "whatsappInquiry": "Inquire via WhatsApp"
+  },
+  "footer": {
+    "navColumn": "Navigate",
+    "contactColumn": "Contact",
+    "follow": "Follow",
+    "startInquiry": "Start a Business Inquiry",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "address": "Address",
+    "rightsReserved": "All rights reserved.",
+    "noticePrices": "Trade prices are not displayed publicly — provided through official channels."
+  },
+  "language": {
+    "switcherLabel": "Language",
+    "ar": "العربية",
+    "en": "English"
+  },
+  "common": {
+    "loading": "Loading...",
+    "back": "Back",
+    "goHome": "Go home"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you're looking for doesn't exist or has been moved.",
+    "errorTitle": "This page didn't load",
+    "errorBody": "Something went wrong on our end. You can try refreshing or head back home.",
+    "tryAgain": "Try again"
+  },
+  "social": {
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
+  }
+}

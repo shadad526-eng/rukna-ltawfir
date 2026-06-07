@@ -1,6 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { LLink } from "@/i18n/LLink";
 import { WhatsAppCTA } from "./WhatsAppCTA";
 import { SocialLinks } from "./SocialLinks";
+import { useT } from "@/i18n/LocaleProvider";
 
 type Props = {
   legalNameAr: string;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, addressAr }: Props) {
+  const t = useT();
   return (
     <footer className="relative mt-24 overflow-hidden">
       <div className="aurora-mesh text-sand-50">
@@ -26,8 +28,8 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
             <div className="mt-7 inline-flex items-center gap-3 rounded-2xl glass-dark px-4 py-3">
               <span className="grid size-9 place-items-center rounded-full bg-leaf-500 text-trust-900">↗</span>
               <div className="text-sm">
-                <div className="font-bold">قناة التواصل الرسمية</div>
-                <div className="opacity-80">واتساب الأعمال — +967 {whatsappNumber}</div>
+                <div className="font-bold">{t("footer.whatsapp")}</div>
+                <div className="opacity-80">+967 {whatsappNumber}</div>
               </div>
             </div>
             <div className="mt-7 text-[11px] font-medium tracking-[0.22em] opacity-70">
@@ -36,29 +38,29 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
           </div>
 
           <div className="md:col-span-3">
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">المنظومة</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.navColumn")}</div>
             <ul className="space-y-2 text-sm opacity-90">
-              <li><Link to="/" className="hover:text-leaf-300">الرئيسية</Link></li>
-              <li><Link to="/brands" className="hover:text-leaf-300">العلامات التجارية</Link></li>
-              <li><Link to="/catalogs" className="hover:text-leaf-300">الكتالوجات الرسمية</Link></li>
-              <li><Link to="/about" className="hover:text-leaf-300">من نحن</Link></li>
-              <li><Link to="/partners" className="hover:text-leaf-300">الشراكة التجارية</Link></li>
-              <li><Link to="/contact" className="hover:text-leaf-300">تواصل معنا</Link></li>
+              <li><LLink to="/$lang/" className="hover:text-leaf-300">{t("nav.home")}</LLink></li>
+              <li><LLink to="/$lang/brands" className="hover:text-leaf-300">{t("nav.brands")}</LLink></li>
+              <li><LLink to="/$lang/catalogs" className="hover:text-leaf-300">{t("nav.catalogs")}</LLink></li>
+              <li><LLink to="/$lang/about" className="hover:text-leaf-300">{t("nav.about")}</LLink></li>
+              <li><LLink to="/$lang/partners" className="hover:text-leaf-300">{t("nav.partners")}</LLink></li>
+              <li><LLink to="/$lang/contact" className="hover:text-leaf-300">{t("nav.contact")}</LLink></li>
             </ul>
           </div>
 
           <div className="md:col-span-4">
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">التواصل</div>
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.contactColumn")}</div>
             <ul className="space-y-2 text-sm leading-loose opacity-90">
-              <li>واتساب: +967 {whatsappNumber}</li>
-              {email ? <li>البريد: {email}</li> : null}
-              {addressAr ? <li>العنوان: {addressAr}</li> : null}
+              <li>{t("footer.whatsapp")}: +967 {whatsappNumber}</li>
+              {email ? <li>{t("footer.email")}: {email}</li> : null}
+              {addressAr ? <li>{t("footer.address")}: {addressAr}</li> : null}
             </ul>
             <div className="mt-5">
-              <WhatsAppCTA number={whatsappNumber} variant="pill">بدء استفسار تجاري</WhatsAppCTA>
+              <WhatsAppCTA number={whatsappNumber} variant="pill">{t("footer.startInquiry")}</WhatsAppCTA>
             </div>
             <div className="mt-6 flex items-center gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-60">تابعنا</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-60">{t("footer.follow")}</span>
               <span className="h-px flex-1 bg-white/10" />
               <SocialLinks size="sm" variant="footer" />
             </div>
@@ -67,8 +69,8 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
 
         <div className="border-t border-white/10">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs opacity-75 md:flex-row md:px-8 md:text-right">
-            <div>© {new Date().getFullYear()} {legalNameAr}. جميع الحقوق محفوظة.</div>
-            <div>الأسعار التجارية لا تُعرض على الموقع العام — تُمنح عبر القنوات الرسمية.</div>
+            <div>© {new Date().getFullYear()} {legalNameAr}. {t("footer.rightsReserved")}</div>
+            <div>{t("footer.noticePrices")}</div>
           </div>
         </div>
       </div>

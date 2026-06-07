@@ -1,3 +1,4 @@
+import { LLink } from "@/i18n/LLink";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
@@ -8,7 +9,7 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
-export const Route = createFileRoute("/about")({
+export const Route = createFileRoute("/$lang/about")({
   head: () => ({
     meta: [
       { title: "من نحن — ركن التوفير كوزمتك للتجارة" },
@@ -82,9 +83,9 @@ function AboutPage() {
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => (
-              <Link
+              <LLink
                 key={b.id}
-                to="/brands/$slug"
+                to="/$lang/brands/$slug"
                 params={{ slug: b.slug }}
                 className="podium grid h-24 place-items-center p-3 transition-transform hover:-translate-y-1"
                 title={b.name_ar}
@@ -94,7 +95,7 @@ function AboutPage() {
                 ) : (
                   <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                 )}
-              </Link>
+              </LLink>
             ))}
           </div>
         </div>
@@ -107,12 +108,12 @@ function AboutPage() {
         <p className="mt-4 text-ink-600">جميع الاستفسارات التجارية تمرّ عبر واتساب الأعمال الرسمي.</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <WhatsAppCTA number={id.whatsapp_number}>تواصل تجاري عبر واتساب</WhatsAppCTA>
-          <Link
-            to="/partners"
+          <LLink
+            to="/$lang/partners"
             className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
           >
             صفحة الشراكات
-          </Link>
+          </LLink>
         </div>
       </section>
 
