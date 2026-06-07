@@ -41,7 +41,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="text-2xl font-bold text-foreground">العلامة غير موجودة</h1>
-      <Link to="/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+      <Link to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
         ← العودة إلى العلامات
       </Link>
     </div>
@@ -102,9 +102,9 @@ function BrandDetail() {
           </div>
           <div className="prem-fade-up">
             <nav className="text-xs text-ink-600">
-              <Link to="/" className="hover:text-trust-700">الرئيسية</Link>
+              <Link to="/$lang/" className="hover:text-trust-700">الرئيسية</Link>
               <span className="mx-2">/</span>
-              <Link to="/brands" className="hover:text-trust-700">العلامات</Link>
+              <Link to="/$lang/brands" className="hover:text-trust-700">العلامات</Link>
               <span className="mx-2">/</span>
               <span className="text-foreground">{brand.name_ar}</span>
             </nav>
@@ -183,7 +183,7 @@ function BrandDetail() {
             {products.map((p) => (
               <Link
                 key={p.id}
-                to="/brands/$slug/$productSlug"
+                to="/$lang/brands/$slug/$productSlug"
                 params={{ slug: brand.slug, productSlug: p.slug }}
                 className="prem-card group flex flex-col"
               >
@@ -229,7 +229,7 @@ function BrandDetail() {
               {gallery.map((p) => (
                 <Link
                   key={p.id}
-                  to="/brands/$slug/$productSlug"
+                  to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: brand.slug, productSlug: p.slug }}
                   className="podium grid aspect-square place-items-center p-4 transition-transform hover:-translate-y-1"
                   title={p.name_ar}
@@ -269,7 +269,7 @@ function BrandDetail() {
                         تنزيل الكتالوج (PDF) ↗
                       </a>
                     ) : (
-                      <Link to="/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
+                      <Link to="/$lang/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
                         طلب الوصول للكتالوج ←
                       </Link>
                     )}

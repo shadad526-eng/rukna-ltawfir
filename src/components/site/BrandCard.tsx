@@ -23,7 +23,7 @@ export function BrandCard({
 
   return (
     <Link
-      to="/brands/$slug"
+      to="/$lang/brands/$slug"
       params={{ slug: brand.slug }}
       className={`brand-card brand-card--${compact ? "compact" : "full"} group relative flex flex-col ${className}`.trim()}
     >

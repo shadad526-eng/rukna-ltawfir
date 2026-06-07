@@ -213,7 +213,7 @@ export function HeroBrandStrip() {
         {BRANDS.map((b, i) => (
           <Link
             key={b.slug}
-            to="/brands/$slug"
+            to="/$lang/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
             className={`group relative grid h-28 place-items-center transition-all duration-300 hover:-translate-y-1.5 md:h-36 ${

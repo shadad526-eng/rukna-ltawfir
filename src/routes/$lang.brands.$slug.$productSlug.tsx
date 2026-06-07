@@ -34,7 +34,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="text-2xl font-bold text-foreground">المنتج غير موجود</h1>
-      <Link to="/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+      <Link to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
         ← العودة إلى العلامات
       </Link>
     </div>
@@ -70,11 +70,11 @@ function ProductDetailPage() {
 
       <section className="mx-auto max-w-7xl px-4 pt-8 md:px-6">
         <nav className="text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary">الرئيسية</Link>
+          <Link to="/$lang/" className="hover:text-primary">الرئيسية</Link>
           <span className="mx-2">/</span>
-          <Link to="/brands" className="hover:text-primary">العلامات</Link>
+          <Link to="/$lang/brands" className="hover:text-primary">العلامات</Link>
           <span className="mx-2">/</span>
-          <Link to="/brands/$slug" params={{ slug: p.brand.slug }} className="hover:text-primary">{p.brand.name_ar}</Link>
+          <Link to="/$lang/brands/$slug" params={{ slug: p.brand.slug }} className="hover:text-primary">{p.brand.name_ar}</Link>
           <span className="mx-2">/</span>
           <span className="text-foreground">{p.name_ar}</span>
         </nav>
@@ -119,7 +119,7 @@ function ProductDetailPage() {
               ) : null}
             </div>
             <Link
-              to="/brands/$slug"
+              to="/$lang/brands/$slug"
               params={{ slug: p.brand.slug }}
               className="text-sm font-semibold text-primary hover:underline"
             >
@@ -164,7 +164,7 @@ function ProductDetailPage() {
               استفسار عن هذا المنتج
             </WhatsAppCTA>
             <Link
-              to="/catalogs"
+              to="/$lang/catalogs"
               className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
             >
               عرض الكتالوج الرسمي
@@ -251,7 +251,7 @@ function ProductDetailPage() {
               {related.map((r) => (
                 <Link
                   key={r.id}
-                  to="/brands/$slug/$productSlug"
+                  to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: p.brand.slug, productSlug: r.slug }}
                   className="prem-card group flex flex-col"
                 >

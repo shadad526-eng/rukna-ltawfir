@@ -13,7 +13,7 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
         {loop.map((b, i) => (
           <Link
             key={`${b.id}-${i}`}
-            to="/brands/$slug"
+            to="/$lang/brands/$slug"
             params={{ slug: b.slug }}
             className="group grid h-16 w-36 shrink-0 place-items-center rounded-xl border border-border bg-card/70 px-4 transition-transform hover:-translate-y-0.5"
             title={b.name_ar}

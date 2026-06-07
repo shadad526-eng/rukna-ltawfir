@@ -192,7 +192,7 @@ function Home() {
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
-                to="/brands"
+                to="/$lang/brands"
                 className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 md:text-[15px]"
                 style={{
                   background:
@@ -278,7 +278,7 @@ function Home() {
               </p>
             </div>
             <Link
-              to="/brands"
+              to="/$lang/brands"
               className="inline-flex items-center gap-1.5 rounded-full border border-trust-700/20 bg-secondary px-4 py-2 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-sand-50"
             >
               دليل العلامات الكامل <span aria-hidden>←</span>
@@ -304,7 +304,7 @@ function Home() {
                   لمحة من منتجات المنظومة
                 </h2>
               </div>
-              <Link to="/brands" className="text-sm font-semibold text-trust-700 hover:underline">
+              <Link to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
                 استعراض جميع العلامات ←
               </Link>
             </div>
@@ -312,7 +312,7 @@ function Home() {
               {featured.map((p) => (
                 <Link
                   key={p.id}
-                  to="/brands/$slug/$productSlug"
+                  to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: p.brand_slug, productSlug: p.slug }}
                   className="prem-card group flex flex-col"
                 >
@@ -350,7 +350,7 @@ function Home() {
               تصفّح المجموعات حسب العلامة
             </h2>
           </div>
-          <Link to="/brands" className="text-sm font-semibold text-trust-700 hover:underline">
+          <Link to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
             عرض الكل ←
           </Link>
         </div>
@@ -427,7 +427,7 @@ function Home() {
                 : "كتالوجات رسمية لكل علامة، مع ملفات قابلة للتنزيل وفق سياسة الوصول."}
             </p>
             <Link
-              to="/catalogs"
+              to="/$lang/catalogs"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-trust-700 px-5 py-2.5 text-sm font-semibold text-sand-50 transition-transform hover:-translate-y-0.5"
             >
               دخول مكتبة الكتالوجات <span aria-hidden>←</span>
@@ -444,7 +444,7 @@ function Home() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                to="/partners"
+                to="/$lang/partners"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
               >
                 صفحة الشراكات
@@ -491,7 +491,7 @@ function Home() {
           <div className="flex flex-wrap gap-3 md:justify-end">
             <WhatsAppCTA number={id.whatsapp_number}>تواصل واتساب</WhatsAppCTA>
             <Link
-              to="/contact"
+              to="/$lang/contact"
               className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
             >
               صفحة التواصل الكاملة

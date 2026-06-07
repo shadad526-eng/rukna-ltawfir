@@ -34,7 +34,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
     <header className="sticky top-0 z-40 glass">
       <div className="h-0.5 w-full hq-rule" />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
-        <Link to="/" className="flex min-w-0 items-center gap-3">
+        <Link to="/$lang/" className="flex min-w-0 items-center gap-3">
           <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             {logoUrl ? (
               <img src={logoUrl} alt={`شعار ${legalNameAr}`} className="size-full object-contain p-1" />
@@ -82,7 +82,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                       {brands.map((b) => (
                         <Link
                           key={b.id}
-                          to="/brands/$slug"
+                          to="/$lang/brands/$slug"
                           params={{ slug: b.slug }}
                           className="group flex flex-col items-center gap-2 rounded-xl border border-transparent p-3 text-center transition-all hover:-translate-y-0.5 hover:border-border hover:bg-background"
                           onClick={() => setMegaOpen(false)}
@@ -102,7 +102,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                     </div>
                     <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs">
                       <span className="text-ink-600">دليل العلامات الكامل والكتالوجات</span>
-                      <Link to="/brands" className="font-bold text-trust-700 hover:underline" onClick={() => setMegaOpen(false)}>
+                      <Link to="/$lang/brands" className="font-bold text-trust-700 hover:underline" onClick={() => setMegaOpen(false)}>
                         دخول الدليل ←
                       </Link>
                     </div>
@@ -159,7 +159,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                   {brands.map((b) => (
                     <Link
                       key={b.id}
-                      to="/brands/$slug"
+                      to="/$lang/brands/$slug"
                       params={{ slug: b.slug }}
                       onClick={() => setMobileOpen(false)}
                       className="grid h-14 place-items-center rounded-lg border border-border bg-sand-50 p-2"
