@@ -211,6 +211,52 @@ export const listBrandProducts = createServerFn({ method: "GET" })
     return out;
   });
 
+export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ProductSummary[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("products")
+      .select(
+        "id, slug, name_ar, name_en, short_description_ar, cover_asset_id, sort_order, brand:brand_id ( slug, sort_order )",
+      )
+      .eq("is_published", true)
+      .not("cover_asset_id", "is", null)
+      .limit(60);
+    if (error) throw error;
+    type Row = {
+      id: string; slug: string; name_ar: string; name_en: string;
+      short_description_ar: string | null; cover_asset_id: string | null; sort_order: number;
+      brand: { slug: string; sort_order: number } | null;
+    };
+    const rows = ((data ?? []) as unknown as Row[])
+      .filter((r) => r.brand)
+      .sort((a, b) => (a.brand!.sort_order - b.brand!.sort_order) || (a.sort_order - b.sort_order));
+    // Pick at most 2 per brand for variety, then limit to 8 cards
+    const perBrand = new Map<string, number>();
+    const picked: Row[] = [];
+    for (const r of rows) {
+      const c = perBrand.get(r.brand!.slug) ?? 0;
+      if (c >= 2) continue;
+      perBrand.set(r.brand!.slug, c + 1);
+      picked.push(r);
+      if (picked.length >= 8) break;
+    }
+    const out: ProductSummary[] = [];
+    for (const r of picked) {
+      out.push({
+        id: r.id,
+        slug: r.slug,
+        brand_slug: r.brand!.slug,
+        name_ar: r.name_ar,
+        name_en: r.name_en,
+        short_description_ar: r.short_description_ar,
+        cover_url: await assetUrl(r.cover_asset_id),
+      });
+    }
+    return out;
+  },
+);
+
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: { brandSlug: string; productSlug: string }) => data)
   .handler(async ({ data }): Promise<ProductDetail | null> => {
