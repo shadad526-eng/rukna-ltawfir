@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { WhatsAppCTA } from "./WhatsAppCTA";
 
 type Props = {
   legalNameAr: string;
@@ -10,37 +11,56 @@ type Props = {
 
 export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, addressAr }: Props) {
   return (
-    <footer className="mt-24 border-t border-border bg-trust-900 text-sand-50">
-      <div className="h-0.5 w-full hq-rule" />
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 md:grid-cols-4 md:px-8">
-        <div className="md:col-span-2">
-          <div className="font-arabic text-xl font-bold">{legalNameAr}</div>
-          {parentGroupAr ? <div className="mt-1 text-sm opacity-70">{parentGroupAr}</div> : null}
-          <p className="mt-5 max-w-md text-sm leading-loose opacity-80">
-            المقرّ الرقمي لمنظومة العلامات التجارية الصحية في اليمن. نلتزم بأعلى معايير الجودة والشفافية والحوكمة المؤسسية.
-          </p>
-          <div className="mt-6 inline-block h-1 w-16 rounded-full bg-leaf-500" />
-          <div className="mt-6 text-[11px] font-medium tracking-[0.18em] opacity-70">
-            NO CAL · STEVIOLA · MONIVO · BABY TAWFIR · BAMBO FRESH · iSiS · SEKEM
+    <footer className="relative mt-24 overflow-hidden">
+      <div className="aurora-mesh text-sand-50">
+        <div className="absolute inset-x-0 top-0 h-px hq-rule" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-12 md:px-8">
+          <div className="md:col-span-5">
+            <div className="font-arabic text-2xl font-bold">{legalNameAr}</div>
+            {parentGroupAr ? <div className="mt-1 text-sm opacity-70">{parentGroupAr}</div> : null}
+            <p className="mt-5 max-w-md text-sm leading-loose opacity-85">
+              المقرّ الرقمي لمنظومة العلامات التجارية الصحية في اليمن. شراكات حصرية، أصول رسمية،
+              وحوكمة مؤسسية على أعلى المعايير.
+            </p>
+            <div className="mt-7 inline-flex items-center gap-3 rounded-2xl glass-dark px-4 py-3">
+              <span className="grid size-9 place-items-center rounded-full bg-leaf-500 text-trust-900">↗</span>
+              <div className="text-sm">
+                <div className="font-bold">قناة التواصل الرسمية</div>
+                <div className="opacity-80">واتساب الأعمال — +967 {whatsappNumber}</div>
+              </div>
+            </div>
+            <div className="mt-7 text-[11px] font-medium tracking-[0.22em] opacity-70">
+              NO CAL · STEVIOLA · MONIVO · BABY TAWFIR · BAMBO · Y-KELIN · iSiS · SEKEM
+            </div>
+          </div>
+
+          <div className="md:col-span-3">
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">المنظومة</div>
+            <ul className="space-y-2 text-sm opacity-90">
+              <li><Link to="/brands" className="hover:text-leaf-300">العلامات التجارية</Link></li>
+              <li><Link to="/catalogs" className="hover:text-leaf-300">الكتالوجات الرسمية</Link></li>
+              <li><Link to="/" hash="ecosystem" className="hover:text-leaf-300">المنظومة الكاملة</Link></li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-4">
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">التواصل</div>
+            <ul className="space-y-2 text-sm leading-loose opacity-90">
+              <li>واتساب: +967 {whatsappNumber}</li>
+              {email ? <li>البريد: {email}</li> : null}
+              {addressAr ? <li>العنوان: {addressAr}</li> : null}
+            </ul>
+            <div className="mt-5">
+              <WhatsAppCTA number={whatsappNumber} variant="pill">بدء استفسار تجاري</WhatsAppCTA>
+            </div>
           </div>
         </div>
-        <div className="text-sm leading-loose opacity-90">
-          <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">روابط</div>
-          <ul className="space-y-1.5">
-            <li><Link to="/brands" className="hover:text-leaf-300">العلامات التجارية</Link></li>
-            <li><Link to="/catalogs" className="hover:text-leaf-300">الكتالوجات</Link></li>
-          </ul>
-        </div>
-        <div className="text-sm leading-loose opacity-90">
-          <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">التواصل</div>
-          <div>واتساب: +967 {whatsappNumber}</div>
-          {email ? <div>البريد: {email}</div> : null}
-          {addressAr ? <div>العنوان: {addressAr}</div> : null}
-        </div>
-      </div>
-      <div className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-4 text-center text-xs opacity-70 md:px-6">
-          © {new Date().getFullYear()} {legalNameAr}. جميع الحقوق محفوظة. الأسعار التجارية لا تُعرض على الموقع العام.
+
+        <div className="border-t border-white/10">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs opacity-75 md:flex-row md:px-8 md:text-right">
+            <div>© {new Date().getFullYear()} {legalNameAr}. جميع الحقوق محفوظة.</div>
+            <div>الأسعار التجارية لا تُعرض على الموقع العام — تُمنح عبر القنوات الرسمية.</div>
+          </div>
         </div>
       </div>
     </footer>

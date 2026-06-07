@@ -188,3 +188,165 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border), transparent);
 }
+
+/* ============================================================
+ * PREMIUM VISUAL LAYER — Master Visual Overhaul
+ * Cinematic surfaces, glass, podium, lighting, motion.
+ * Backend / data / asset rules unchanged.
+ * ============================================================ */
+
+@utility cinema-hero {
+  background-color: var(--sand-50);
+  background-image:
+    radial-gradient(70% 60% at 80% -10%, oklch(0.46 0.16 245 / 0.22), transparent 60%),
+    radial-gradient(55% 50% at -10% 20%, oklch(0.68 0.17 138 / 0.18), transparent 65%),
+    radial-gradient(40% 30% at 50% 110%, oklch(0.46 0.16 245 / 0.12), transparent 70%),
+    linear-gradient(180deg, oklch(0.99 0.005 95), oklch(0.96 0.012 245));
+}
+@utility cinema-hero::after {
+  content: "";
+}
+
+@utility aurora-mesh {
+  background:
+    radial-gradient(40% 60% at 10% 10%, oklch(0.46 0.16 245 / 0.35), transparent 60%),
+    radial-gradient(35% 45% at 90% 20%, oklch(0.68 0.17 138 / 0.28), transparent 65%),
+    radial-gradient(50% 40% at 50% 100%, oklch(0.46 0.16 245 / 0.18), transparent 70%),
+    linear-gradient(135deg, oklch(0.22 0.08 245), oklch(0.32 0.13 245));
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+
+@utility glass-dark {
+  background: color-mix(in oklab, oklch(0.18 0.02 250) 55%, transparent);
+  backdrop-filter: saturate(160%) blur(20px);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+}
+
+@utility premium-shadow {
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.6) inset,
+    0 12px 32px -12px oklch(0.32 0.13 245 / 0.22),
+    0 24px 60px -24px oklch(0.32 0.13 245 / 0.18);
+}
+
+@utility halo-blue {
+  position: relative;
+}
+.halo-blue::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  z-index: -1;
+  background: radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.30), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+@utility halo-green {
+  position: relative;
+}
+.halo-green::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  z-index: -1;
+  background: radial-gradient(closest-side, oklch(0.68 0.17 138 / 0.30), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Spotlight podium — used behind official logos / product imagery */
+@utility podium {
+  position: relative;
+  background:
+    radial-gradient(120% 80% at 50% 0%, oklch(1 0 0) 0%, oklch(0.985 0.004 95) 40%, oklch(0.95 0.01 245) 100%);
+  border-radius: 28px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.podium::before {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%; bottom: 10%;
+  height: 18%;
+  background: radial-gradient(50% 100% at 50% 0%, oklch(0.32 0.13 245 / 0.22), transparent 70%);
+  filter: blur(14px);
+  z-index: -1;
+}
+.podium::after {
+  content: "";
+  position: absolute;
+  inset: auto 12% 6% 12%;
+  height: 6px;
+  background: linear-gradient(90deg, transparent, oklch(0.32 0.13 245 / 0.20), transparent);
+  border-radius: 999px;
+}
+
+/* Premium card baseline upgrade for brand tiles */
+@utility prem-card {
+  position: relative;
+  background: linear-gradient(180deg, var(--card), color-mix(in oklab, var(--sand-50) 60%, var(--card)));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  transition: transform .45s cubic-bezier(.2,.7,.2,1), border-color .35s ease, box-shadow .45s ease;
+  overflow: hidden;
+}
+.prem-card:hover {
+  transform: translateY(-4px);
+  border-color: oklch(0.46 0.16 245 / 0.45);
+  box-shadow:
+    0 18px 40px -18px oklch(0.32 0.13 245 / 0.30),
+    0 30px 70px -30px oklch(0.32 0.13 245 / 0.22);
+}
+.prem-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 60%, oklch(0.68 0.17 138 / 0.08));
+  opacity: 0; transition: opacity .45s ease;
+  pointer-events: none;
+}
+.prem-card:hover::before { opacity: 1; }
+
+/* Subtle premium animations */
+@keyframes prem-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@utility prem-fade-up { animation: prem-fade-up .8s cubic-bezier(.2,.7,.2,1) both; }
+
+@keyframes prem-float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-8px); }
+}
+@utility prem-float { animation: prem-float 6s ease-in-out infinite; }
+
+@keyframes prem-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@utility prem-shimmer {
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.45), transparent);
+  background-size: 200% 100%;
+  animation: prem-shimmer 3.2s linear infinite;
+}
+
+@utility prem-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.35) 30%, oklch(0.68 0.17 138 / 0.35) 70%, transparent);
+}
+
+/* Scroll cue */
+@keyframes prem-scroll-cue {
+  0%   { transform: translateY(0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+@utility prem-scroll-cue { animation: prem-scroll-cue 1.8s ease-in-out infinite; }
+
