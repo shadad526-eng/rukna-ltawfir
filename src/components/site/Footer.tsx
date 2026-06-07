@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { WhatsAppCTA } from "./WhatsAppCTA";
+import { SocialLinks } from "./SocialLinks";
 
 type Props = {
   legalNameAr: string;
