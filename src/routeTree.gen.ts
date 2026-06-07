@@ -17,6 +17,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandsIndexRouteImport } from './routes/brands.index'
 import { Route as BrandsSlugRouteImport } from './routes/brands.$slug'
+import { Route as BrandsSlugIndexRouteImport } from './routes/brands.$slug.index'
 import { Route as BrandsSlugProductSlugRouteImport } from './routes/brands.$slug.$productSlug'
 
 const PartnersRoute = PartnersRouteImport.update({
@@ -59,6 +60,11 @@ const BrandsSlugRoute = BrandsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BrandsRoute,
 } as any)
+const BrandsSlugIndexRoute = BrandsSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BrandsSlugRoute,
+} as any)
 const BrandsSlugProductSlugRoute = BrandsSlugProductSlugRouteImport.update({
   id: '/$productSlug',
   path: '/$productSlug',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug/': typeof BrandsSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,9 +89,9 @@ export interface FileRoutesByTo {
   '/catalogs': typeof CatalogsRoute
   '/contact': typeof ContactRoute
   '/partners': typeof PartnersRoute
-  '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug': typeof BrandsSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +104,7 @@ export interface FileRoutesById {
   '/brands/$slug': typeof BrandsSlugRouteWithChildren
   '/brands/': typeof BrandsIndexRoute
   '/brands/$slug/$productSlug': typeof BrandsSlugProductSlugRoute
+  '/brands/$slug/': typeof BrandsSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +118,7 @@ export interface FileRouteTypes {
     | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,9 +126,9 @@ export interface FileRouteTypes {
     | '/catalogs'
     | '/contact'
     | '/partners'
-    | '/brands/$slug'
     | '/brands'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug'
   id:
     | '__root__'
     | '/'
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/brands/$slug'
     | '/brands/'
     | '/brands/$slug/$productSlug'
+    | '/brands/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsSlugRouteImport
       parentRoute: typeof BrandsRoute
     }
+    '/brands/$slug/': {
+      id: '/brands/$slug/'
+      path: '/'
+      fullPath: '/brands/$slug/'
+      preLoaderRoute: typeof BrandsSlugIndexRouteImport
+      parentRoute: typeof BrandsSlugRoute
+    }
     '/brands/$slug/$productSlug': {
       id: '/brands/$slug/$productSlug'
       path: '/$productSlug'
@@ -212,10 +229,12 @@ declare module '@tanstack/react-router' {
 
 interface BrandsSlugRouteChildren {
   BrandsSlugProductSlugRoute: typeof BrandsSlugProductSlugRoute
+  BrandsSlugIndexRoute: typeof BrandsSlugIndexRoute
 }
 
 const BrandsSlugRouteChildren: BrandsSlugRouteChildren = {
   BrandsSlugProductSlugRoute: BrandsSlugProductSlugRoute,
+  BrandsSlugIndexRoute: BrandsSlugIndexRoute,
 }
 
 const BrandsSlugRouteWithChildren = BrandsSlugRoute._addFileChildren(
