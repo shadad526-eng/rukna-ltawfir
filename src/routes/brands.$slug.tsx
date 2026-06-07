@@ -65,34 +65,47 @@ function BrandDetail() {
         logoUrl={id.logo_url}
       />
 
-      {/* Brand hero — subtle accent only, corporate dominant */}
-      <section className="border-b border-border bg-card">
-        <div className="absolute inset-x-0 h-1" style={{ background: accent }} aria-hidden />
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-[auto_1fr] md:items-center md:gap-10 md:px-6 md:py-16">
-          <div className="grid size-32 shrink-0 place-items-center overflow-hidden rounded-2xl border border-border bg-background p-4 md:size-40">
-            {brand.logo_url ? (
-              <img src={brand.logo_url} alt={`شعار ${brand.name_ar}`} className="size-full object-contain" />
-            ) : (
-              <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
-            )}
+      {/* Brand hero — cinematic, brand accent halo, corporate frame */}
+      <section className="relative overflow-hidden cinema-hero">
+        <div className="absolute inset-x-0 top-0 h-1" style={{ background: accent }} aria-hidden />
+        <div
+          className="pointer-events-none absolute -top-40 -right-40 size-[480px] rounded-full opacity-25 blur-3xl"
+          style={{ background: accent }}
+          aria-hidden
+        />
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-[auto_1fr] md:items-center md:gap-14 md:px-8 md:py-24">
+          <div className="relative">
+            <div
+              className="absolute -inset-6 -z-10 rounded-[2rem] opacity-30 blur-2xl"
+              style={{ background: accent }}
+              aria-hidden
+            />
+            <div className="podium premium-shadow grid size-44 place-items-center p-6 md:size-56 md:p-8">
+              {brand.logo_url ? (
+                <img src={brand.logo_url} alt={`شعار ${brand.name_ar}`} className="max-h-full max-w-full object-contain prem-float" />
+              ) : (
+                <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
+              )}
+            </div>
           </div>
-          <div>
-            <nav className="text-xs text-muted-foreground">
-              <Link to="/" className="hover:text-primary">الرئيسية</Link>
+          <div className="prem-fade-up">
+            <nav className="text-xs text-ink-600">
+              <Link to="/" className="hover:text-trust-700">الرئيسية</Link>
               <span className="mx-2">/</span>
-              <Link to="/brands" className="hover:text-primary">العلامات</Link>
+              <Link to="/brands" className="hover:text-trust-700">العلامات</Link>
               <span className="mx-2">/</span>
               <span className="text-foreground">{brand.name_ar}</span>
             </nav>
-            <h1 className="mt-3 text-3xl font-bold text-foreground md:text-5xl">{brand.name_ar}</h1>
-            <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{brand.name_en}</div>
+            <h1 className="mt-4 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">{brand.name_ar}</h1>
+            <div className="mt-1 text-sm font-medium uppercase tracking-[0.18em] text-ink-600">{brand.name_en}</div>
+            <div className="mt-6 h-px w-24 prem-divider" />
             {brand.tagline_ar ? (
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">{brand.tagline_ar}</p>
+              <p className="mt-5 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">{brand.tagline_ar}</p>
             ) : null}
             {brand.description_ar ? (
               <p className="mt-4 max-w-3xl text-sm leading-relaxed text-foreground/80">{brand.description_ar}</p>
             ) : null}
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3">
               <WhatsAppCTA
                 number={id.whatsapp_number}
                 message={`السلام عليكم، أرغب بالاستفسار عن منتجات ${brand.name_ar}.`}
@@ -101,9 +114,9 @@ function BrandDetail() {
               </WhatsAppCTA>
               <Link
                 to="/catalogs"
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
               >
-                الكتالوجات
+                الكتالوجات الرسمية
               </Link>
             </div>
           </div>

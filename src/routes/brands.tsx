@@ -48,39 +48,53 @@ function BrandsPage() {
         logoUrl={id.logo_url}
       />
 
-      <section className="relative overflow-hidden border-b border-border hq-canvas">
-        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="relative overflow-hidden cinema-hero">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--trust-700) 1px, transparent 1px), linear-gradient(90deg, var(--trust-700) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+          }}
+          aria-hidden
+        />
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">منظومة العلامات</div>
-          <h1 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-6xl">
+          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
             دليل العلامات التجارية
           </h1>
-          <div className="mt-5 h-px w-24 hq-rule" />
-          <p className="mt-6 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">
-            علامات صحية عالمية يمثّلها رسميًا ركن التوفير كوزمتك للتجارة في السوق اليمني. الهوية والشعارات وصور المنتجات
-            تُعرض كما وردت من الجهات الرسمية للعلامة.
+          <div className="mt-6 h-px w-28 prem-divider" />
+          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
+            ثمانٍ علامات صحية عالمية ضمن مظلة ركن التوفير. الشعارات وصور المنتجات تُعرض حصرًا من
+            الأصول الرسمية للعلامة، دون أي إعادة تصميم.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-20 md:px-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {brands.map((b, idx) => (
             <Link
               key={b.id}
               to="/brands/$slug"
               params={{ slug: b.slug }}
-              className="hq-card group relative flex flex-col overflow-hidden"
+              className="prem-card group relative flex flex-col"
             >
-              <div className="absolute right-4 top-4 z-10 rounded-full border border-border bg-card px-2 py-0.5 text-[10px] font-bold tracking-widest text-trust-700">
+              <div className="absolute right-4 top-4 z-10 rounded-full glass px-2 py-0.5 text-[10px] font-bold tracking-widest text-trust-700">
                 {String(idx + 1).padStart(2, "0")}
               </div>
-              <div className="relative grid h-44 place-items-center overflow-hidden border-b border-border bg-gradient-to-br from-sand-50 to-card p-8">
-                <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(var(--trust-700) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+              <div className="podium relative grid h-52 place-items-center p-8">
                 {b.logo_url ? (
-                  <img src={b.logo_url} alt={`شعار ${b.name_ar}`} className="relative max-h-24 w-auto object-contain transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                  <img
+                    src={b.logo_url}
+                    alt={`شعار ${b.name_ar}`}
+                    className="relative max-h-28 w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
+                    loading="lazy"
+                  />
                 ) : (
-                  <span className="relative text-sm font-bold text-muted-foreground">{b.name_en}</span>
+                  <span className="text-sm font-bold text-muted-foreground">{b.name_en}</span>
                 )}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
               </div>
               <div className="flex-1 p-6">
                 <div className="flex items-center gap-2">
