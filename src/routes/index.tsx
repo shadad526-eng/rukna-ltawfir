@@ -111,134 +111,62 @@ function Home() {
         logoUrl={id.logo_url}
       />
 
-      {/* ───────── 1. CINEMATIC DARK HERO ───────── */}
-      <section className="relative overflow-hidden cinema-hero-dark">
-        <div className="hero-spotlight" aria-hidden />
-        {/* Floating leaf accents */}
-        <span className="leaf-drift absolute right-[10%] top-[18%] text-3xl text-leaf-300/70" aria-hidden>🍃</span>
-        <span className="leaf-drift absolute left-[18%] top-[60%] text-2xl text-leaf-300/60" style={{ animationDelay: "1.4s" }} aria-hidden>🍃</span>
-        <span className="leaf-drift absolute right-[40%] top-[78%] text-2xl text-leaf-300/50" style={{ animationDelay: "2.6s" }} aria-hidden>🍃</span>
+      {/* ───────── 1. PREMIUM LIGHT HERO ───────── */}
+      <section className="relative overflow-hidden cinema-hero">
+        {/* Soft floating leaf accents (no faces, no humans) */}
+        <span className="leaf-drift absolute right-[8%] top-[20%] text-3xl text-leaf-500/70" aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[12%] bottom-[28%] text-2xl text-leaf-500/60" style={{ animationDelay: "1.8s" }} aria-hidden>🍃</span>
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 md:grid-cols-[1.1fr_1.2fr_auto] md:items-center md:gap-10 md:px-8 md:py-28">
-          {/* Left: copy block */}
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-16 md:px-8 md:py-24">
+          {/* RTL: text right, stage left (in DOM order, text first for RTL) */}
           <div className="prem-fade-up order-2 md:order-1">
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold tracking-wider text-leaf-300 trust-pill">
+            <div className="inline-flex items-center gap-2 rounded-full border border-trust-300/50 bg-white/70 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-trust-700 backdrop-blur">
               <span className="size-1.5 rounded-full bg-leaf-500" />
               الوكيل الحصري — منظومة علامات صحية عالمية في اليمن
             </div>
-            <h1 className="mt-7 font-arabic text-[2.2rem] font-bold leading-[1.1] md:text-[3.4rem] lg:text-[4rem]">
-              {id.hero_headline_ar}
+            <h1 className="mt-7 font-arabic text-[2.1rem] font-bold leading-[1.1] text-trust-900 md:text-[3.4rem] lg:text-[4rem]">
+              <span className="text-trust-700">{id.hero_headline_ar}</span>
             </h1>
-            <div className="mt-6 h-px w-28 prem-divider" />
-            <p className="mt-6 max-w-xl text-base leading-loose opacity-85 md:text-lg">
+            <div className="mt-5 h-px w-28 prem-divider" />
+            <p className="mt-5 max-w-xl text-base leading-loose text-ink-600 md:text-lg">
               {id.hero_sub_ar}
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <WhatsAppCTA number={id.whatsapp_number}>تواصل عبر واتساب</WhatsAppCTA>
               <Link
                 to="/brands"
-                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-sand-50 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-leaf-300 hover:text-leaf-300"
+                className="inline-flex items-center justify-center rounded-full border border-trust-700/20 bg-white px-6 py-3 text-sm font-semibold text-trust-700 transition-all hover:-translate-y-0.5 hover:border-trust-700 hover:shadow-md"
               >
-                استكشف المنتجات
+                استكشف العلامات
                 <span className="mr-2" aria-hidden>←</span>
               </Link>
             </div>
-            <dl className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6 text-sand-50">
+            <dl className="mt-10 grid max-w-xl grid-cols-3 gap-6 border-t border-border pt-6">
               {[
-                { k: "+٨", v: "علامات تجارية عالمية" },
+                { k: "+٨", v: "علامات عالمية" },
                 { k: "+١٠٠٠", v: "عميل يعتمد علينا" },
                 { k: "٨", v: "سنوات من الخبرة" },
               ].map((s) => (
                 <div key={s.v}>
-                  <dt className="font-arabic text-3xl font-bold text-leaf-300 md:text-4xl">{s.k}</dt>
-                  <dd className="mt-1 text-[11px] font-medium tracking-wider opacity-80">{s.v}</dd>
+                  <dt className="font-arabic text-3xl font-bold text-trust-700 md:text-4xl">{s.k}</dt>
+                  <dd className="mt-1 text-[11px] font-medium tracking-wider text-ink-600">{s.v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          {/* Center: hero stage with real product packshots on a dark podium */}
-          <div className="relative order-1 mx-auto w-full max-w-xl md:order-2">
-            <div className="hero-ring -inset-4 size-[112%]" aria-hidden style={{ inset: "-6%" }} />
-            <div className="podium-dark premium-shadow relative aspect-square w-full">
-              {/* Soft ground glow */}
-              <div
-                className="pointer-events-none absolute inset-x-[12%] bottom-[10%] h-[18%] rounded-full"
-                style={{
-                  background:
-                    "radial-gradient(50% 100% at 50% 0%, oklch(0.68 0.17 138 / 0.45), transparent 70%)",
-                  filter: "blur(20px)",
-                }}
-                aria-hidden
-              />
-              {/* Product arrangement (real official packshots, no humans, no stock) */}
-              <div className="absolute inset-0 grid place-items-end pb-[14%]">
-                <div className="relative flex h-[78%] w-[88%] items-end justify-center gap-[2%]">
-                  {heroStage.length === 0 ? (
-                    /* fallback: corporate logo if no products yet */
-                    id.logo_url ? (
-                      <img
-                        src={id.logo_url}
-                        alt={`شعار ${id.legal_name_ar}`}
-                        className="max-h-[70%] w-auto object-contain prem-float"
-                      />
-                    ) : null
-                  ) : (
-                    heroStage.map((p, i) => {
-                      const positions = [
-                        { h: "60%", z: 1, dy: "10%", dx: "0%" },
-                        { h: "72%", z: 2, dy: "4%", dx: "0%" },
-                        { h: "92%", z: 3, dy: "0%", dx: "0%" },
-                        { h: "78%", z: 2, dy: "3%", dx: "0%" },
-                        { h: "64%", z: 1, dy: "9%", dx: "0%" },
-                      ][i] ?? { h: "60%", z: 1, dy: "10%", dx: "0%" };
-                      return (
-                        <Link
-                          key={p.id}
-                          to="/brands/$slug/$productSlug"
-                          params={{ slug: p.brand_slug, productSlug: p.slug }}
-                          className="relative grid place-items-end transition-transform hover:-translate-y-2"
-                          style={{ height: positions.h, zIndex: positions.z, transform: `translateY(${positions.dy})` }}
-                          title={p.name_ar}
-                        >
-                          <img
-                            src={p.cover_url!}
-                            alt={p.name_ar}
-                            className="max-h-full w-auto object-contain prem-float"
-                            style={{ animationDelay: `${i * 0.4}s` }}
-                            loading="eager"
-                          />
-                        </Link>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-[11px] font-semibold text-leaf-300 trust-pill">
-              منظومة العلامات الصحية الرسمية
-            </div>
+          {/* Glass orb stage with official logos */}
+          <div className="order-1 md:order-2">
+            <HeroLogoStage />
           </div>
-
-          {/* Right: trust badges panel */}
-          <aside className="order-3 hidden flex-col gap-3 self-stretch md:flex">
-            {TRUST_BADGES.map((b) => (
-              <div key={b.t} className="trust-pill min-w-[210px]">
-                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-lg text-leaf-300">{b.i}</div>
-                <div>
-                  <div className="text-[13px] font-bold text-sand-50">{b.t}</div>
-                  <div className="text-[11px] opacity-75">{b.d}</div>
-                </div>
-              </div>
-            ))}
-          </aside>
         </div>
 
-        {/* Brand marquee strip docked at hero base */}
-        <div className="relative mx-auto -mb-12 max-w-6xl px-4 pb-4 md:px-8">
-          <BrandMarquee brands={brands} />
+        {/* Brand strip docked at hero base */}
+        <div className="relative mx-auto -mb-10 max-w-6xl px-4 pb-4 md:px-8">
+          <HeroBrandStrip />
         </div>
       </section>
+
 
       {/* ───────── 2. WHY RUKN AL-TAWFIR ───────── */}
       <section className="bg-card pt-28">
