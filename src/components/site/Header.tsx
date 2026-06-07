@@ -114,7 +114,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         </nav>
 
         <div className="flex items-center gap-2">
-          <SocialLinks size="sm" className="hidden lg:flex" />
+          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pr-2 mr-1" />
           <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
             استفسار سريع
           </WhatsAppCTA>
