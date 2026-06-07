@@ -1,81 +1,71 @@
-# Premium Redesign Plan — Rukn Al-Tawfir Corporate Ecosystem
+# Premium Corporate Redesign — Rukn Al-Tawfir
 
-## Locked (no changes)
-DB schema, brand/product IDs, slugs, URLs, asset workflow, governance, RTL, no-pricing, no human imagery, logo-derived color system, admin/CMS, existing Supabase server functions.
+A full UX/UI transformation inspired by the reference image's quality level (not literal copy), built around our official identity and uploaded assets. Architecture, routes, IDs, slugs, and database remain untouched.
 
-This is **visual + UX only**. All current routes keep working: `/`, `/brands`, `/brands/$slug`, `/brands/$slug/$productSlug`, `/catalogs`, plus new `/about`, `/partners`, `/contact`.
+## Scope
 
----
+1. **Homepage** (`/`) — full rebuild of layout structure:
+   - Cinematic hero (corporate composition of our real product packshots on a blue→green premium stage, glassmorphism, floating leaves, soft layered shadows)
+   - Why Rukn Al-Tawfir (refined 6-card grid)
+   - International Brand Ecosystem (premium brand cards — see below, equal weight, no "featured")
+   - Featured Products (editorial grid using official packshots)
+   - Brand Collections (visual category compositions)
+   - Knowledge Center (article previews using official imagery)
+   - Partnership Section
+   - Contact Section
+   - Premium Footer
 
-## 1. New corporate Home (`src/routes/index.tsx`)
-Rebuild as the corporate flagship — Rukn Al-Tawfir is the protagonist, brands are the ecosystem.
+2. **Brand portals** (`/brands/$slug`) — independent microsite feel:
+   - Brand hero (full-bleed image + logo + tagline)
+   - Brand story
+   - Product collection grid
+   - Image gallery (from uploaded brand assets)
+   - Catalog download CTA
+   - WhatsApp inquiry block
+   - Related brands strip (NOT full directory)
 
-Sections, in order:
-1. **Cinematic Hero** — full-bleed cinema-hero canvas, corporate identity headline ("ركن التوفير — الوكيل الحصري في اليمن"), official family product image (uploaded asset) on a podium with halo + float motion, dual CTAs (WhatsApp inquiry + "اكتشف العلامات"), scroll cue.
-2. **Why Rukn Al-Tawfir** — 6 premium feature cards (exclusive agencies, original products, intl. quality, nationwide distribution, strong partnerships, professional support) with icons + glass surfaces.
-3. **Exclusive International Brands** — premium showcase grid of all 8 brands in approved order (NO CAL → Steviola → Monivo → Baby Tawfir → Bambo → Y-Kelin → iSiS → SEKEM). Equal weight. Each card: hero image, logo overlay on podium, short description, fully clickable to `/brands/$slug`, hover lift + shimmer.
-4. **Featured Products** — mixed product spotlight from all brands (cards pulled from products table, image + brand + name, click → product page).
-5. **About excerpt** — story/mission/vision/values teaser → `/about`.
-6. **Partnership band** — B2B CTA → `/partners`.
-7. **Contact strip** — WhatsApp, phone, email, address → `/contact`.
+3. **Product pages** (`/brands/$slug/$productSlug`):
+   - Large gallery with smooth transitions
+   - Product info (verified only)
+   - Variant selector (when variants exist)
+   - WhatsApp inquiry CTA
+   - Related products from same brand
 
-Remove "العلامتان الرائدتان" and "دليل العلامات التجارية" framing.
+4. **Brand cards** — premium pattern used on homepage + brands index:
+   - Hero/cover image (official) + logo overlay
+   - Short Arabic description
+   - Fully-clickable card with elegant hover (lift, image zoom, shimmer)
 
-## 2. New routes
-- `src/routes/about.tsx` — Company story, mission, vision, values, strategic positioning. Premium editorial layout.
-- `src/routes/partners.tsx` — B2B partnerships & distributor request (WhatsApp + form-style CTA, no backend change; form opens WhatsApp prefilled).
-- `src/routes/contact.tsx` — WhatsApp, phone, email, address, contact card with prefilled WhatsApp message builder.
+## Design System
 
-Each with full `head()` metadata (title, description, og:title, og:description).
+- Reinforce blue (Trust) + green (Leaf) tokens from `src/styles.css`
+- Add premium primitives: deeper glassmorphism, layered gradient meshes, soft elevated shadows, podium stages, shimmer, scroll-reveal utility
+- RTL Arabic typography with refined display scale
+- Mobile-first: every section reflows to premium mobile layout (sticky WhatsApp, swipeable galleries, full-width cards)
 
-## 3. Brand portal redesign (`src/routes/brands.$slug.tsx`)
-Reshape into the actual brand experience (not directory re-render):
-- Brand hero with halo accent in brand color, official logo on podium, brand tagline.
-- Brand story block (from CMS `description_ar`).
-- Product collection grid (podium tiles, brand-accent halos, click → product page).
-- Gallery strip (existing brand assets).
-- Catalog download CTA (if `catalog_url`).
-- WhatsApp inquiry CTA prefilled with brand name.
-- "علامات ذات صلة" — 3 sibling brands at bottom (not full directory).
+## Constraints (strict)
 
-Empty-product brands (iSiS, SEKEM): show "قريباً — منتجات رسمية" placeholder card instead of empty grid.
+- Use ONLY official uploaded assets (logos, packshots, family shots, catalogs). No stock, no AI-generated humans, no fake products, no women, no faces.
+- Hide prices; conversion goes through WhatsApp inquiry.
+- Equal treatment for all 8 brands. No "featured brand."
+- Preserve database, routes, slugs, IDs, asset workflow.
 
-## 4. Brands index (`src/routes/brands.tsx`)
-Keep as full premium directory (8 brand podium tiles, equal weight, approved order). No "featured" tier.
+## Technical Plan
 
-## 5. Header / nav
-Update nav items to: الرئيسية، العلامات، المنتجات (catalogs), من نحن، الشراكة، تواصل. Keep mega-menu of brands. Keep glass header.
+- Edit: `src/routes/index.tsx`, `src/routes/brands.$slug.index.tsx`, `src/routes/brands.$slug.$productSlug.tsx`, `src/routes/brands.index.tsx`
+- Add reusable components: `src/components/site/BrandCard.tsx`, `ProductCard.tsx`, `HeroStage.tsx`, `SectionHeader.tsx`, `Gallery.tsx`, `RelatedBrands.tsx`
+- Extend `src/styles.css` with new premium utilities (glass-2, mesh-aurora, premium-shadow-lg, reveal-on-scroll, image-zoom)
+- Use existing `site.functions.ts` data; add helper queries for galleries/related if needed (no schema change)
 
-## 6. Footer
-Premium 4-column footer: corporate info + logo, brands list (all 8), quick links (الرئيسية/من نحن/الشراكة/تواصل/الكتالوجات), contact data + WhatsApp pill.
+## Phased Execution (with approval between phases)
 
-## 7. Navigation audit
-Verify every card/button/link routes correctly; no `<a href>` for dynamic params — all `<Link to params>`. WhatsApp CTAs use `WhatsAppCTA` with context-aware prefilled message.
+Per project memory ("phased execution with approval between phases"):
 
-## 8. Visual language (extend `src/styles.css` only, no token rewrites)
-Use existing premium utilities (`cinema-hero`, `glass`, `podium`, `prem-card`, halos, prem-fade-up, prem-float, prem-shimmer). Add a few helpers if missing: `feature-card`, `section-eyebrow-xl`, `editorial-prose`. All colors via existing tokens (trust/leaf/sand/ink). No raw hex.
+- **Phase 1 — Foundation + Homepage**: design tokens, primitives, new homepage. ← *I'll start here on approval.*
+- **Phase 2 — Brand portals + brand cards**.
+- **Phase 3 — Product pages + galleries + polish (mobile QA, micro-animations)**.
 
-## 9. Out of scope (explicit)
-- No DB migrations.
-- No new server functions (reuse `listBrands`, `getBrand`, `listProductsByBrand`, plus add a small `listFeaturedProducts` server fn if needed — pure read, no schema change).
-- No asset uploads in this pass; reuse existing official assets in `brand-assets` bucket.
-- No pricing surfaces anywhere.
-- No human/face imagery.
+## Confirmation Needed Before I Start
 
-## Technical notes
-- All new routes use `createFileRoute` with proper `head()` per `tanstack-route-architecture`.
-- Data reads via `createServerFn` + `useQuery` / `ensureQueryData` pattern already in place.
-- All Arabic copy, RTL preserved (`dir="rtl"` inherited from root).
-- Mobile-first: hero, cards, and grids tested at 442px viewport (current preview).
-- No `-webkit-backdrop-filter` hand-written (per tailwind4-gotchas).
-
-## Delivery order
-1. Extend styles.css helpers.
-2. New routes: about, partners, contact.
-3. Add `listFeaturedProducts` server fn (read-only).
-4. Rebuild `index.tsx` (corporate home).
-5. Rebuild `brands.$slug.tsx` (real brand experience + empty-state for iSiS/SEKEM).
-6. Update Header nav + Footer.
-7. Audit links/CTAs end-to-end on preview.
-
-Approve to proceed, or tell me which sections to adjust first.
+1. Confirm Phase 1 first (homepage + foundation), then approval gate before Phases 2 and 3.
+2. Confirm I should rely strictly on assets already in the database (`logo_url`, `cover_url`, brand/product images already uploaded) — no new image generation for products or humans. For decorative atmosphere (leaves, abstract blue/green light), small abstract SVG/CSS-only embellishments are acceptable. Yes/No?
