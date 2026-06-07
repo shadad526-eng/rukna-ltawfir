@@ -152,3 +152,39 @@
   0%, 100% { box-shadow: 0 0 0 0 oklch(0.68 0.17 138 / 0.45); }
   50% { box-shadow: 0 0 0 12px oklch(0.68 0.17 138 / 0); }
 }
+
+/* Premium corporate canvas: subtle trust halo + hairline grid */
+@utility hq-canvas {
+  background-color: var(--sand-50);
+  background-image:
+    radial-gradient(60% 55% at 85% -5%, oklch(0.46 0.16 245 / 0.10), transparent 70%),
+    radial-gradient(45% 40% at -5% 10%, oklch(0.68 0.17 138 / 0.07), transparent 70%),
+    linear-gradient(to right, oklch(0.46 0.16 245 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.46 0.16 245 / 0.05) 1px, transparent 1px);
+  background-size: auto, auto, 64px 64px, 64px 64px;
+}
+
+@utility hq-rule {
+  background: linear-gradient(90deg, transparent, var(--leaf-500) 20%, var(--trust-700) 80%, transparent);
+}
+
+@utility hq-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--trust-700);
+}
+
+@utility hq-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+.hq-card:hover { transform: translateY(-2px); border-color: oklch(0.46 0.16 245 / 0.35); box-shadow: var(--shadow-lg); }
+
+@utility hq-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
