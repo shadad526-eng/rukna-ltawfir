@@ -83,35 +83,37 @@ function ProductDetailPage() {
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:grid-cols-2 md:px-6 md:py-12">
         {/* Gallery */}
         <div>
-          <div className="aspect-square w-full overflow-hidden rounded-2xl border border-border bg-card p-8">
-            {hero ? (
-              <img src={hero} alt={p.name_ar} className="size-full object-contain" />
-            ) : (
-              <div className="grid size-full place-items-center text-sm text-muted-foreground">صورة العبوة الرسمية</div>
-            )}
-          </div>
-          {p.gallery.length > 0 ? (
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url) => (
-                <button
-                  key={url}
-                  type="button"
-                  onClick={() => setActiveImage(url)}
-                  className={`aspect-square overflow-hidden rounded-lg border bg-card p-1 transition-colors ${
-                    hero === url ? "border-primary" : "border-border hover:border-primary/40"
-                  }`}
-                >
-                  <img src={url ?? ""} alt="" className="size-full object-contain" />
-                </button>
-              ))}
+          <div className="prem-card p-8 md:p-10">
+            <div className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
+              {hero ? (
+                <img src={hero} alt={p.name_ar} className="size-full object-contain" />
+              ) : (
+                <div className="grid size-full place-items-center text-sm text-muted-foreground">صورة العبوة الرسمية</div>
+              )}
             </div>
-          ) : null}
+            {p.gallery.length > 0 ? (
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setActiveImage(url)}
+                    className={`podium aspect-square overflow-hidden rounded-xl p-1 transition-all ${
+                      hero === url ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <img src={url ?? ""} alt="" className="size-full object-contain" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {/* Info */}
-        <div>
+        <div className="prem-card p-7 md:p-9">
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center overflow-hidden rounded-lg border border-border bg-background p-1">
+            <div className="podium grid size-12 place-items-center overflow-hidden rounded-xl p-1">
               {p.brand.logo_url ? (
                 <img src={p.brand.logo_url} alt={p.brand.name_ar} className="size-full object-contain" />
               ) : null}
@@ -124,14 +126,14 @@ function ProductDetailPage() {
               {p.brand.name_ar}
             </Link>
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-foreground md:text-4xl">{p.name_ar}</h1>
+          <h1 className="mt-4 font-arabic text-3xl font-bold text-foreground md:text-4xl">{p.name_ar}</h1>
           <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{p.name_en}</div>
           {p.short_description_ar ? (
-            <p className="mt-4 text-base leading-relaxed text-foreground/80">{p.short_description_ar}</p>
+            <p className="mt-4 text-base leading-loose text-foreground/80">{p.short_description_ar}</p>
           ) : null}
 
           {p.key_benefits_ar.length > 0 ? (
-            <ul className="mt-5 space-y-2">
+            <ul className="mt-5 space-y-2.5">
               {p.key_benefits_ar.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-foreground/85">
                   <span className="mt-1.5 inline-block size-1.5 rounded-full" style={{ background: accent }} />
@@ -144,9 +146,9 @@ function ProductDetailPage() {
           {p.variants.length > 0 ? (
             <div className="mt-6">
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">الأحجام المتاحة</div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {p.variants.map((v) => (
-                  <span key={v.id} className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground">
+                  <span key={v.id} className="rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-[0_14px_24px_-20px_oklch(0.32_0.13_245/0.32)]">
                     {v.name_ar}{v.pack_size ? ` · ${v.pack_size}` : ""}
                   </span>
                 ))}
@@ -163,13 +165,13 @@ function ProductDetailPage() {
             </WhatsAppCTA>
             <Link
               to="/catalogs"
-              className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+              className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
             >
               عرض الكتالوج الرسمي
             </Link>
           </div>
 
-          <p className="mt-5 text-[11px] text-muted-foreground">
+          <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
             الأسعار التجارية وبيانات الجملة لا تُعرض على الموقع العام. للاستفسار التجاري يرجى التواصل عبر واتساب الرسمي.
           </p>
         </div>
@@ -177,27 +179,27 @@ function ProductDetailPage() {
 
       {/* Long description + technical sections */}
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6">
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {p.long_description_ar ? (
-            <article className="lg:col-span-2 rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-bold text-foreground">نبذة عن المنتج</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-foreground/85">{p.long_description_ar}</p>
+            <article className="prem-card lg:col-span-2 p-6 md:p-7">
+              <h2 className="font-arabic text-lg font-bold text-foreground">نبذة عن المنتج</h2>
+              <p className="mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85">{p.long_description_ar}</p>
             </article>
           ) : null}
 
           {p.usage_instructions_ar ? (
-            <article className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-bold text-foreground">طريقة الاستخدام</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-foreground/85">{p.usage_instructions_ar}</p>
+            <article className="prem-card p-6 md:p-7">
+              <h2 className="font-arabic text-lg font-bold text-foreground">طريقة الاستخدام</h2>
+              <p className="mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85">{p.usage_instructions_ar}</p>
             </article>
           ) : null}
 
           {p.ingredients.length > 0 ? (
-            <article className="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
-              <h2 className="text-lg font-bold text-foreground">المكونات</h2>
-              <ul className="mt-3 divide-y divide-border">
+            <article className="prem-card p-6 md:p-7 lg:col-span-2">
+              <h2 className="font-arabic text-lg font-bold text-foreground">المكونات</h2>
+              <ul className="mt-3 divide-y divide-border/70">
                 {p.ingredients.map((i) => (
-                  <li key={i.name_ar} className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                  <li key={i.name_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
                     <span className="text-foreground/90">{i.name_ar}</span>
                     {i.percentage != null ? <span className="text-muted-foreground">{i.percentage}%</span> : null}
                   </li>
@@ -207,11 +209,11 @@ function ProductDetailPage() {
           ) : null}
 
           {p.nutrition.length > 0 ? (
-            <article className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-bold text-foreground">القيمة الغذائية</h2>
-              <ul className="mt-3 divide-y divide-border">
+            <article className="prem-card p-6 md:p-7">
+              <h2 className="font-arabic text-lg font-bold text-foreground">القيمة الغذائية</h2>
+              <ul className="mt-3 divide-y divide-border/70">
                 {p.nutrition.map((n) => (
-                  <li key={n.label_ar} className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                  <li key={n.label_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
                     <span className="text-foreground/90">{n.label_ar}</span>
                     <span className="text-muted-foreground">{n.value}{n.unit ? ` ${n.unit}` : ""}</span>
                   </li>
@@ -221,15 +223,15 @@ function ProductDetailPage() {
           ) : null}
 
           {p.faqs.length > 0 ? (
-            <article className="rounded-2xl border border-border bg-card p-6 lg:col-span-3">
-              <h2 className="text-lg font-bold text-foreground">أسئلة شائعة</h2>
-              <div className="mt-3 divide-y divide-border">
+            <article className="prem-card p-6 md:p-7 lg:col-span-3">
+              <h2 className="font-arabic text-lg font-bold text-foreground">أسئلة شائعة</h2>
+              <div className="mt-3 divide-y divide-border/70">
                 {p.faqs.map((f) => (
-                  <details key={f.question_ar} className="group py-3">
+                  <details key={f.question_ar} className="group py-3.5">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
                       {f.question_ar}
                     </summary>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.answer_ar}</p>
+                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{f.answer_ar}</p>
                   </details>
                 ))}
               </div>
@@ -269,7 +271,7 @@ function ProductDetailPage() {
             </div>
           </div>
         </section>
-      ) : null}
+      ) : null
 
       <SiteFooter
         legalNameAr={id.legal_name_ar}
