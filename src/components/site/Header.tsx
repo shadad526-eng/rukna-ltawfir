@@ -13,8 +13,11 @@ type Props = {
 
 const navItems = [
   { to: "/", label: "الرئيسية" },
-  { to: "/brands", label: "العلامات التجارية", hasMega: true },
+  { to: "/brands", label: "العلامات", hasMega: true },
   { to: "/catalogs", label: "الكتالوجات" },
+  { to: "/about", label: "من نحن" },
+  { to: "/partners", label: "الشراكة" },
+  { to: "/contact", label: "تواصل" },
 ];
 
 export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl }: Props) {
