@@ -87,19 +87,6 @@ function Home() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
 
-  // Pick 5 distinct product covers for the cinematic hero stage (real official packshots only)
-  const heroStage = (() => {
-    const seen = new Set<string>();
-    const picks: typeof featured = [];
-    for (const p of featured) {
-      if (!p.cover_url) continue;
-      if (seen.has(p.brand_slug)) continue;
-      seen.add(p.brand_slug);
-      picks.push(p);
-      if (picks.length >= 5) break;
-    }
-    return picks;
-  })();
 
   return (
     <div className="min-h-screen bg-background">
