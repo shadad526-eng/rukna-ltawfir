@@ -167,11 +167,11 @@ export function HeroBrandStrip() {
       className="relative overflow-hidden rounded-[36px] border border-white/80"
       style={{
         background:
-          "linear-gradient(180deg, oklch(1 0 0 / 0.92) 0%, oklch(0.99 0.005 245 / 0.86) 100%)",
-        backdropFilter: "saturate(200%) blur(28px)",
-        WebkitBackdropFilter: "saturate(200%) blur(28px)",
+          "linear-gradient(180deg, oklch(1 0 0 / 0.94) 0%, oklch(0.99 0.005 245 / 0.88) 100%)",
+        backdropFilter: "saturate(200%) blur(32px)",
+        WebkitBackdropFilter: "saturate(200%) blur(32px)",
         boxShadow:
-          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.05), 0 4px 10px oklch(0.32 0.13 245 / 0.06), 0 30px 60px -24px oklch(0.32 0.13 245 / 0.32), 0 60px 120px -50px oklch(0.32 0.13 245 / 0.28)",
+          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.06), 0 6px 14px oklch(0.32 0.13 245 / 0.06), 0 36px 70px -28px oklch(0.32 0.13 245 / 0.36), 0 70px 140px -55px oklch(0.32 0.13 245 / 0.30)",
       }}
     >
       {/* Top hairline gradient */}
@@ -179,23 +179,34 @@ export function HeroBrandStrip() {
         className="pointer-events-none absolute inset-x-10 top-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.4) 30%, oklch(0.68 0.17 138 / 0.4) 70%, transparent)",
+            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.45) 30%, oklch(0.68 0.17 138 / 0.45) 70%, transparent)",
         }}
         aria-hidden
       />
-      <div className="grid grid-cols-4 gap-x-4 gap-y-7 px-6 py-8 md:grid-cols-8 md:gap-x-7 md:px-12 md:py-11">
-        {BRANDS.map((b) => (
+      {/* Soft inner top sheen */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-16"
+        style={{
+          background:
+            "linear-gradient(180deg, oklch(1 0 0 / 0.6), transparent)",
+        }}
+        aria-hidden
+      />
+      <div className="relative grid grid-cols-4 gap-x-3 gap-y-8 px-5 py-9 md:grid-cols-8 md:gap-x-6 md:px-12 md:py-12">
+        {BRANDS.map((b, i) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className="group grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32"
+            className={`group relative grid h-24 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-32 ${
+              i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+12px)] md:before:top-1/2 md:before:h-10 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/40 md:before:to-transparent" : ""
+            }`}
           >
             <img
               src={b.url}
               alt={`شعار ${b.name}`}
-              className="max-h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-110 md:max-h-28"
+              className="max-h-[88px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.08] md:max-h-[120px]"
               loading="lazy"
               decoding="async"
               style={{ imageRendering: "auto" }}
@@ -206,6 +217,7 @@ export function HeroBrandStrip() {
     </div>
   );
 }
+
 
 /* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
 const FEATURES = [
