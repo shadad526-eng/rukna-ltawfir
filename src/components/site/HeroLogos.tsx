@@ -152,25 +152,38 @@ export function HeroLogoStage() {
 export function HeroBrandStrip() {
   return (
     <div
-      className="relative overflow-hidden rounded-[28px] border border-white/80 bg-white/95 backdrop-blur"
+      className="relative overflow-hidden rounded-[32px] border border-white/70"
       style={{
+        background:
+          "linear-gradient(180deg, oklch(1 0 0 / 0.96) 0%, oklch(0.99 0.005 245 / 0.92) 100%)",
+        backdropFilter: "saturate(180%) blur(22px)",
+        WebkitBackdropFilter: "saturate(180%) blur(22px)",
         boxShadow:
-          "0 30px 60px -25px oklch(0.32 0.13 245 / 0.35), 0 2px 0 oklch(1 0 0 / 0.9) inset",
+          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 2px 4px oklch(0.32 0.13 245 / 0.04), 0 24px 48px -20px oklch(0.32 0.13 245 / 0.28), 0 48px 96px -40px oklch(0.32 0.13 245 / 0.22)",
       }}
     >
-      <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 py-5 md:grid-cols-8 md:gap-x-4 md:px-8 md:py-6">
+      {/* Top hairline gradient */}
+      <div
+        className="pointer-events-none absolute inset-x-8 top-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.35) 30%, oklch(0.68 0.17 138 / 0.35) 70%, transparent)",
+        }}
+        aria-hidden
+      />
+      <div className="grid grid-cols-4 gap-x-3 gap-y-6 px-5 py-7 md:grid-cols-8 md:gap-x-6 md:px-10 md:py-9">
         {BRANDS.map((b) => (
           <Link
             key={b.slug}
             to="/brands/$slug"
             params={{ slug: b.slug }}
             title={b.name}
-            className="group grid h-16 place-items-center transition-transform hover:-translate-y-0.5"
+            className="group grid h-20 place-items-center transition-all duration-300 hover:-translate-y-1 md:h-24"
           >
             <img
               src={b.url}
               alt={`شعار ${b.name}`}
-              className="max-h-14 w-auto object-contain"
+              className="max-h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105 md:max-h-20"
               loading="lazy"
             />
           </Link>
