@@ -150,27 +150,37 @@ function BrandDetail() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
               <Link
                 key={p.id}
                 to="/brands/$slug/$productSlug"
                 params={{ slug: brand.slug, productSlug: p.slug }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                className="prem-card group flex flex-col"
               >
-                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-border bg-background p-6">
+                <div className="podium relative grid aspect-[4/3] place-items-center p-6">
                   {p.cover_url ? (
-                    <img src={p.cover_url} alt={p.name_ar} className="size-full object-contain" loading="lazy" />
+                    <img
+                      src={p.cover_url}
+                      alt={p.name_ar}
+                      className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   ) : (
                     <span className="text-xs text-muted-foreground">صورة العبوة الرسمية</span>
                   )}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
                 </div>
-                <div className="flex-1 p-4">
-                  <div className="text-sm font-bold text-foreground">{p.name_ar}</div>
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{p.name_en}</div>
+                <div className="flex-1 p-5">
+                  <div className="font-arabic text-base font-bold text-foreground">{p.name_ar}</div>
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-ink-600">{p.name_en}</div>
                   {p.short_description_ar ? (
-                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">{p.short_description_ar}</p>
+                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-ink-600">{p.short_description_ar}</p>
                   ) : null}
+                </div>
+                <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs font-semibold text-trust-700">
+                  <span>تفاصيل المنتج</span>
+                  <span aria-hidden className="transition-transform group-hover:-translate-x-1">←</span>
                 </div>
               </Link>
             ))}
