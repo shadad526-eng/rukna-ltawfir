@@ -4,7 +4,7 @@ type Social = {
   name: string;
   label: string;
   href: string;
-  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 };
 
 const buildSocials = (whatsappNumber?: string): Social[] => {
