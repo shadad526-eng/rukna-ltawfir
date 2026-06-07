@@ -51,8 +51,10 @@ function ProductDetailPage() {
   const params = Route.useParams();
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: p } = useSuspenseQuery(productQO(params.slug, params.productSlug));
+  const { data: brandProducts } = useSuspenseQuery(brandProductsQO(params.slug));
   const [activeImage, setActiveImage] = useState<string | null>(null);
   if (!p) return null;
+  const related = brandProducts.filter((x) => x.slug !== p.slug).slice(0, 4);
 
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
   const hero = activeImage ?? p.cover_url;
