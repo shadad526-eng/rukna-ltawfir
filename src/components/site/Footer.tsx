@@ -57,9 +57,10 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
             <div className="mt-5">
               <WhatsAppCTA number={whatsappNumber} variant="pill">بدء استفسار تجاري</WhatsAppCTA>
             </div>
-            <div className="mt-6">
-              <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">تابعنا</div>
-              <SocialLinks />
+            <div className="mt-6 flex items-center gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-60">تابعنا</span>
+              <span className="h-px flex-1 bg-white/10" />
+              <SocialLinks size="sm" variant="footer" />
             </div>
           </div>
         </div>

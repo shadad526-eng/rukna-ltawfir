@@ -114,7 +114,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         </nav>
 
         <div className="flex items-center gap-2">
-          <SocialLinks size="sm" className="hidden lg:flex" />
+          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pr-2 mr-1" />
           <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
             استفسار سريع
           </WhatsAppCTA>
@@ -176,6 +176,9 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
             ) : null}
             <div className="mt-3">
               <WhatsAppCTA number={whatsappNumber} className="w-full">استفسار عبر واتساب</WhatsAppCTA>
+            </div>
+            <div className="mt-3 flex items-center justify-center border-t border-border pt-3">
+              <SocialLinks size="md" variant="header" whatsappNumber={whatsappNumber} />
             </div>
           </nav>
         </div>
