@@ -4,15 +4,15 @@ import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/config";
 
 type LocaleHints = { cookie: string | null; accept: string | null };
 
+// createIsomorphicFn strips the .server() callback (and its imports) from the
+// client bundle, so the dynamic server-only import never reaches the browser.
 const getLocaleHints = createIsomorphicFn()
-  .client((): LocaleHints => ({
+  .client(async (): Promise<LocaleHints> => ({
     cookie: typeof document !== "undefined" ? document.cookie : null,
     accept: typeof navigator !== "undefined" ? navigator.language : null,
   }))
-  .server((): LocaleHints => {
-    // Dynamic import keeps the server-only module out of the client bundle.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getRequest } = require("@tanstack/react-start/server") as typeof import("@tanstack/react-start/server");
+  .server(async (): Promise<LocaleHints> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
     const req = getRequest?.();
     return {
       cookie: req?.headers.get("cookie") ?? null,
@@ -34,8 +34,8 @@ function pickLocale(cookieHeader: string | null, acceptLang: string | null): Loc
 }
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    const { cookie, accept } = getLocaleHints();
+  beforeLoad: async () => {
+    const { cookie, accept } = await getLocaleHints();
     const lang = pickLocale(cookie, accept);
     throw redirect({ to: "/$lang", params: { lang }, replace: true });
   },
