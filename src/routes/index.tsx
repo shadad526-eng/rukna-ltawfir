@@ -1,7 +1,26 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { DEFAULT_LOCALE, LOCALES, LOCALE_COOKIE, type Locale } from "@/i18n/config";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/i18n/config";
 
-function pickLocale(cookieHeader: string | null | undefined, acceptLang: string | null | undefined): Locale {
+type LocaleHints = { cookie: string | null; accept: string | null };
+
+// createIsomorphicFn strips the .server() callback (and its imports) from the
+// client bundle, so the dynamic server-only import never reaches the browser.
+const getLocaleHints = createIsomorphicFn()
+  .client(async (): Promise<LocaleHints> => ({
+    cookie: typeof document !== "undefined" ? document.cookie : null,
+    accept: typeof navigator !== "undefined" ? navigator.language : null,
+  }))
+  .server(async (): Promise<LocaleHints> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const req = getRequest?.();
+    return {
+      cookie: req?.headers.get("cookie") ?? null,
+      accept: req?.headers.get("accept-language") ?? null,
+    };
+  });
+
+function pickLocale(cookieHeader: string | null, acceptLang: string | null): Locale {
   if (cookieHeader) {
     const m = cookieHeader.match(/(?:^|; )lovable-lang=(ar|en)/);
     if (m && (LOCALES as readonly string[]).includes(m[1])) return m[1] as Locale;
@@ -16,29 +35,9 @@ function pickLocale(cookieHeader: string | null | undefined, acceptLang: string 
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
-    let cookie: string | null = null;
-    let accept: string | null = null;
-    if (typeof document !== "undefined") {
-      cookie = document.cookie || null;
-      accept = navigator?.language ?? null;
-    } else {
-      try {
-        const mod = await import("@tanstack/react-start/server");
-        const req = mod.getRequest?.();
-        if (req) {
-          cookie = req.headers.get("cookie");
-          accept = req.headers.get("accept-language");
-        }
-      } catch {
-        // best-effort; fall back to default
-      }
-    }
+    const { cookie, accept } = await getLocaleHints();
     const lang = pickLocale(cookie, accept);
     throw redirect({ to: "/$lang", params: { lang }, replace: true });
   },
-  // Should never render — beforeLoad throws redirect.
   component: () => null,
 });
-
-// Silence unused import lint
-void LOCALE_COOKIE;
