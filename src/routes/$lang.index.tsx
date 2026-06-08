@@ -224,15 +224,13 @@ function Home() {
         </div>
       </section>
 
-      {/* ───────── TRUE FLOATING BRAND BAR — between hero and features ───────── */}
-      <div aria-hidden className="relative h-0">
-        <div className="relative z-30 mx-auto -mt-20 max-w-6xl px-4 md:-mt-28 md:px-8">
-          <HeroBrandStrip />
-        </div>
+      {/* ───────── FLOATING BRAND BAR — sits between hero and features with real layout space ───────── */}
+      <div className="relative z-30 mx-auto -mt-16 max-w-6xl px-4 md:-mt-24 md:px-8">
+        <HeroBrandStrip />
       </div>
 
-      {/* Features strip — sits cleanly on white background below floating bar */}
-      <section className="bg-card pt-28 md:pt-40">
+      {/* Features strip — clear breathing room below the floating bar */}
+      <section className="relative z-10 bg-card pt-14 md:pt-20">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <HeroFeaturesStrip />
         </div>
