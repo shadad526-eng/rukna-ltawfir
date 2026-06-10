@@ -164,23 +164,7 @@ function BrandDetail() {
           ) : null}
         </div>
 
-        {products.length === 0 ? (
-          <div className="prem-card relative grid place-items-center p-12 text-center">
-            <div className="grid size-14 place-items-center rounded-full bg-secondary text-2xl text-trust-700">⌛</div>
-            <h3 className="mt-4 font-arabic text-xl font-bold text-foreground">قريبًا — منتجات رسمية</h3>
-            <p className="mt-2 max-w-md text-sm leading-loose text-ink-600">
-              نقوم حاليًا بإعداد بطاقات المنتجات من الأصول الرسمية للعلامة. للاستفسار العاجل، تواصل عبر واتساب.
-            </p>
-            <div className="mt-6">
-              <WhatsAppCTA
-                number={id.whatsapp_number}
-                message={`السلام عليكم، أرغب بالاستفسار عن منتجات ${brand.name_ar}.`}
-              >
-                استفسار واتساب
-              </WhatsAppCTA>
-            </div>
-          </div>
-        ) : (
+        {products.length === 0 ? null : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
               <LLink
