@@ -4,6 +4,7 @@ import babyTawfirCard from "@/assets/brand-cards/baby-tawfir-card.json";
 import monivoCard from "@/assets/brand-cards/monivo-card.json";
 import bamboCard from "@/assets/brand-cards/bambo-card.json";
 import yKelinCard from "@/assets/brand-cards/y-kelin-card.json";
+import sekemCard from "@/assets/brand-cards/sekem-card.json";
 
 export const brandCardMediaBySlug: Record<string, string> = {
   steviola: steviolaCard.url,
@@ -13,6 +14,7 @@ export const brandCardMediaBySlug: Record<string, string> = {
   monivo: monivoCard.url,
   bambo: bamboCard.url,
   "y-kelin": yKelinCard.url,
+  sekem: sekemCard.url,
 };
 
 export function getBrandCardMedia(slug: string) {
