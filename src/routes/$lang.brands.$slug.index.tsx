@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandCard } from "@/components/site/BrandCard";
+import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -219,6 +220,10 @@ function BrandDetail() {
       </section>
 
       {/* Gallery */}
+      {brand.slug === "sekem" ? (
+        <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
+      ) : null}
+
       {gallery.length > 0 ? (
         <section className="border-t border-border bg-card">
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
