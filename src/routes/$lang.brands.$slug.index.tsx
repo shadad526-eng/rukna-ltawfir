@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandCard } from "@/components/site/BrandCard";
+import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
