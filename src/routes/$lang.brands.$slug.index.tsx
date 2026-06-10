@@ -220,6 +220,10 @@ function BrandDetail() {
       </section>
 
       {/* Gallery */}
+      {brand.slug === "sekem" ? (
+        <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
+      ) : null}
+
       {gallery.length > 0 ? (
         <section className="border-t border-border bg-card">
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
