@@ -178,9 +178,6 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                 </div>
               </div>
             ) : null}
-            <div className="mt-3">
-              <WhatsAppCTA number={whatsappNumber} className="w-full">{t("header.whatsappInquiry")}</WhatsAppCTA>
-            </div>
             <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
               <LanguageSwitcher />
               <SocialLinks size="md" variant="header" whatsappNumber={whatsappNumber} />
