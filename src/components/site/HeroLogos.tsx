@@ -1,6 +1,7 @@
 import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
+import { useT, useLocale } from "@/i18n/LocaleProvider";
 import rukn from "@/assets/brands/rukn.json";
 import steviola from "@/assets/brands/steviola.json";
 import nocal from "@/assets/brands/nocal.json";
@@ -103,14 +104,22 @@ export function HeroLogoStage() {
       />
 
       {/* Rukn logo center */}
-      <div className="absolute inset-0 grid place-items-center">
-        <img
-          src={rukn.url}
-          alt="شعار ركن التوفير كوزمتك للتجارة"
-          className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
-          loading="eager"
-        />
-      </div>
+      <RuknHeroLogo />
+    </div>
+  );
+}
+
+function RuknHeroLogo() {
+  const { lang } = useLocale();
+  const alt = lang === "ar" ? "شعار ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade logo";
+  return (
+    <div className="absolute inset-0 grid place-items-center">
+      <img
+        src={rukn.url}
+        alt={alt}
+        className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
+        loading="eager"
+      />
 
       {/* 3-tier blue podium under orb */}
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
