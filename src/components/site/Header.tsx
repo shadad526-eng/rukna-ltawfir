@@ -1,7 +1,7 @@
 import { LLink } from "@/i18n/LLink";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { WhatsAppCTA } from "./WhatsAppCTA";
+
 import { SocialLinks } from "./SocialLinks";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { listBrands } from "@/lib/site.functions";
