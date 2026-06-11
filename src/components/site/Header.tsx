@@ -5,17 +5,18 @@ import { useState, useMemo } from "react";
 import { SocialLinks } from "./SocialLinks";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { listBrands } from "@/lib/site.functions";
-import { useT } from "@/i18n/LocaleProvider";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 type Props = {
-  legalNameAr: string;
-  parentGroupAr: string | null;
+  legalName: string;
+  parentGroup: string | null;
   whatsappNumber: string;
   logoUrl: string | null;
 };
 
-export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl }: Props) {
-  const t = useT();
+export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: Props) {
+  const { lang, t } = useLocale();
+  const isAr = lang === "ar";
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: brands } = useQuery({
@@ -43,15 +44,15 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         <LLink to="/$lang/" className="flex min-w-0 items-center gap-3">
           <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             {logoUrl ? (
-              <img src={logoUrl} alt={`شعار ${legalNameAr}`} className="size-full object-contain p-1" />
+              <img src={logoUrl} alt={t("header.logoAlt", { name: legalName })} className="size-full object-contain p-1" />
             ) : (
-              <span className="text-xs font-bold text-trust-700">رت</span>
+              <span className="text-xs font-bold text-trust-700">{t("header.ruknShort")}</span>
             )}
           </div>
           <div className="min-w-0 leading-tight">
-            <div className="truncate font-arabic text-sm font-bold text-foreground md:text-[15px]">{legalNameAr}</div>
-            {parentGroupAr ? (
-              <div className="truncate text-[10px] font-medium tracking-wider text-ink-600">{parentGroupAr}</div>
+            <div className="truncate font-arabic text-sm font-bold text-foreground md:text-[15px]">{legalName}</div>
+            {parentGroup ? (
+              <div className="truncate text-[10px] font-medium tracking-wider text-ink-600">{parentGroup}</div>
             ) : null}
           </div>
         </LLink>
@@ -85,26 +86,29 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                       </div>
                     </div>
                     <div className="grid grid-cols-4 gap-2 p-4">
-                      {brands.map((b) => (
-                        <LLink
-                          key={b.id}
-                          to="/$lang/brands/$slug"
-                          params={{ slug: b.slug }}
-                          className="group flex flex-col items-center gap-2 rounded-xl border border-transparent p-3 text-center transition-all hover:-translate-y-0.5 hover:border-border hover:bg-background"
-                          onClick={() => setMegaOpen(false)}
-                        >
-                          <div className="grid h-14 w-full place-items-center overflow-hidden rounded-lg bg-sand-50 p-2">
-                            {b.logo_url ? (
-                              <img src={b.logo_url} alt={`شعار ${b.name_ar}`} className="max-h-10 w-auto object-contain" loading="lazy" />
-                            ) : (
-                              <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
-                            )}
-                          </div>
-                          <div className="font-arabic text-[12px] font-bold text-foreground group-hover:text-trust-700">
-                            {b.name_ar}
-                          </div>
-                        </LLink>
-                      ))}
+                      {brands.map((b) => {
+                        const name = isAr ? b.name_ar : b.name_en;
+                        return (
+                          <LLink
+                            key={b.id}
+                            to="/$lang/brands/$slug"
+                            params={{ slug: b.slug }}
+                            className="group flex flex-col items-center gap-2 rounded-xl border border-transparent p-3 text-center transition-all hover:-translate-y-0.5 hover:border-border hover:bg-background"
+                            onClick={() => setMegaOpen(false)}
+                          >
+                            <div className="grid h-14 w-full place-items-center overflow-hidden rounded-lg bg-sand-50 p-2">
+                              {b.logo_url ? (
+                                <img src={b.logo_url} alt={t("header.brandLogoAlt", { name })} className="max-h-10 w-auto object-contain" loading="lazy" />
+                              ) : (
+                                <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
+                              )}
+                            </div>
+                            <div className="font-arabic text-[12px] font-bold text-foreground group-hover:text-trust-700">
+                              {name}
+                            </div>
+                          </LLink>
+                        );
+                      })}
                     </div>
                     <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs">
                       <span className="text-ink-600">{t("header.brandsGuide")}</span>
@@ -137,7 +141,6 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
         </div>
       </div>
 
-      {/* Mobile panel */}
       {mobileOpen ? (
         <div className="border-t border-border bg-card lg:hidden">
           <nav className="mx-auto max-w-7xl px-4 py-3">
@@ -160,21 +163,24 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
               <div className="mt-3 border-t border-border pt-3">
                 <div className="hq-eyebrow mb-2">{t("nav.brands")}</div>
                 <div className="grid grid-cols-4 gap-2">
-                  {brands.map((b) => (
-                    <LLink
-                      key={b.id}
-                      to="/$lang/brands/$slug"
-                      params={{ slug: b.slug }}
-                      onClick={() => setMobileOpen(false)}
-                      className="grid h-14 place-items-center rounded-lg border border-border bg-sand-50 p-2"
-                    >
-                      {b.logo_url ? (
-                        <img src={b.logo_url} alt={b.name_ar} className="max-h-9 w-auto object-contain" loading="lazy" />
-                      ) : (
-                        <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
-                      )}
-                    </LLink>
-                  ))}
+                  {brands.map((b) => {
+                    const name = isAr ? b.name_ar : b.name_en;
+                    return (
+                      <LLink
+                        key={b.id}
+                        to="/$lang/brands/$slug"
+                        params={{ slug: b.slug }}
+                        onClick={() => setMobileOpen(false)}
+                        className="grid h-14 place-items-center rounded-lg border border-border bg-sand-50 p-2"
+                      >
+                        {b.logo_url ? (
+                          <img src={b.logo_url} alt={name} className="max-h-9 w-auto object-contain" loading="lazy" />
+                        ) : (
+                          <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
+                        )}
+                      </LLink>
+                    );
+                  })}
                 </div>
               </div>
             ) : null}

@@ -4,14 +4,14 @@ import { SocialLinks } from "./SocialLinks";
 import { useT } from "@/i18n/LocaleProvider";
 
 type Props = {
-  legalNameAr: string;
-  parentGroupAr: string | null;
+  legalName: string;
+  parentGroup: string | null;
   whatsappNumber: string;
   email: string | null;
-  addressAr: string | null;
+  address: string | null;
 };
 
-export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, addressAr }: Props) {
+export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, address }: Props) {
   const t = useT();
   return (
     <footer className="relative mt-24 overflow-hidden">
@@ -19,12 +19,9 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
         <div className="absolute inset-x-0 top-0 h-px hq-rule" />
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-12 md:px-8">
           <div className="md:col-span-5">
-            <div className="font-arabic text-2xl font-bold">{legalNameAr}</div>
-            {parentGroupAr ? <div className="mt-1 text-sm opacity-70">{parentGroupAr}</div> : null}
-            <p className="mt-5 max-w-md text-sm leading-loose opacity-85">
-              المقرّ الرقمي لمنظومة العلامات التجارية الصحية في اليمن. شراكات حصرية، أصول رسمية،
-              وحوكمة مؤسسية على أعلى المعايير.
-            </p>
+            <div className="font-arabic text-2xl font-bold">{legalName}</div>
+            {parentGroup ? <div className="mt-1 text-sm opacity-70">{parentGroup}</div> : null}
+            <p className="mt-5 max-w-md text-sm leading-loose opacity-85">{t("footer.tagline")}</p>
             <div className="mt-7 inline-flex items-center gap-3 rounded-2xl glass-dark px-4 py-3">
               <span className="grid size-9 place-items-center rounded-full bg-leaf-500 text-trust-900">↗</span>
               <div className="text-sm">
@@ -54,7 +51,7 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
             <ul className="space-y-2 text-sm leading-loose opacity-90">
               <li>{t("footer.whatsapp")}: +967 {whatsappNumber}</li>
               {email ? <li>{t("footer.email")}: {email}</li> : null}
-              {addressAr ? <li>{t("footer.address")}: {addressAr}</li> : null}
+              {address ? <li>{t("footer.address")}: {address}</li> : null}
             </ul>
             <div className="mt-5">
               <WhatsAppCTA number={whatsappNumber} variant="pill">{t("footer.startInquiry")}</WhatsAppCTA>
@@ -69,7 +66,7 @@ export function SiteFooter({ legalNameAr, parentGroupAr, whatsappNumber, email, 
 
         <div className="border-t border-white/10">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs opacity-75 md:flex-row md:px-8 md:text-right">
-            <div>© {new Date().getFullYear()} {legalNameAr}. {t("footer.rightsReserved")}</div>
+            <div>© {new Date().getFullYear()} {legalName}. {t("footer.rightsReserved")}</div>
             <div>{t("footer.noticePrices")}</div>
           </div>
         </div>
