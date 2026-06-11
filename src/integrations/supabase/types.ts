@@ -1319,6 +1319,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      user_manages_brand_path: {
+        Args: { _path: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "super_admin" | "brand_manager" | "editor" | "viewer"
