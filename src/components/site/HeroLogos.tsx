@@ -250,14 +250,15 @@ export function HeroBrandStrip() {
 
 
 /* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
-const FEATURES = [
-  { i: ShieldCheck, t: "وكالات حصرية", d: "لأكبر العلامات العالمية" },
-  { i: Award, t: "جودة عالية", d: "معايير عالمية ومنتجات موثوقة" },
-  { i: Truck, t: "توزيع وطني", d: "شبكة تغطي جميع المحافظات" },
-  { i: Headphones, t: "خدمة عملاء متميزة", d: "دعم سريع واحترافي" },
-];
-
 export function HeroFeaturesStrip() {
+  const t = useT();
+  const { dir } = useLocale();
+  const FEATURES = [
+    { i: ShieldCheck, t: t("home.features.exclusive"), d: t("home.features.exclusiveDesc") },
+    { i: Award, t: t("home.features.quality"), d: t("home.features.qualityDesc") },
+    { i: Truck, t: t("home.features.distribution"), d: t("home.features.distributionDesc") },
+    { i: Headphones, t: t("home.features.service"), d: t("home.features.serviceDesc") },
+  ];
   return (
     <div
       className="relative overflow-hidden rounded-[28px] border border-white/10"
@@ -267,7 +268,6 @@ export function HeroFeaturesStrip() {
         boxShadow: "0 30px 60px -25px oklch(0.32 0.13 245 / 0.55)",
       }}
     >
-      {/* Subtle texture overlay */}
       <div
         className="pointer-events-none absolute inset-0 opacity-30"
         style={{
@@ -285,7 +285,7 @@ export function HeroFeaturesStrip() {
               className={`flex items-center gap-4 px-2 text-sand-50 md:px-6 ${
                 i < FEATURES.length - 1 ? "md:border-l md:border-white/15" : ""
               }`}
-              dir="rtl"
+              dir={dir}
             >
               <div
                 className="grid size-12 shrink-0 place-items-center rounded-full border border-white/40 bg-white/95 text-trust-700 shadow-[0_8px_20px_-6px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.9)]"
@@ -308,3 +308,4 @@ export function HeroFeaturesStrip() {
     </div>
   );
 }
+
