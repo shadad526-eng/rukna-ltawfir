@@ -29,7 +29,6 @@ const BRANDS = [
 export function HeroLogoStage() {
   const { lang } = useLocale();
   const ruknAlt = lang === "ar" ? "شعار ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade logo";
-export function HeroLogoStage() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[560px]">
       {/* Ambient conic glow behind orb (very subtle premium lighting) */}
