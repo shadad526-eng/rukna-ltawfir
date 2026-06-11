@@ -99,12 +99,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:title", content: "ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
-      { property: "og:description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
-      { name: "twitter:description", content: "Brand Nexus Hub is an enterprise digital platform for brand management and commercial agency operations." },
+      { name: "twitter:description", content: "الشريك الاستراتيجي والبوابة الأولى للعلامات التجارية الصحية في اليمن." },
+      { property: "og:site_name", content: "ركن التوفير كوزمتك للتجارة" },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Ns6wyimbyrbMqmjH3Dg7bkm1Ue13/social-images/social-1780873368377-1000203342.webp" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Ns6wyimbyrbMqmjH3Dg7bkm1Ue13/social-images/social-1780873368377-1000203342.webp" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "ركن التوفير كوزمتك للتجارة",
+          alternateName: "Rukn Al-Tawfir Cosmetic for Trade",
+          url: "https://rukna-ltawfir.lovable.app",
+          logo: "https://rukna-ltawfir.lovable.app/rukn-logo.webp",
+          description:
+            "الوكيل الحصري لمنظومة من العلامات التجارية الصحية العالمية في الجمهورية اليمنية.",
+        }),
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
