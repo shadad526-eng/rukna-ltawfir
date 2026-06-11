@@ -1,14 +1,17 @@
+import { useT } from "@/i18n/LocaleProvider";
+
 type Props = { number: string; message?: string };
 
 export function StickyWhatsApp({ number, message }: Props) {
-  const text = message ?? "السلام عليكم، أرغب بالاستفسار عن منتجات ركن التوفير.";
+  const t = useT();
+  const text = message ?? t("cta.whatsappDefaultMsg");
   const href = `https://wa.me/967${number}?text=${encodeURIComponent(text)}`;
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="تواصل عبر واتساب"
+      aria-label={t("cta.stickyAria")}
       className="fixed bottom-5 left-5 z-40 grid size-14 place-items-center rounded-full bg-accent text-accent-foreground shadow-xl wa-pulse md:bottom-8 md:left-8"
     >
       <svg viewBox="0 0 24 24" className="size-7" fill="currentColor" aria-hidden>
