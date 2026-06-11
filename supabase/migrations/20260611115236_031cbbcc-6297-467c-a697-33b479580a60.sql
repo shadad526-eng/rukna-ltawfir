@@ -1,0 +1,2 @@
+UPDATE public.brands SET tagline_ar = 'منتجات عشبية وعضوية مستوحاة من الطبيعة والجودة المستدامة.' WHERE slug = 'sekem';
+UPDATE public.brands SET tagline_ar = 'منتجات عضوية وطبيعية لحياة صحية متوازنة.' WHERE slug = 'isis';
