@@ -11,14 +11,19 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
 export const Route = createFileRoute("/$lang/catalogs")({
-  head: () => ({
-    meta: [
-      { title: "الكتالوجات الرسمية — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "تصفّح الكتالوجات الرسمية للعلامات الصحية الممثلة من ركن التوفير. الكتالوجات المقيدة تتطلب طلب وصول." },
-      { property: "og:title", content: "الكتالوجات — ركن التوفير" },
-      { property: "og:description", content: "كتالوجات رسمية ومحدّثة لجميع علامات المنظومة." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/catalogs`;
+    return {
+      meta: [
+        { title: "الكتالوجات الرسمية — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "تصفّح الكتالوجات الرسمية للعلامات الصحية الممثلة من ركن التوفير. الكتالوجات المقيدة تتطلب طلب وصول." },
+        { property: "og:title", content: "الكتالوجات — ركن التوفير" },
+        { property: "og:description", content: "كتالوجات رسمية ومحدّثة لجميع علامات المنظومة." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
