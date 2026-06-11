@@ -1,0 +1,19 @@
+# ركن التوفير كوزمتك للتجارة
+
+> الوكيل الحصري لمنظومة من العلامات التجارية الصحية العالمية في الجمهورية اليمنية: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin.
+
+موقع ثنائي اللغة (عربي/إنجليزي) لتقديم العلامات التجارية، الكتالوجات الرسمية، فرص الشراكة، وقنوات التواصل التجاري عبر واتساب الأعمال.
+
+## Pages
+
+- [الرئيسية / Home](/ar): المقرّ الرقمي الرسمي ونظرة عامة على المنظومة.
+- [العلامات التجارية / Brands](/ar/brands): دليل العلامات الصحية الممثلة.
+- [الكتالوجات / Catalogs](/ar/catalogs): الكتالوجات الرسمية للعلامات.
+- [الشراكات / Partners](/ar/partners): فرص التوزيع والجملة.
+- [من نحن / About](/ar/about): قصة الشركة ورؤيتها وقيمها.
+- [تواصل معنا / Contact](/ar/contact): قنوات التواصل الرسمية.
+
+## Optional
+
+- [English Home](/en): English version of the home page.
+- [English Brands](/en/brands): English version of the brands directory.
