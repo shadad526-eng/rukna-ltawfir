@@ -1,7 +1,7 @@
 import { LLink } from "@/i18n/LLink";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { WhatsAppCTA } from "./WhatsAppCTA";
+
 import { SocialLinks } from "./SocialLinks";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { listBrands } from "@/lib/site.functions";
@@ -121,10 +121,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="hidden sm:inline-flex" />
-          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pe-2 me-1" />
-          <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
-            {t("header.quickInquiry")}
-          </WhatsAppCTA>
+          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex" />
           <button
             type="button"
             aria-label={t("header.menu")}
@@ -181,9 +178,6 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
                 </div>
               </div>
             ) : null}
-            <div className="mt-3">
-              <WhatsAppCTA number={whatsappNumber} className="w-full">{t("header.whatsappInquiry")}</WhatsAppCTA>
-            </div>
             <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
               <LanguageSwitcher />
               <SocialLinks size="md" variant="header" whatsappNumber={whatsappNumber} />
