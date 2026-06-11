@@ -14,6 +14,8 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandCard } from "@/components/site/BrandCard";
 import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
 import { IsisExtraProducts } from "@/components/site/IsisExtraProducts";
+import { SteviolaExtraProducts } from "@/components/site/SteviolaExtraProducts";
+import { NocalExtraProducts } from "@/components/site/NocalExtraProducts";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -218,6 +220,14 @@ function BrandDetail() {
 
       {brand.slug === "isis" ? (
         <IsisExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
+      ) : null}
+
+      {brand.slug === "steviola" ? (
+        <SteviolaExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
+      ) : null}
+
+      {brand.slug === "nocal" || brand.slug === "no-cal" ? (
+        <NocalExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
       ) : null}
 
       {gallery.length > 0 ? (
