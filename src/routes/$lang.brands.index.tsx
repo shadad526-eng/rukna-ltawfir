@@ -10,14 +10,19 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
 export const Route = createFileRoute("/$lang/brands/")({
-  head: () => ({
-    meta: [
-      { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh." },
-      { property: "og:title", content: "العلامات التجارية — ركن التوفير" },
-      { property: "og:description", content: "علامات صحية رسمية ضمن منظومة ركن التوفير." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands`;
+    return {
+      meta: [
+        { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh." },
+        { property: "og:title", content: "العلامات التجارية — ركن التوفير" },
+        { property: "og:description", content: "علامات صحية رسمية ضمن منظومة ركن التوفير." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
