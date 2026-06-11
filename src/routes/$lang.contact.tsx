@@ -20,6 +20,20 @@ export const Route = createFileRoute("/$lang/contact")({
         { property: "og:url", content: url },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: "ركن التوفير كوزمتك للتجارة",
+            url,
+            image: "https://rukna-ltawfir.lovable.app/rukn-logo.webp",
+            address: { "@type": "PostalAddress", addressCountry: "YE" },
+            areaServed: "YE",
+          }),
+        },
+      ],
     };
   },
   loader: async ({ context }) => {
