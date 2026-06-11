@@ -121,10 +121,7 @@ export function SiteHeader({ legalNameAr, parentGroupAr, whatsappNumber, logoUrl
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="hidden sm:inline-flex" />
-          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex border-r border-border/60 pe-2 me-1" />
-          <WhatsAppCTA number={whatsappNumber} variant="pill" className="hidden sm:inline-flex">
-            {t("header.quickInquiry")}
-          </WhatsAppCTA>
+          <SocialLinks size="sm" variant="header" whatsappNumber={whatsappNumber} className="hidden md:flex" />
           <button
             type="button"
             aria-label={t("header.menu")}
