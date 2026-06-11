@@ -34,12 +34,19 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
       context.queryClient.ensureQueryData(catalogsQO),
     ]);
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug} — العلامات التجارية | ركن التوفير` },
-      { name: "description", content: `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير كوزمتك للتجارة.` },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands/${params.slug}`;
+    return {
+      meta: [
+        { title: `${params.slug} — العلامات التجارية | ركن التوفير` },
+        { name: "description", content: `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير كوزمتك للتجارة.` },
+        { property: "og:title", content: `${params.slug} — ركن التوفير` },
+        { property: "og:description", content: `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير.` },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: BrandDetail,
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">

@@ -24,13 +24,43 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(brandProductsQO(params.slug)),
     ]);
+    return { product: p };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.productSlug} — ${params.slug} | ركن التوفير` },
-      { name: "description", content: `صفحة المنتج ${params.productSlug} من علامة ${params.slug}.` },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands/${params.slug}/${params.productSlug}`;
+    const p = loaderData?.product;
+    const title = p ? `${p.name_ar} — ${p.brand.name_ar} | ركن التوفير` : `${params.productSlug} — ${params.slug} | ركن التوفير`;
+    const description = p?.short_description_ar ?? p?.long_description_ar ?? `صفحة المنتج ${params.productSlug} من علامة ${params.slug}.`;
+    const image = p?.cover_url ?? undefined;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: p
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: p.name_ar,
+                description,
+                ...(image ? { image } : {}),
+                brand: { "@type": "Brand", name: p.brand.name_ar },
+                url,
+              }),
+            },
+          ]
+        : [],
+    };
+  },
   component: ProductDetailPage,
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">

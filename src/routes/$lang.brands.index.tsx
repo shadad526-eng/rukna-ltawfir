@@ -10,14 +10,19 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
 export const Route = createFileRoute("/$lang/brands/")({
-  head: () => ({
-    meta: [
-      { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh." },
-      { property: "og:title", content: "العلامات التجارية — ركن التوفير" },
-      { property: "og:description", content: "علامات صحية رسمية ضمن منظومة ركن التوفير." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands`;
+    return {
+      meta: [
+        { title: "العلامات التجارية — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh." },
+        { property: "og:title", content: "العلامات التجارية — ركن التوفير" },
+        { property: "og:description", content: "علامات صحية رسمية ضمن منظومة ركن التوفير." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
@@ -74,6 +79,9 @@ function BrandsPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8">
+        <h2 className="mb-8 font-arabic text-2xl font-bold text-foreground md:text-3xl">
+          منظومة العلامات الرسمية
+        </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {brands.map((b, idx) => (
             <BrandCard key={b.id} brand={b} index={idx} ctaLabel="استعراض المنتجات" />

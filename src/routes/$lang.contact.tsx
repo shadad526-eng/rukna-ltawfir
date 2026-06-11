@@ -9,14 +9,33 @@ import { useState } from "react";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 
 export const Route = createFileRoute("/$lang/contact")({
-  head: () => ({
-    meta: [
-      { title: "تواصل معنا — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "تواصل مباشر مع ركن التوفير عبر واتساب الأعمال، الهاتف، والبريد الإلكتروني. قناة موحّدة لجميع الاستفسارات التجارية." },
-      { property: "og:title", content: "تواصل معنا — ركن التوفير" },
-      { property: "og:description", content: "قنوات التواصل الرسمية مع المقرّ الرقمي لركن التوفير." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/contact`;
+    return {
+      meta: [
+        { title: "تواصل معنا — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "تواصل مباشر مع ركن التوفير عبر واتساب الأعمال، الهاتف، والبريد الإلكتروني. قناة موحّدة لجميع الاستفسارات التجارية." },
+        { property: "og:title", content: "تواصل معنا — ركن التوفير" },
+        { property: "og:description", content: "قنوات التواصل الرسمية مع المقرّ الرقمي لركن التوفير." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: "ركن التوفير كوزمتك للتجارة",
+            url,
+            image: "https://rukna-ltawfir.lovable.app/rukn-logo.webp",
+            address: { "@type": "PostalAddress", addressCountry: "YE" },
+            areaServed: "YE",
+          }),
+        },
+      ],
+    };
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(identityQO);
   },

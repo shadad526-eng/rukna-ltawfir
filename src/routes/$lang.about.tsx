@@ -10,14 +10,19 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
 export const Route = createFileRoute("/$lang/about")({
-  head: () => ({
-    meta: [
-      { title: "من نحن — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "قصة ركن التوفير: الوكيل الحصري لمنظومة من العلامات الصحية العالمية في اليمن. رؤيتنا، مهمتنا، قيمنا، وموقعنا الاستراتيجي." },
-      { property: "og:title", content: "من نحن — ركن التوفير" },
-      { property: "og:description", content: "وكيل حصري لعلامات صحية عالمية في اليمن، بحوكمة مؤسسية وأصول رسمية." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/about`;
+    return {
+      meta: [
+        { title: "من نحن — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "قصة ركن التوفير: الوكيل الحصري لمنظومة من العلامات الصحية العالمية في اليمن. رؤيتنا، مهمتنا، قيمنا، وموقعنا الاستراتيجي." },
+        { property: "og:title", content: "من نحن — ركن التوفير" },
+        { property: "og:description", content: "وكيل حصري لعلامات صحية عالمية في اليمن، بحوكمة مؤسسية وأصول رسمية." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
@@ -52,7 +57,7 @@ function AboutPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">عن الشركة</div>
           <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {id.legal_name_ar}
+            {id.legal_name_ar} — الوكيل الحصري للعلامات الصحية في اليمن
           </h1>
           <div className="mt-6 h-px w-28 prem-divider" />
           <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
