@@ -13,6 +13,7 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandCard } from "@/components/site/BrandCard";
 import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
+import { IsisExtraProducts } from "@/components/site/IsisExtraProducts";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -206,6 +207,10 @@ function BrandDetail() {
       {/* Gallery */}
       {brand.slug === "sekem" ? (
         <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
+      ) : null}
+
+      {brand.slug === "isis" ? (
+        <IsisExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
       ) : null}
 
       {gallery.length > 0 ? (
