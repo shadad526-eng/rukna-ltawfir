@@ -110,8 +110,6 @@ export function SekemExtraProducts({
 }) {
   const { lang, dir } = useLocale();
   const isAr = lang === "ar";
-  const heading = isAr ? "مختارات سيكم الرسمية" : "Featured SEKEM Picks";
-  const eyebrow = isAr ? "إضافة جديدة" : "New Arrivals";
   const featuresLabel = isAr ? "أهم المميزات" : "Key features";
   const ctaLabel = isAr ? "للطلب أو الاستفسار" : "Order or inquire";
 
@@ -126,16 +124,6 @@ export function SekemExtraProducts({
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20" dir={dir}>
-      <div className="mb-8 flex items-end justify-between gap-4">
-        <div>
-          <div className="hq-eyebrow" style={{ color: accent }}>
-            {eyebrow}
-          </div>
-          <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-            {heading}
-          </h2>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
         {ITEMS.map((item) => {
