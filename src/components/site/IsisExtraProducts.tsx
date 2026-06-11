@@ -8,7 +8,7 @@ import anise from "@/assets/isis-products/anise.jpg.asset.json";
 import oliveOil from "@/assets/isis-products/olive-oil.jpg.asset.json";
 import datesSeedless from "@/assets/isis-products/dates-seedless.jpeg.asset.json";
 import datesAlmonds from "@/assets/isis-products/dates-almonds.jpeg.asset.json";
-import blackSeedHoney from "@/assets/isis-products/black-seed-honey.jpeg.asset.json";
+import blackSeedHoney from "@/assets/isis-products/black-seed-honey.png.asset.json";
 import { useLocale } from "@/i18n/LocaleProvider";
 
 type Item = {
