@@ -33,7 +33,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
     const isAr = params.lang === "ar";
     const p = loaderData?.product;
     const pname = p ? (isAr ? p.name_ar : p.name_en) : params.productSlug;
-    const bname = p ? (isAr ? p.brand.name_ar : p.brand.name_en) : params.slug;
+    const bname = p ? p.brand.name_ar : params.slug;
     const suffix = isAr ? "ركن التوفير" : "Rukn Al-Tawfir";
     const title = p ? `${pname} — ${bname} | ${suffix}` : `${params.productSlug} — ${params.slug} | ${suffix}`;
     const description = p?.short_description_ar ?? p?.long_description_ar ?? (isAr
@@ -111,7 +111,7 @@ function ProductDetailPage() {
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
   const hero = activeImage ?? p.cover_url;
   const pname = isAr ? p.name_ar : p.name_en;
-  const bname = isAr ? p.brand.name_ar : p.brand.name_en;
+  const bname = p.brand.name_ar;
 
   return (
     <div className="min-h-screen bg-background">
