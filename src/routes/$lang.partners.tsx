@@ -8,14 +8,19 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 
 export const Route = createFileRoute("/$lang/partners")({
-  head: () => ({
-    meta: [
-      { title: "الشراكات التجارية — ركن التوفير كوزمتك للتجارة" },
-      { name: "description", content: "فرص الشراكة للموزعين والصيدليات والمحلات الكبرى ضمن منظومة ركن التوفير. تواصل عبر واتساب الأعمال الرسمي." },
-      { property: "og:title", content: "الشراكات التجارية — ركن التوفير" },
-      { property: "og:description", content: "فرص الجملة والتوزيع لعلامات صحية عالمية في اليمن." },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/partners`;
+    return {
+      meta: [
+        { title: "الشراكات التجارية — ركن التوفير كوزمتك للتجارة" },
+        { name: "description", content: "فرص الشراكة للموزعين والصيدليات والمحلات الكبرى ضمن منظومة ركن التوفير. تواصل عبر واتساب الأعمال الرسمي." },
+        { property: "og:title", content: "الشراكات التجارية — ركن التوفير" },
+        { property: "og:description", content: "فرص الجملة والتوزيع لعلامات صحية عالمية في اليمن." },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(identityQO);
   },
