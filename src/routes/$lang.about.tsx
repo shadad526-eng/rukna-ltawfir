@@ -57,7 +57,7 @@ function AboutPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">عن الشركة</div>
           <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {id.legal_name_ar}
+            {id.legal_name_ar} — الوكيل الحصري للعلامات الصحية في اليمن
           </h1>
           <div className="mt-6 h-px w-28 prem-divider" />
           <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
