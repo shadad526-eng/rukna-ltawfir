@@ -1,5 +1,5 @@
 import { LLink } from "@/i18n/LLink";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
   getCorporateIdentity,
@@ -16,6 +16,8 @@ import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
 import { IsisExtraProducts } from "@/components/site/IsisExtraProducts";
 import { SteviolaExtraProducts } from "@/components/site/SteviolaExtraProducts";
 import { NocalExtraProducts } from "@/components/site/NocalExtraProducts";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { useLocalizedIdentity } from "@/i18n/identity";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -38,58 +40,78 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
   },
   head: ({ params }) => {
     const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands/${params.slug}`;
+    const isAr = params.lang === "ar";
+    const title = isAr
+      ? `${params.slug} — العلامات التجارية | ركن التوفير`
+      : `${params.slug} — Brands | Rukn Al-Tawfir`;
+    const desc = isAr
+      ? `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير كوزمتك للتجارة.`
+      : `Brand page for ${params.slug} within the Rukn Al-Tawfir Cosmetic for Trade ecosystem.`;
     return {
       meta: [
-        { title: `${params.slug} — العلامات التجارية | ركن التوفير` },
-        { name: "description", content: `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير كوزمتك للتجارة.` },
-        { property: "og:title", content: `${params.slug} — ركن التوفير` },
-        { property: "og:description", content: `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير.` },
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
         { property: "og:url", content: url },
       ],
       links: [{ rel: "canonical", href: url }],
     };
   },
   component: BrandDetail,
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="text-2xl font-bold text-foreground">العلامة غير موجودة</h1>
-      <LLink to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
-        ← العودة إلى العلامات
-      </LLink>
-    </div>
-  ),
-  errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="text-2xl font-bold text-foreground">تعذّر تحميل العلامة</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-    </div>
-  ),
+  notFoundComponent: () => <BrandNotFound />,
+  errorComponent: ({ error }) => <BrandError message={error.message} />,
 });
 
+function BrandNotFound() {
+  const { t } = useLocale();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      <h1 className="text-2xl font-bold text-foreground">{t("errors.brandNotFound")}</h1>
+      <LLink to="/$lang/brands" className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+        {t("errors.backToBrands")}
+      </LLink>
+    </div>
+  );
+}
+
+function BrandError({ message }: { message: string }) {
+  const { t } = useLocale();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      <h1 className="text-2xl font-bold text-foreground">{t("errors.brandLoadFailed")}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
 function BrandDetail() {
+  const { lang, t } = useLocale();
+  const isAr = lang === "ar";
   const { slug } = Route.useParams();
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: brand } = useSuspenseQuery(brandQO(slug));
   const { data: products } = useSuspenseQuery(productsQO(slug));
   const { data: allBrands } = useSuspenseQuery(brandsQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
+  const ident = useLocalizedIdentity(id);
   if (!brand) return null;
 
   const accent = brand.brand_tokens.accent ?? "var(--leaf-500)";
   const brandCatalogs = catalogs.filter((c) => c.brand_slug === brand.slug);
   const related = allBrands.filter((b) => b.slug !== brand.slug).slice(0, 4);
   const gallery = products.filter((p) => p.cover_url).slice(0, 6);
+  const brandName = isAr ? brand.name_ar : brand.name_en;
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader
-        legalNameAr={id.legal_name_ar}
-        parentGroupAr={id.parent_group_ar}
+        legalName={ident.legalName}
+        parentGroup={ident.parentGroup}
         whatsappNumber={id.whatsapp_number}
         logoUrl={id.logo_url}
       />
 
-      {/* Brand hero */}
       <section className="relative overflow-hidden cinema-hero">
         <div className="absolute inset-x-0 top-0 h-1" style={{ background: accent }} aria-hidden />
         <div
@@ -106,7 +128,7 @@ function BrandDetail() {
             />
             <div className="podium premium-shadow grid size-44 place-items-center p-6 md:size-56 md:p-8">
               {brand.logo_url ? (
-                <img src={brand.logo_url} alt={`شعار ${brand.name_ar}`} className="max-h-full max-w-full object-contain prem-float" />
+                <img src={brand.logo_url} alt={t("header.brandLogoAlt", { name: brandName })} className="max-h-full max-w-full object-contain prem-float" />
               ) : (
                 <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
               )}
@@ -114,14 +136,14 @@ function BrandDetail() {
           </div>
           <div className="prem-fade-up">
             <nav className="text-xs text-ink-600">
-              <LLink to="/$lang/" className="hover:text-trust-700">الرئيسية</LLink>
+              <LLink to="/$lang/" className="hover:text-trust-700">{t("brand.breadcrumbHome")}</LLink>
               <span className="mx-2">/</span>
-              <LLink to="/$lang/brands" className="hover:text-trust-700">العلامات</LLink>
+              <LLink to="/$lang/brands" className="hover:text-trust-700">{t("brand.breadcrumbBrands")}</LLink>
               <span className="mx-2">/</span>
-              <span className="text-foreground">{brand.name_ar}</span>
+              <span className="text-foreground">{brandName}</span>
             </nav>
-            <h1 className="mt-4 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">{brand.name_ar}</h1>
-            <div className="mt-1 text-sm font-medium uppercase tracking-[0.18em] text-ink-600">{brand.name_en}</div>
+            <h1 className="mt-4 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">{brandName}</h1>
+            <div className="mt-1 text-sm font-medium uppercase tracking-[0.18em] text-ink-600">{isAr ? brand.name_en : brand.name_ar}</div>
             <div className="mt-6 h-px w-24 prem-divider" />
             {brand.tagline_ar ? (
               <p className="mt-5 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">{brand.tagline_ar}</p>
@@ -129,16 +151,16 @@ function BrandDetail() {
             <div className="mt-7 flex flex-wrap gap-3">
               <WhatsAppCTA
                 number={id.whatsapp_number}
-                message={`السلام عليكم، أرغب بالاستفسار عن منتجات ${brand.name_ar}.`}
+                message={t("brand.askWaMsg", { name: brandName })}
               >
-                استفسار عن منتجات {brand.name_ar}
+                {t("brand.askAbout", { name: brandName })}
               </WhatsAppCTA>
               {brandCatalogs.length > 0 ? (
                 <a
                   href="#catalogs"
                   className="inline-flex items-center justify-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
                 >
-                  الكتالوج الرسمي
+                  {t("brand.officialCatalog")}
                 </a>
               ) : null}
             </div>
@@ -146,13 +168,12 @@ function BrandDetail() {
         </div>
       </section>
 
-      {/* Brand story */}
       {brand.description_ar ? (
         <section className="border-y border-border bg-card">
           <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-20">
-            <div className="hq-eyebrow">قصة العلامة</div>
+            <div className="hq-eyebrow">{t("brand.storyEyebrow")}</div>
             <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-              تعرّف على {brand.name_ar}
+              {t("brand.storyTitle", { name: brandName })}
             </h2>
             <div className="mt-4 h-px w-16 prem-divider" />
             <p className="mt-6 text-[15px] leading-loose text-foreground/85 md:text-base">
@@ -162,106 +183,98 @@ function BrandDetail() {
         </section>
       ) : null}
 
-      {/* Products */}
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <div className="hq-eyebrow" style={{ color: accent as string }}>المجموعة الرسمية</div>
-            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">منتجات {brand.name_ar}</h2>
+            <div className="hq-eyebrow" style={{ color: accent as string }}>{t("brand.officialCollection")}</div>
+            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">{t("brand.productsOf", { name: brandName })}</h2>
           </div>
           {products.length > 0 ? (
-            <span className="text-xs text-muted-foreground">{products.length} منتجات منشورة</span>
+            <span className="text-xs text-muted-foreground">{t("brand.productsPublished", { count: products.length })}</span>
           ) : null}
         </div>
 
         {products.length === 0 ? null : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <LLink
-                key={p.id}
-                to="/$lang/brands/$slug/$productSlug"
-                params={{ slug: brand.slug, productSlug: p.slug }}
-                className="prem-card group flex flex-col"
-              >
-                <div className="podium relative grid aspect-[4/3] place-items-center p-6">
-                  {p.cover_url ? (
-                    <img
-                      src={p.cover_url}
-                      alt={p.name_ar}
-                      className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="text-xs text-muted-foreground">صورة العبوة الرسمية</span>
-                  )}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
-                </div>
-                <div className="flex-1 p-5">
-                  <div className="font-arabic text-base font-bold text-foreground">{p.name_ar}</div>
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-ink-600">{p.name_en}</div>
-                  {p.short_description_ar ? (
-                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-ink-600">{p.short_description_ar}</p>
-                  ) : null}
-                </div>
-                <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs font-semibold text-trust-700">
-                  <span>تفاصيل المنتج</span>
-                  <span aria-hidden className="transition-transform group-hover:-translate-x-1">←</span>
-                </div>
-              </LLink>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Gallery */}
-      {brand.slug === "sekem" ? (
-        <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
-      ) : null}
-
-      {brand.slug === "isis" ? (
-        <IsisExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
-      ) : null}
-
-      {brand.slug === "steviola" ? (
-        <SteviolaExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
-      ) : null}
-
-      {brand.slug === "nocal" || brand.slug === "no-cal" ? (
-        <NocalExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} />
-      ) : null}
-
-      {gallery.length > 0 ? (
-        <section className="border-t border-border bg-card">
-          <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
-            <div className="hq-eyebrow">معرض رسمي</div>
-            <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-              لقطات من عبوات {brand.name_ar}
-            </h2>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {gallery.map((p) => (
+            {products.map((p) => {
+              const pname = isAr ? p.name_ar : p.name_en;
+              return (
                 <LLink
                   key={p.id}
                   to="/$lang/brands/$slug/$productSlug"
                   params={{ slug: brand.slug, productSlug: p.slug }}
-                  className="podium grid aspect-square place-items-center p-4 transition-transform hover:-translate-y-1"
-                  title={p.name_ar}
+                  className="prem-card group flex flex-col"
                 >
-                  {p.cover_url ? (
-                    <img src={p.cover_url} alt={p.name_ar} className="max-h-full w-auto object-contain" loading="lazy" />
-                  ) : null}
+                  <div className="podium relative grid aspect-[4/3] place-items-center p-6">
+                    {p.cover_url ? (
+                      <img
+                        src={p.cover_url}
+                        alt={pname}
+                        className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{t("common.officialPackageImage")}</span>
+                    )}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 prem-shimmer opacity-0 group-hover:opacity-100" />
+                  </div>
+                  <div className="flex-1 p-5">
+                    <div className="font-arabic text-base font-bold text-foreground">{pname}</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-ink-600">{isAr ? p.name_en : p.name_ar}</div>
+                    {p.short_description_ar ? (
+                      <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-ink-600">{p.short_description_ar}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-5 py-3 text-xs font-semibold text-trust-700">
+                    <span>{t("brand.productDetails")}</span>
+                    <span aria-hidden className="transition-transform group-hover:-translate-x-1">{isAr ? "←" : "→"}</span>
+                  </div>
                 </LLink>
-              ))}
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {brand.slug === "sekem" ? <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
+      {brand.slug === "isis" ? <IsisExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
+      {brand.slug === "steviola" ? <SteviolaExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
+      {brand.slug === "nocal" || brand.slug === "no-cal" ? <NocalExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
+
+      {gallery.length > 0 ? (
+        <section className="border-t border-border bg-card">
+          <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
+            <div className="hq-eyebrow">{t("brand.officialGallery")}</div>
+            <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
+              {t("brand.galleryTitle", { name: brandName })}
+            </h2>
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {gallery.map((p) => {
+                const pname = isAr ? p.name_ar : p.name_en;
+                return (
+                  <LLink
+                    key={p.id}
+                    to="/$lang/brands/$slug/$productSlug"
+                    params={{ slug: brand.slug, productSlug: p.slug }}
+                    className="podium grid aspect-square place-items-center p-4 transition-transform hover:-translate-y-1"
+                    title={pname}
+                  >
+                    {p.cover_url ? (
+                      <img src={p.cover_url} alt={pname} className="max-h-full w-auto object-contain" loading="lazy" />
+                    ) : null}
+                  </LLink>
+                );
+              })}
             </div>
           </div>
         </section>
       ) : null}
 
-      {/* Catalogs */}
       {brandCatalogs.length > 0 ? (
         <section id="catalogs" className="mx-auto max-w-7xl px-4 py-16 md:px-8">
-          <div className="hq-eyebrow">الكتالوجات الرسمية</div>
+          <div className="hq-eyebrow">{t("brand.catalogsEyebrow")}</div>
           <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-            تحميل كتالوج {brand.name_ar}
+            {t("brand.catalogsTitle", { name: brandName })}
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {brandCatalogs.map((c) => (
@@ -278,11 +291,11 @@ function BrandDetail() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline"
                       >
-                        تنزيل الكتالوج (PDF) ↗
+                        {t("brand.downloadPdf")}
                       </a>
                     ) : (
                       <LLink to="/$lang/catalogs" className="inline-flex items-center gap-1 text-xs font-bold text-trust-700 hover:underline">
-                        طلب الوصول للكتالوج ←
+                        {t("brand.requestAccess")}
                       </LLink>
                     )}
                   </div>
@@ -293,22 +306,16 @@ function BrandDetail() {
         </section>
       ) : null}
 
-      {/* Related brands */}
       {related.length > 0 ? (
         <section className="border-t border-border bg-card">
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
-            <div className="hq-eyebrow">علامات ذات صلة</div>
+            <div className="hq-eyebrow">{t("brand.relatedEyebrow")}</div>
             <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-              تابع استكشاف المنظومة
+              {t("brand.relatedTitle")}
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {related.map((b) => (
-                <BrandCard
-                  key={b.id}
-                  brand={b}
-                  compact
-                  ctaLabel="استكشف العلامة"
-                />
+                <BrandCard key={b.id} brand={b} compact ctaLabel={t("cta.exploreBrand")} />
               ))}
             </div>
           </div>
@@ -316,11 +323,11 @@ function BrandDetail() {
       ) : null}
 
       <SiteFooter
-        legalNameAr={id.legal_name_ar}
-        parentGroupAr={id.parent_group_ar}
+        legalName={ident.legalName}
+        parentGroup={ident.parentGroup}
         whatsappNumber={id.whatsapp_number}
         email={id.email}
-        addressAr={id.address_ar}
+        address={ident.address}
       />
     </div>
   );
