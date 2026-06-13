@@ -196,19 +196,50 @@
   },
   "about": {
     "eyebrow": "About the company",
-    "titleSuffix": "— the exclusive agent for health brands in Yemen",
-    "subtitle": "We are the exclusive agent for a system of global health brands in the Republic of Yemen, operating with institutional governance standards that protect the brand, the customer, and the business partner.",
-    "pillars": {
-      "storyT": "Our story",
-      "storyD": "Rukn Al-Tawfir Cosmetic for Trade began as a commercial arm specialized in representing global health brands within the Yemeni market, and has grown into the official headquarters of a comprehensive ecosystem of trusted brands.",
-      "missionT": "Our mission",
-      "missionD": "To deliver authentic, certified health products directly from global companies to the Yemeni consumer, with assured storage, distribution, and supply-chain integrity.",
-      "visionT": "Our vision",
-      "visionD": "To be the reference gateway for global health products in Yemen, and the first point of support for distributors, hospitals, pharmacies, and consumers seeking authenticity.",
-      "valuesT": "Our values",
-      "valuesD": "Transparency, authenticity, editorial respect for brands, commitment to governance, and protection of our trade partners' data.",
-      "positionT": "Our strategic position",
-      "positionD": "Exclusive agent for several international brands, with a distribution network across the Yemeni governorates and a unified business channel via the official WhatsApp Business."
+    "titleSuffix": "— the strategic partner for health brands in Yemen",
+    "subtitle": "We build an integrated commercial ecosystem that connects global innovation with local needs, creating sustainable impact on people's health and quality of life.",
+    "vision": {
+      "eyebrow": "01",
+      "title": "Our Vision",
+      "body": "To be the leading strategic partner for top health and consumer brands, and the most influential force in developing the health-products market and a healthy lifestyle in Yemen — by building an integrated ecosystem that connects global innovation with the needs of the local community."
+    },
+    "mission": {
+      "eyebrow": "02",
+      "title": "Our Mission",
+      "body": "We attract, develop, and manage trusted brands and deliver high-quality products across health, nutrition, personal care, oral care, baby products, and specialized health solutions — through a professional distribution network and long-term partnerships that create sustainable value for consumers, customers, partners, and society."
+    },
+    "values": {
+      "eyebrow": "03",
+      "title": "Our Values",
+      "subtitle": "Six values that guide every decision, every partnership, and every product carrying our name.",
+      "trustT": "Trust",
+      "trustD": "We build long-term relationships rooted in transparency, commitment, and credibility.",
+      "qualityT": "Quality",
+      "qualityD": "We commit to selecting and delivering products and solutions that meet the highest standards of quality and reliability.",
+      "partnershipT": "Partnership",
+      "partnershipD": "We believe sustainable success is achieved through strategic partnerships that drive shared growth.",
+      "innovationT": "Innovation",
+      "innovationD": "We embrace modern ideas and technologies to develop the market and elevate the efficiency of our services and commercial solutions.",
+      "responsibilityT": "Responsibility",
+      "responsibilityD": "We believe in our role in raising health awareness and contributing to a better quality of life in our community.",
+      "excellenceT": "Excellence",
+      "excellenceD": "We pursue the highest levels of performance across every stage — from selecting the brand to delivering it to the consumer."
+    },
+    "purpose": {
+      "eyebrow": "04",
+      "title": "Our Corporate Purpose",
+      "body": "To create a positive, sustainable impact in society by making trusted health choices closer and more accessible — and by building a commercial ecosystem that improves quality of life and shapes a healthier future."
+    },
+    "promise": {
+      "eyebrow": "05",
+      "title": "Our Brand Promise",
+      "body": "We pick the best globally… develop it locally… deliver it professionally… to build a healthier future."
+    },
+    "believe": {
+      "eyebrow": "06",
+      "title": "What We Believe",
+      "body1": "We believe true value is not measured by sales volume alone, but by the impact we create in people's lives, the trust we earn from our partners, and the responsibility we carry toward our community.",
+      "body2": "We believe every brand we represent, every product we deliver, and every partnership we build is a step toward a more advanced market, a healthier community, and a more sustainable future."
     },
     "fullSystemEyebrow": "The full ecosystem",
     "fullSystemTitle": "Brands we officially represent",
