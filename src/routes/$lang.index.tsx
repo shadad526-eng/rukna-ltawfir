@@ -140,10 +140,15 @@ function Home() {
               {t("home.heroBadge")}
             </div>
 
-            <h1 className="mt-7 font-arabic font-bold leading-[1.04] tracking-tight">
+            <h1
+              className="mt-7 font-black tracking-tight"
+              style={{ fontFamily: 'var(--font-brand)', fontWeight: 900 }}
+            >
               <span
                 className="block text-[2.2rem] md:text-[3.4rem] lg:text-[4.1rem]"
                 style={{
+                  lineHeight: 1.45,
+                  paddingBlock: "0.15em",
                   background: "linear-gradient(180deg, oklch(0.32 0.13 245) 0%, oklch(0.42 0.15 245) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -153,8 +158,10 @@ function Home() {
                 {t("home.heroTitleLine1")}
               </span>
               <span
-                className="mt-2 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
+                className="mt-3 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
                 style={{
+                  lineHeight: 1.45,
+                  paddingBlock: "0.15em",
                   background: "linear-gradient(180deg, oklch(0.62 0.17 138) 0%, oklch(0.50 0.16 138) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",

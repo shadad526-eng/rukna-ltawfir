@@ -57,6 +57,7 @@
 
   --font-arabic: "IBM Plex Sans Arabic", "Noto Sans Arabic", system-ui, sans-serif;
   --font-arabic-body: "Noto Sans Arabic", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-brand: "Cairo", "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-latin: "Inter Tight", "Inter", system-ui, sans-serif;
 }
 
