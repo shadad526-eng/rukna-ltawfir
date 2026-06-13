@@ -122,6 +122,9 @@
     "knowledgeEyebrow": "Knowledge center",
     "knowledgeTitle": "Articles and guides from our experts",
     "knowledgeWhatsApp": "Inquire on WhatsApp →",
+    "knowledgeReadMore": "Read article →",
+    "knowledgeBack": "Back to home",
+    "knowledgeWhatsAppCta": "Inquire on WhatsApp",
     "knowledgeWaMsg": "Hello, I'd like to know more about: {title}",
     "knowledge": {
       "tipsEyebrow": "Health tips",
