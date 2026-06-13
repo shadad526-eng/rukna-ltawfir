@@ -81,11 +81,13 @@ function Home() {
     { i: "✧", t: t("home.why.support"), d: t("home.why.supportDesc") },
   ];
 
-  const KNOWLEDGE = [
-    { eyebrow: t("home.knowledge.tipsEyebrow"), title: t("home.knowledge.tipsTitle"), body: t("home.knowledge.tipsBody") },
-    { eyebrow: t("home.knowledge.guideEyebrow"), title: t("home.knowledge.guideTitle"), body: t("home.knowledge.guideBody") },
-    { eyebrow: t("home.knowledge.careEyebrow"), title: t("home.knowledge.careTitle"), body: t("home.knowledge.careBody") },
-  ];
+  const NEWS_CARDS = NEWS.map((n) => ({
+    slug: n.slug,
+    cover: n.cover,
+    eyebrow: n.eyebrow[isAr ? "ar" : "en"],
+    title: n.title[isAr ? "ar" : "en"],
+    body: n.excerpt[isAr ? "ar" : "en"],
+  }));
 
   return (
     <div className="min-h-screen bg-background">
