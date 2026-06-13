@@ -19,6 +19,7 @@ import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
 import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
 import { Route as LangAboutRouteImport } from './routes/$lang.about'
 import { Route as LangBrandsIndexRouteImport } from './routes/$lang.brands.index'
+import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
 import { Route as LangBrandsSlugRouteImport } from './routes/$lang.brands.$slug'
 import { Route as LangBrandsSlugIndexRouteImport } from './routes/$lang.brands.$slug.index'
 import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.brands.$slug.$productSlug'
@@ -73,6 +74,11 @@ const LangBrandsIndexRoute = LangBrandsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LangBrandsRoute,
 } as any)
+const LangNewsSlugRoute = LangNewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => LangRoute,
+} as any)
 const LangBrandsSlugRoute = LangBrandsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
+  '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/$lang/contact': typeof LangContactRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang': typeof LangIndexRoute
+  '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugIndexRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
+  '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/$lang/partners'
     | '/$lang/'
     | '/$lang/brands/$slug'
+    | '/$lang/news/$slug'
     | '/$lang/brands/'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug/'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/$lang/contact'
     | '/$lang/partners'
     | '/$lang'
+    | '/$lang/news/$slug'
     | '/$lang/brands'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/$lang/partners'
     | '/$lang/'
     | '/$lang/brands/$slug'
+    | '/$lang/news/$slug'
     | '/$lang/brands/'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug/'
@@ -256,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangBrandsIndexRouteImport
       parentRoute: typeof LangBrandsRoute
     }
+    '/$lang/news/$slug': {
+      id: '/$lang/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/$lang/news/$slug'
+      preLoaderRoute: typeof LangNewsSlugRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/$lang/brands/$slug': {
       id: '/$lang/brands/$slug'
       path: '/$slug'
@@ -315,6 +334,7 @@ interface LangRouteChildren {
   LangContactRoute: typeof LangContactRoute
   LangPartnersRoute: typeof LangPartnersRoute
   LangIndexRoute: typeof LangIndexRoute
+  LangNewsSlugRoute: typeof LangNewsSlugRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
@@ -324,6 +344,7 @@ const LangRouteChildren: LangRouteChildren = {
   LangContactRoute: LangContactRoute,
   LangPartnersRoute: LangPartnersRoute,
   LangIndexRoute: LangIndexRoute,
+  LangNewsSlugRoute: LangNewsSlugRoute,
 }
 
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)

@@ -15,6 +15,7 @@ import { HeroLogoStage, HeroBrandStrip, HeroFeaturesStrip } from "@/components/s
 import { BrandCard } from "@/components/site/BrandCard";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { NEWS } from "@/data/news";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
@@ -81,11 +82,13 @@ function Home() {
     { i: "✧", t: t("home.why.support"), d: t("home.why.supportDesc") },
   ];
 
-  const KNOWLEDGE = [
-    { eyebrow: t("home.knowledge.tipsEyebrow"), title: t("home.knowledge.tipsTitle"), body: t("home.knowledge.tipsBody") },
-    { eyebrow: t("home.knowledge.guideEyebrow"), title: t("home.knowledge.guideTitle"), body: t("home.knowledge.guideBody") },
-    { eyebrow: t("home.knowledge.careEyebrow"), title: t("home.knowledge.careTitle"), body: t("home.knowledge.careBody") },
-  ];
+  const NEWS_CARDS = NEWS.map((n) => ({
+    slug: n.slug,
+    cover: n.cover,
+    eyebrow: n.eyebrow[isAr ? "ar" : "en"],
+    title: n.title[isAr ? "ar" : "en"],
+    body: n.excerpt[isAr ? "ar" : "en"],
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -340,32 +343,37 @@ function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {KNOWLEDGE.map((k) => {
-              const waText = t("home.knowledgeWaMsg", { title: k.title });
-              const waHref = `https://wa.me/967${id.whatsapp_number}?text=${encodeURIComponent(waText)}`;
-              return (
-                <a key={k.title} href={waHref} target="_blank" rel="noopener noreferrer"
-                  className="prem-card group flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-1">
-                  <div className="relative h-48 overflow-hidden rounded-b-[2rem]">
-                    <div className="absolute inset-0 aurora-mesh" aria-hidden />
-                    <div className="absolute inset-x-6 top-6 flex justify-start">
-                      <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
-                        {k.eyebrow}
-                      </div>
-                    </div>
-                    <div className="absolute inset-x-6 bottom-5 h-px prem-divider opacity-70" aria-hidden />
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
-                    <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
-                    <div className="mt-auto pt-6 text-xs font-bold text-trust-700 transition-transform group-hover:-translate-x-1">
-                      {t("home.knowledgeWhatsApp")}
+            {NEWS_CARDS.map((k) => (
+              <LLink
+                key={k.slug}
+                to="/$lang/news/$slug"
+                params={{ slug: k.slug }}
+                className="prem-card group flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-1"
+              >
+                <div className="relative h-48 overflow-hidden rounded-b-[2rem] bg-muted">
+                  <img
+                    src={k.cover}
+                    alt={k.title}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-x-6 top-6 flex justify-start">
+                    <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
+                      {k.eyebrow}
                     </div>
                   </div>
-                </a>
-              );
-            })}
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
+                  <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
+                  <div className="mt-auto pt-6 text-xs font-bold text-trust-700 transition-transform group-hover:-translate-x-1">
+                    {t("home.knowledgeReadMore")}
+                  </div>
+                </div>
+              </LLink>
+            ))}
           </div>
+
         </div>
       </section>
 
