@@ -143,7 +143,13 @@ function NewsArticle() {
         </div>
       </article>
 
-      <SiteFooter />
+      <SiteFooter
+        legalName={ident.legalName}
+        parentGroup={ident.parentGroup}
+        whatsappNumber={id.whatsapp_number}
+        email={id.email}
+        address={ident.address}
+      />
       <StickyWhatsApp number={id.whatsapp_number} />
     </div>
   );
