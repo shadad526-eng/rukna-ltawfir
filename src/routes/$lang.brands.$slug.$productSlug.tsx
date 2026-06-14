@@ -29,7 +29,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
     return { product: p };
   },
   head: ({ params, loaderData }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands/${params.slug}/${params.productSlug}`;
+    const url = `https://ruknaltawfer.com/${params.lang}/brands/${params.slug}/${params.productSlug}`;
     const isAr = params.lang === "ar";
     const p = loaderData?.product;
     const pname = p ? (isAr ? p.name_ar : p.name_en) : params.productSlug;

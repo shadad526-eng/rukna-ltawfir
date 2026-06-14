@@ -26,7 +26,7 @@ export const Route = createFileRoute("/$lang/news/$slug")({
     }
     const title = item.title[isAr ? "ar" : "en"];
     const desc = item.excerpt[isAr ? "ar" : "en"];
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/news/${item.slug}`;
+    const url = `https://ruknaltawfer.com/${params.lang}/news/${item.slug}`;
     return {
       meta: [
         { title: `${title} — ${isAr ? "ركن التوفير" : "Rukn Al-Tawfir"}` },

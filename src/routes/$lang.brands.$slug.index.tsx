@@ -39,7 +39,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
     ]);
   },
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands/${params.slug}`;
+    const url = `https://ruknaltawfer.com/${params.lang}/brands/${params.slug}`;
     const isAr = params.lang === "ar";
     const title = isAr
       ? `${params.slug} — العلامات التجارية | ركن التوفير`

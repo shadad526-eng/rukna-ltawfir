@@ -12,7 +12,7 @@ const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands(
 
 export const Route = createFileRoute("/$lang/brands/")({
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/brands`;
+    const url = `https://ruknaltawfer.com/${params.lang}/brands`;
     const isAr = params.lang === "ar";
     const title = isAr ? "العلامات التجارية — ركن التوفير كوزمتك للتجارة" : "Brands — Rukn Al-Tawfir Cosmetic for Trade";
     const desc = isAr

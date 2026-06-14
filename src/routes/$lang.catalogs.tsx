@@ -14,7 +14,7 @@ const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCat
 
 export const Route = createFileRoute("/$lang/catalogs")({
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/catalogs`;
+    const url = `https://ruknaltawfer.com/${params.lang}/catalogs`;
     const isAr = params.lang === "ar";
     const title = isAr ? "الكتالوجات الرسمية — ركن التوفير كوزمتك للتجارة" : "Official Catalogs — Rukn Al-Tawfir Cosmetic for Trade";
     const desc = isAr

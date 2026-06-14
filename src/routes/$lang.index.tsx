@@ -30,7 +30,7 @@ const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCat
 
 export const Route = createFileRoute("/$lang/")({
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}`;
+    const url = `https://ruknaltawfer.com/${params.lang}`;
     const isAr = params.lang === "ar";
     const title = isAr
       ? "ركن التوفير كوزمتك للتجارة | مستحضرات التجميل والعناية الشخصية والمنتجات الصحية ومنتجات العناية بالاطفال في اليمن"

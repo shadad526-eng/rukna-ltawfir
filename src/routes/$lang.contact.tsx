@@ -12,7 +12,7 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 
 export const Route = createFileRoute("/$lang/contact")({
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/contact`;
+    const url = `https://ruknaltawfer.com/${params.lang}/contact`;
     const isAr = params.lang === "ar";
     const title = isAr ? "تواصل معنا — ركن التوفير كوزمتك للتجارة" : "Contact — Rukn Al-Tawfir Cosmetic for Trade";
     const desc = isAr
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/$lang/contact")({
             "@type": "LocalBusiness",
             name: isAr ? "ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade",
             url,
-            image: "https://rukna-ltawfir.lovable.app/rukn-logo.webp",
+            image: "https://ruknaltawfer.com/rukn-logo.webp",
             address: { "@type": "PostalAddress", addressCountry: "YE" },
             areaServed: "YE",
           }),

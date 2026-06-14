@@ -113,8 +113,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@type": "Organization",
           name: "ركن التوفير كوزمتك للتجارة",
           alternateName: "Rukn Al-Tawfir Cosmetic for Trade",
-          url: "https://rukna-ltawfir.lovable.app",
-          logo: "https://rukna-ltawfir.lovable.app/rukn-logo.webp",
+          url: "https://ruknaltawfer.com",
+          logo: "https://ruknaltawfer.com/rukn-logo.webp",
           description:
             "الوكيل الحصري لمنظومة من العلامات التجارية الصحية العالمية في الجمهورية اليمنية.",
         }),
