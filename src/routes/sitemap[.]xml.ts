@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { listBrands, listBrandProducts } from "@/lib/site.functions";
 
-const BASE_URL = "https://rukna-ltawfir.lovable.app";
+const BASE_URL = "https://ruknaltawfer.com";
 const LOCALES = ["ar", "en"] as const;
 const STATIC_PATHS = ["", "/about", "/brands", "/catalogs", "/partners", "/contact"];
 
