@@ -42,15 +42,46 @@ export const Route = createFileRoute("/$lang/")({
     const ogDesc = isAr
       ? "منظومة علامات صحية عالمية برعاية ركن التوفير في اليمن."
       : "A system of global health brands managed by Rukn Al-Tawfir in Yemen.";
+    const keywords = isAr
+      ? "ركن التوفير, ركن التوفير كوزمتك, مستحضرات التجميل اليمن, العناية الشخصية اليمن, منتجات صحية اليمن, منتجات الأطفال اليمن, ايزيس, سيكم, ستيفيولا, نو كال, مونيفو, بيبي توفير, بامبو, واي كيلين, صنعاء, اليمن"
+      : "Rukn Al-Tawfir, cosmetics Yemen, personal care Yemen, health products Yemen, baby care Yemen, iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo, Y-Kelin";
     return {
       meta: [
         { title },
         { name: "description", content: desc },
+        { name: "keywords", content: keywords },
         { property: "og:title", content: ogTitle },
         { property: "og:description", content: ogDesc },
         { property: "og:url", content: url },
+        { property: "og:type", content: "website" },
+        { property: "og:locale", content: isAr ? "ar_YE" : "en_US" },
+        { property: "og:locale:alternate", content: isAr ? "en_US" : "ar_YE" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: ogTitle },
+        { name: "twitter:description", content: ogDesc },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        { rel: "alternate", hrefLang: "ar", href: "https://ruknaltawfer.com/ar" },
+        { rel: "alternate", hrefLang: "en", href: "https://ruknaltawfer.com/en" },
+        { rel: "alternate", hrefLang: "x-default", href: "https://ruknaltawfer.com/ar" },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "@id": `${url}#webpage`,
+            url,
+            name: title,
+            description: desc,
+            inLanguage: isAr ? "ar" : "en",
+            isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+            about: { "@id": "https://ruknaltawfer.com/#organization" },
+          }),
+        },
+      ],
     };
   },
   loader: async ({ context }) => {
