@@ -11,7 +11,7 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 
 export const Route = createFileRoute("/$lang/partners")({
   head: ({ params }) => {
-    const url = `https://rukna-ltawfir.lovable.app/${params.lang}/partners`;
+    const url = `https://ruknaltawfer.com/${params.lang}/partners`;
     const isAr = params.lang === "ar";
     const title = isAr ? "الشراكات التجارية — ركن التوفير كوزمتك للتجارة" : "Business Partnerships — Rukn Al-Tawfir Cosmetic for Trade";
     const desc = isAr
