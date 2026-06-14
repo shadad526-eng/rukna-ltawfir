@@ -36,7 +36,7 @@ export const Route = createFileRoute("/$lang/")({
       ? "ركن التوفير كوزمتك للتجارة | مستحضرات التجميل والعناية الشخصية والمنتجات الصحية ومنتجات العناية بالاطفال في اليمن"
       : "Rukn Al-Tawfir Cosmetic for Trade — Official Digital HQ";
     const desc = isAr
-      ? "الوكيل الحصري لمنظومة من العلامات الصحية العالمية في اليمن: NO CAL، Steviola، Monivo، Baby Tawfir، Bambo، Y-Kelin، iSiS، SEKEM."
+      ? "ركن التوفير كوزمتك للتجارة، شريكك الاستراتيجي في قطاع الصحة والجمال في اليمن، نوفر منتجات العناية الشخصية ومستحضرات التجميل والمنتجات الصحية ومنتجات الأطفال بعلامات تجارية موثوقة."
       : "Exclusive agent for a system of global health brands in Yemen: NO CAL, Steviola, Monivo, Baby Tawfir, Bambo, Y-Kelin, iSiS, SEKEM.";
     const ogTitle = isAr ? "ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade";
     const ogDesc = isAr
