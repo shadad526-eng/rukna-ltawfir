@@ -33,7 +33,7 @@ export const Route = createFileRoute("/$lang/")({
     const url = `https://rukna-ltawfir.lovable.app/${params.lang}`;
     const isAr = params.lang === "ar";
     const title = isAr
-      ? "ركن التوفير كوزمتك للتجارة — المقرّ الرقمي الرسمي"
+      ? "ركن التوفير كوزمتك للتجارة | مستحضرات التجميل والعناية الشخصية والمنتجات الصحية ومنتجات العناية بالاطفال في اليمن"
       : "Rukn Al-Tawfir Cosmetic for Trade — Official Digital HQ";
     const desc = isAr
       ? "الوكيل الحصري لمنظومة من العلامات الصحية العالمية في اليمن: NO CAL، Steviola، Monivo، Baby Tawfir، Bambo، Y-Kelin، iSiS، SEKEM."
