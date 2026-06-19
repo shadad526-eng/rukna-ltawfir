@@ -18,7 +18,7 @@ export const Route = createFileRoute("/$lang/brands/")({
     const desc = isAr
       ? "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin."
       : "Official health brands represented through the Rukn Al-Tawfir ecosystem in Yemen: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin.";
-    const brands = loaderData?.brands ?? [];
+    const brands: BrandSummary[] = (loaderData as { brands?: BrandSummary[] } | undefined)?.brands ?? [];
     return {
       meta: [
         { title },
