@@ -44,8 +44,9 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
   head: ({ params, loaderData }) => {
     const url = `https://ruknaltawfer.com/${params.lang}/brands/${params.slug}`;
     const isAr = params.lang === "ar";
-    const brand = loaderData?.brand;
-    const products = loaderData?.products ?? [];
+    const ld = loaderData as { brand?: BrandDetail; products?: ProductSummary[] } | undefined;
+    const brand = ld?.brand;
+    const products: ProductSummary[] = ld?.products ?? [];
     const nameAr = brand?.name_ar ?? params.slug;
     const nameEn = brand?.name_en ?? params.slug;
     const displayName = isAr ? nameAr : nameEn;
