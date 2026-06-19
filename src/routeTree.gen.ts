@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangRouteImport } from './routes/$lang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
+import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
 import { Route as LangContactRouteImport } from './routes/$lang.contact'
 import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const LangIndexRoute = LangIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
+  id: '/sugar-alternatives',
+  path: '/sugar-alternatives',
   getParentRoute: () => LangRoute,
 } as any)
 const LangPartnersRoute = LangPartnersRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
   '/$lang/partners': typeof LangPartnersRoute
+  '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
   '/$lang/partners': typeof LangPartnersRoute
+  '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang': typeof LangIndexRoute
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
   '/$lang/partners': typeof LangPartnersRoute
+  '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/$lang/catalogs'
     | '/$lang/contact'
     | '/$lang/partners'
+    | '/$lang/sugar-alternatives'
     | '/$lang/'
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/$lang/catalogs'
     | '/$lang/contact'
     | '/$lang/partners'
+    | '/$lang/sugar-alternatives'
     | '/$lang'
     | '/$lang/news/$slug'
     | '/$lang/brands'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/$lang/catalogs'
     | '/$lang/contact'
     | '/$lang/partners'
+    | '/$lang/sugar-alternatives'
     | '/$lang/'
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
@@ -224,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/$lang/'
       preLoaderRoute: typeof LangIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/sugar-alternatives': {
+      id: '/$lang/sugar-alternatives'
+      path: '/sugar-alternatives'
+      fullPath: '/$lang/sugar-alternatives'
+      preLoaderRoute: typeof LangSugarAlternativesRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/partners': {
@@ -333,6 +352,7 @@ interface LangRouteChildren {
   LangCatalogsRoute: typeof LangCatalogsRoute
   LangContactRoute: typeof LangContactRoute
   LangPartnersRoute: typeof LangPartnersRoute
+  LangSugarAlternativesRoute: typeof LangSugarAlternativesRoute
   LangIndexRoute: typeof LangIndexRoute
   LangNewsSlugRoute: typeof LangNewsSlugRoute
 }
@@ -343,6 +363,7 @@ const LangRouteChildren: LangRouteChildren = {
   LangCatalogsRoute: LangCatalogsRoute,
   LangContactRoute: LangContactRoute,
   LangPartnersRoute: LangPartnersRoute,
+  LangSugarAlternativesRoute: LangSugarAlternativesRoute,
   LangIndexRoute: LangIndexRoute,
   LangNewsSlugRoute: LangNewsSlugRoute,
 }
@@ -357,13 +378,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

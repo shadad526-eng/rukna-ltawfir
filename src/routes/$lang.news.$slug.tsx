@@ -119,6 +119,32 @@ function NewsArticle() {
           ))}
         </div>
 
+        {slug === "natural-sweeteners-daily-health" && (
+          <div className="mt-10 rounded-2xl border border-trust-700/30 bg-trust-700/5 p-6">
+            <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
+              {isAr ? "الدليل الشامل" : "Complete guide"}
+            </div>
+            <h2 className="mt-2 font-arabic text-lg font-bold text-foreground">
+              {isAr
+                ? "تعمّق أكثر في دليل بدائل السكر في اليمن"
+                : "Dive deeper into the sugar alternatives guide for Yemen"}
+            </h2>
+            <p className="mt-2 text-sm leading-loose text-ink-700">
+              {isAr
+                ? "اطّلع على المرجع الكامل لـ Steviola و NO CAL، المقارنات، والأسئلة الشائعة لمرضى السكري ومتّبعي الحميات."
+                : "See the full reference for Steviola and NO CAL, comparisons, and FAQs for diabetics and dieters."}
+            </p>
+            <div className="mt-4">
+              <LLink
+                to="/$lang/sugar-alternatives"
+                className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white"
+              >
+                {isAr ? "افتح دليل بدائل السكر" : "Open the sugar alternatives hub"}
+              </LLink>
+            </div>
+          </div>
+        )}
+
         <div className="mt-12 rounded-2xl border border-border bg-card p-6 md:p-8">
           <h2 className="font-arabic text-lg font-bold text-foreground">
             {isAr ? "هل لديك سؤال حول هذا المحتوى؟" : "Have a question about this article?"}
