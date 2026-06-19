@@ -11,29 +11,77 @@ const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () 
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 
 export const Route = createFileRoute("/$lang/brands/")({
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const url = `https://ruknaltawfer.com/${params.lang}/brands`;
     const isAr = params.lang === "ar";
     const title = isAr ? "العلامات التجارية — ركن التوفير كوزمتك للتجارة" : "Brands — Rukn Al-Tawfir Cosmetic for Trade";
     const desc = isAr
-      ? "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh."
-      : "Official health brands represented through the Rukn Al-Tawfir ecosystem in Yemen: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh.";
+      ? "العلامات الصحية الرسمية الممثلة عبر منظومة ركن التوفير في اليمن: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin."
+      : "Official health brands represented through the Rukn Al-Tawfir ecosystem in Yemen: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin.";
+    const brands = loaderData?.brands ?? [];
     return {
       meta: [
         { title },
         { name: "description", content: desc },
+        { name: "keywords", content: isAr
+          ? "العلامات التجارية, ركن التوفير, ايزيس, سيكم, ستيفيولا, نو كال, مونيفو, بيبي توفير, بامبو, واي كيلين, اليمن"
+          : "brands, Rukn Al-Tawfir, iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo, Y-Kelin, Yemen" },
         { property: "og:title", content: isAr ? "العلامات التجارية — ركن التوفير" : "Brands — Rukn Al-Tawfir" },
-        { property: "og:description", content: isAr ? "علامات صحية رسمية ضمن منظومة ركن التوفير." : "Official health brands within the Rukn Al-Tawfir ecosystem." },
+        { property: "og:description", content: desc },
         { property: "og:url", content: url },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        { rel: "alternate", hrefLang: "ar", href: "https://ruknaltawfer.com/ar/brands" },
+        { rel: "alternate", hrefLang: "en", href: "https://ruknaltawfer.com/en/brands" },
+        { rel: "alternate", hrefLang: "x-default", href: "https://ruknaltawfer.com/ar/brands" },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 2, name: isAr ? "العلامات التجارية" : "Brands", item: url },
+                ],
+              },
+              {
+                "@type": "CollectionPage",
+                "@id": `${url}#collection`,
+                url,
+                name: title,
+                description: desc,
+                inLanguage: isAr ? "ar" : "en",
+                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+                mainEntity: {
+                  "@type": "ItemList",
+                  numberOfItems: brands.length,
+                  itemListElement: brands.map((b, i) => ({
+                    "@type": "ListItem",
+                    position: i + 1,
+                    url: `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}`,
+                    name: isAr ? b.name_ar : b.name_en,
+                  })),
+                },
+              },
+            ],
+          }),
+        },
+      ],
     };
   },
   loader: async ({ context }) => {
-    await Promise.all([
+    const [, brands] = await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(brandsQO),
     ]);
+    return { brands };
   },
   component: BrandsPage,
   errorComponent: ({ error }) => <ErrorState message={error.message} />,
