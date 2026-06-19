@@ -1,19 +1,35 @@
-# ركن التوفير كوزمتك للتجارة
+# Rukn Al-Tawfir Cosmetic for Trade — ركن التوفير كوزمتك للتجارة
 
-> الوكيل الحصري لمنظومة من العلامات التجارية الصحية العالمية في الجمهورية اليمنية: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin.
+> Exclusive agent in the Republic of Yemen for a portfolio of international health, personal-care, baby-care, oral-care and natural-sweetener brands: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo Fresh, Y-Kelin. الوكيل الحصري في الجمهورية اليمنية لمنظومة علامات تجارية صحية واستهلاكية عالمية.
 
-موقع ثنائي اللغة (عربي/إنجليزي) لتقديم العلامات التجارية، الكتالوجات الرسمية، فرص الشراكة، وقنوات التواصل التجاري عبر واتساب الأعمال.
+Bilingual (Arabic-first / English) corporate digital headquarters. The site is not an e-commerce store — all commercial inquiries, pricing and orders are handled exclusively through the official WhatsApp Business line at +967 774040383. Catalogs are visible on the site as content (descriptions, ingredients, benefits, variants, usage). Prices are never published.
+
+Primary categories: sugar substitutes (بدائل السكر), stevia sweeteners (ستيفيا), products for diabetics (منتجات مرضى السكري), oral and dental care (العناية بالفم والأسنان), baby care (منتجات الأطفال), eco diapers (حفاضات إيكولوجية), vitamins and supplements (مكملات غذائية), herbal teas and biodynamic foods (أعشاب وأغذية صحية), personal care and cosmetics (العناية الشخصية ومستحضرات التجميل).
 
 ## Pages
 
-- [الرئيسية / Home](/ar): المقرّ الرقمي الرسمي ونظرة عامة على المنظومة.
-- [العلامات التجارية / Brands](/ar/brands): دليل العلامات الصحية الممثلة.
-- [الكتالوجات / Catalogs](/ar/catalogs): الكتالوجات الرسمية للعلامات.
-- [الشراكات / Partners](/ar/partners): فرص التوزيع والجملة.
-- [من نحن / About](/ar/about): قصة الشركة ورؤيتها وقيمها.
-- [تواصل معنا / Contact](/ar/contact): قنوات التواصل الرسمية.
+- [الرئيسية / Home — Arabic](/ar): Official digital HQ, brand ecosystem overview, featured products, news.
+- [Home — English](/en): English version of the home page.
+- [العلامات التجارية / Brands — Arabic](/ar/brands): Directory of all represented brands.
+- [Brands — English](/en/brands): English brands directory.
+- [الكتالوجات / Catalogs](/ar/catalogs): Official PDF catalogs (public / restricted / B2B-only).
+- [الشراكات / Partners](/ar/partners): Distribution and wholesale partnership opportunities.
+- [من نحن / About](/ar/about): Company story, mission, values.
+- [تواصل معنا / Contact](/ar/contact): Official contact channels (WhatsApp, phone, email).
+
+## Brands
+
+- [iSiS — ايزيس](/ar/brands/isis): Herbal foods, healthy teas and natural products.
+- [SEKEM — سيكم](/ar/brands/sekem): Egyptian biodynamic herbs, teas and wellness products.
+- [Steviola — ستيفيولا](/ar/brands/steviola): Natural stevia-based sweeteners (drops, tablets, sachets).
+- [NO CAL — نو كال](/ar/brands/nocal): Zero-calorie sugar substitute, safe for diabetics.
+- [Monivo — مونيفو](/ar/brands/monivo): Vitamins, minerals and dietary supplements (incl. Vitamin C).
+- [Baby Tawfir — بيبي توفير](/ar/brands/baby-tawfir): Baby care and infant products.
+- [Bambo — بامبو](/ar/brands/bambo): Eco-friendly, dermatologically tested baby diapers.
+- [Y-Kelin — واي كيلين](/ar/brands/y-kelin): Oral and dental care products.
 
 ## Optional
 
-- [English Home](/en): English version of the home page.
-- [English Brands](/en/brands): English version of the brands directory.
+- [English brand pages](/en/brands): Each brand above is mirrored under /en/brands/{slug}.
+- [Sitemap](/sitemap.xml): Full machine-readable URL index for crawlers.
+- [Robots](/robots.txt): Crawl rules — all user agents allowed.
