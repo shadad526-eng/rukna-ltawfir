@@ -31,31 +31,100 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
   loader: async ({ context, params }) => {
     const brand = await context.queryClient.ensureQueryData(brandQO(params.slug));
     if (!brand) throw notFound();
-    await Promise.all([
+    const [, products] = await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(productsQO(params.slug)),
       context.queryClient.ensureQueryData(brandsQO),
       context.queryClient.ensureQueryData(catalogsQO),
     ]);
+    return { brand, products };
   },
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const url = `https://ruknaltawfer.com/${params.lang}/brands/${params.slug}`;
     const isAr = params.lang === "ar";
+    const brand = loaderData?.brand;
+    const products = loaderData?.products ?? [];
+    const nameAr = brand?.name_ar ?? params.slug;
+    const nameEn = brand?.name_en ?? params.slug;
+    const displayName = isAr ? nameAr : nameEn;
+    const tagline = brand?.tagline_ar ?? "";
     const title = isAr
-      ? `${params.slug} — العلامات التجارية | ركن التوفير`
-      : `${params.slug} — Brands | Rukn Al-Tawfir`;
+      ? `${nameAr} (${nameEn}) — العلامات التجارية | ركن التوفير كوزمتك`
+      : `${nameEn} (${nameAr}) — Brands | Rukn Al-Tawfir Cosmetic for Trade`;
     const desc = isAr
-      ? `صفحة العلامة التجارية ${params.slug} ضمن منظومة ركن التوفير كوزمتك للتجارة.`
-      : `Brand page for ${params.slug} within the Rukn Al-Tawfir Cosmetic for Trade ecosystem.`;
+      ? `${nameAr} — العلامة التجارية الرسمية ضمن منظومة ركن التوفير كوزمتك للتجارة في اليمن. ${tagline} تصفّح منتجات ${nameAr} والكتالوج الرسمي واطلب عبر واتساب.`
+      : `${nameEn} — official brand within the Rukn Al-Tawfir Cosmetic for Trade ecosystem in Yemen. Browse ${nameEn} products, the official catalog, and inquire via WhatsApp.`;
+    const ogImage = brand?.logo_url ?? "https://ruknaltawfer.com/rukn-logo.webp";
     return {
       meta: [
         { title },
         { name: "description", content: desc },
+        { name: "keywords", content: `${nameAr}, ${nameEn}, ركن التوفير, ${nameAr} اليمن, ${nameEn} Yemen` },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:url", content: url },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: ogImage },
+        { property: "og:locale", content: isAr ? "ar_YE" : "en_US" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        { name: "twitter:image", content: ogImage },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        { rel: "alternate", hrefLang: "ar", href: `https://ruknaltawfer.com/ar/brands/${params.slug}` },
+        { rel: "alternate", hrefLang: "en", href: `https://ruknaltawfer.com/en/brands/${params.slug}` },
+        { rel: "alternate", hrefLang: "x-default", href: `https://ruknaltawfer.com/ar/brands/${params.slug}` },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Brand",
+                "@id": `${url}#brand`,
+                name: nameEn,
+                alternateName: nameAr,
+                url,
+                logo: brand?.logo_url ?? undefined,
+                description: brand?.description_ar ?? tagline ?? desc,
+                slogan: tagline || undefined,
+              },
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 2, name: isAr ? "العلامات التجارية" : "Brands", item: `https://ruknaltawfer.com/${params.lang}/brands` },
+                  { "@type": "ListItem", position: 3, name: displayName, item: url },
+                ],
+              },
+              {
+                "@type": "CollectionPage",
+                "@id": `${url}#collection`,
+                url,
+                name: title,
+                description: desc,
+                inLanguage: isAr ? "ar" : "en",
+                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+                about: { "@id": `${url}#brand` },
+                mainEntity: {
+                  "@type": "ItemList",
+                  numberOfItems: products.length,
+                  itemListElement: products.slice(0, 25).map((p, i) => ({
+                    "@type": "ListItem",
+                    position: i + 1,
+                    url: `https://ruknaltawfer.com/${params.lang}/brands/${params.slug}/${p.slug}`,
+                    name: isAr ? p.name_ar : p.name_en,
+                  })),
+                },
+              },
+            ],
+          }),
+        },
+      ],
     };
   },
   component: BrandDetail,
