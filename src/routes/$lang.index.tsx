@@ -71,14 +71,76 @@ export const Route = createFileRoute("/$lang/")({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebPage",
-            "@id": `${url}#webpage`,
-            url,
-            name: title,
-            description: desc,
-            inLanguage: isAr ? "ar" : "en",
-            isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
-            about: { "@id": "https://ruknaltawfer.com/#organization" },
+            "@graph": [
+              {
+                "@type": "WebPage",
+                "@id": `${url}#webpage`,
+                url,
+                name: title,
+                description: desc,
+                inLanguage: isAr ? "ar" : "en",
+                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+                about: { "@id": "https://ruknaltawfer.com/#organization" },
+              },
+              {
+                "@type": "FAQPage",
+                mainEntity: isAr
+                  ? [
+                      {
+                        "@type": "Question",
+                        name: "ما هي ركن التوفير كوزمتك للتجارة؟",
+                        acceptedAnswer: { "@type": "Answer", text: "ركن التوفير كوزمتك للتجارة هي الوكيل الحصري في الجمهورية اليمنية لمنظومة من العلامات التجارية الصحية والاستهلاكية العالمية: iSiS وSEKEM وSteviola وNO CAL وMonivo وBaby Tawfir وBambo وY-Kelin." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "ما هي العلامات التجارية التي تمثلها ركن التوفير في اليمن؟",
+                        acceptedAnswer: { "@type": "Answer", text: "iSiS (منتجات عشبية وأغذية صحية)، SEKEM (أعشاب وشاي بيوديناميكي)، Steviola (محليات ستيفيا الطبيعية)، NO CAL (بدائل سكر خالية من السعرات لمرضى السكري)، Monivo (مكملات غذائية وفيتامينات)، Baby Tawfir (منتجات العناية بالأطفال)، Bambo (حفاضات إيكولوجية)، Y-Kelin (العناية بالفم والأسنان)." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "كيف يمكنني طلب منتج أو الاستفسار عن الأسعار؟",
+                        acceptedAnswer: { "@type": "Answer", text: "يتم الطلب والاستفسار حصراً عبر واتساب الأعمال الرسمي لركن التوفير على الرقم +967 774040383، حيث يقوم فريق المبيعات بالرد على جميع الاستفسارات التجارية وطلبات التوزيع." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "هل توفر ركن التوفير منتجات لمرضى السكري؟",
+                        acceptedAnswer: { "@type": "Answer", text: "نعم، نوفر علامتي NO CAL وSteviola المتخصصتين في بدائل السكر الطبيعية الخالية من السعرات الحرارية والآمنة لمرضى السكري والباحثين عن نمط حياة صحي." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "هل أنتم وكلاء حصريون أم موزعون عاديون؟",
+                        acceptedAnswer: { "@type": "Answer", text: "ركن التوفير هي الوكيل الحصري والرسمي لجميع العلامات المذكورة في الجمهورية اليمنية، مع شبكة توزيع تغطي المحافظات الرئيسية." },
+                      },
+                    ]
+                  : [
+                      {
+                        "@type": "Question",
+                        name: "What is Rukn Al-Tawfir Cosmetic for Trade?",
+                        acceptedAnswer: { "@type": "Answer", text: "Rukn Al-Tawfir Cosmetic for Trade is the exclusive agent in the Republic of Yemen for a portfolio of international health and consumer brands: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo, and Y-Kelin." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "Which brands does Rukn Al-Tawfir represent in Yemen?",
+                        acceptedAnswer: { "@type": "Answer", text: "iSiS (herbal & healthy foods), SEKEM (biodynamic herbs & teas), Steviola (natural stevia sweeteners), NO CAL (zero-calorie sugar substitutes for diabetics), Monivo (vitamins & supplements), Baby Tawfir (baby care), Bambo (eco diapers), Y-Kelin (oral & dental care)." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "How can I order or inquire about pricing?",
+                        acceptedAnswer: { "@type": "Answer", text: "All orders and commercial inquiries are handled via the official WhatsApp Business line at +967 774040383, where the sales team responds to all business and distribution requests." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "Do you offer products for diabetics?",
+                        acceptedAnswer: { "@type": "Answer", text: "Yes — NO CAL and Steviola are specialized in natural, zero-calorie sugar substitutes that are safe for diabetics and anyone pursuing a healthier lifestyle." },
+                      },
+                      {
+                        "@type": "Question",
+                        name: "Are you exclusive agents or regular distributors?",
+                        acceptedAnswer: { "@type": "Answer", text: "Rukn Al-Tawfir is the exclusive official agent for all listed brands across the Republic of Yemen, with a distribution network covering all major governorates." },
+                      },
+                    ],
+              },
+            ],
           }),
         },
       ],
