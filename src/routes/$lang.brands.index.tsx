@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
+import { getCorporateIdentity, listBrands, type BrandSummary } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { BrandCard } from "@/components/site/BrandCard";
