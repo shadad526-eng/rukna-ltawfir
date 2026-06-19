@@ -7,6 +7,8 @@ import {
   listBrandProducts,
   listBrands,
   listCatalogs,
+  type BrandDetail,
+  type ProductSummary,
 } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
