@@ -215,7 +215,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                 description: brand?.description_ar ?? tagline ?? desc,
                 slogan: tagline || undefined,
                 knowsAbout: BRAND_TOPICS[params.slug] ?? [],
-                isRelatedTo: (RELATED_BRANDS[params.slug] ?? []).map((s) => ({
+                isRelatedTo: (RELATED_BRANDS[params.slug] ?? []).map((s: string) => ({
                   "@type": "Brand",
                   "@id": `https://ruknaltawfer.com/${params.lang}/brands/${s}#brand`,
                   name: s,
@@ -256,7 +256,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                     {
                       "@type": "FAQPage",
                       "@id": `${url}#faq`,
-                      mainEntity: BRAND_FAQS[params.slug][isAr ? "ar" : "en"].map((f) => ({
+                      mainEntity: BRAND_FAQS[params.slug][isAr ? "ar" : "en"].map((f: BrandFAQ) => ({
                         "@type": "Question",
                         name: f.q,
                         acceptedAnswer: { "@type": "Answer", text: f.a },
