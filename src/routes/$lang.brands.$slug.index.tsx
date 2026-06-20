@@ -95,6 +95,14 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                 logo: brand?.logo_url ?? undefined,
                 description: brand?.description_ar ?? tagline ?? desc,
                 slogan: tagline || undefined,
+                knowsAbout: BRAND_TOPICS[params.slug] ?? [],
+                isRelatedTo: (RELATED_BRANDS[params.slug] ?? []).map((s) => ({
+                  "@type": "Brand",
+                  "@id": `https://ruknaltawfer.com/${params.lang}/brands/${s}#brand`,
+                  name: s,
+                  url: `https://ruknaltawfer.com/${params.lang}/brands/${s}`,
+                })),
+                parentOrganization: { "@id": "https://ruknaltawfer.com/#organization" },
               },
               {
                 "@type": "BreadcrumbList",
@@ -124,6 +132,19 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                   })),
                 },
               },
+              ...((BRAND_FAQS[params.slug]?.[isAr ? "ar" : "en"]?.length ?? 0) > 0
+                ? [
+                    {
+                      "@type": "FAQPage",
+                      "@id": `${url}#faq`,
+                      mainEntity: BRAND_FAQS[params.slug][isAr ? "ar" : "en"].map((f) => ({
+                        "@type": "Question",
+                        name: f.q,
+                        acceptedAnswer: { "@type": "Answer", text: f.a },
+                      })),
+                    },
+                  ]
+                : []),
             ],
           }),
         },
