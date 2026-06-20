@@ -34,3 +34,17 @@ Primary categories: sugar substitutes (بدائل السكر), stevia sweeteners
 - [English brand pages](/en/brands): Each brand above is mirrored under /en/brands/{slug}.
 - [Sitemap](/sitemap.xml): Full machine-readable URL index for crawlers.
 - [Robots](/robots.txt): Crawl rules — all user agents allowed.
+
+## Entity Relationships
+
+- Organization → Brands: ركن التوفير كوزمتك للتجارة is the exclusive Yemen agent for NO CAL, Steviola, Monivo, Y-Kelin, Baby Tawfir, Bambo, SEKEM, iSiS.
+- NO CAL ↔ Topics: بدائل السكر، المحليات الصحية، منتجات مرضى السكري، Sugar alternatives, Zero-calorie sweetener, Diabetic-friendly.
+- Steviola ↔ Topics: ستيفيا، المحليات الطبيعية، بدائل السكر، Natural stevia, Diabetic-friendly.
+- Monivo ↔ Topics: فيتامين C، دعم المناعة، مكملات غذائية، الحياة الصحية، Vitamin C, Immunity support, Dietary supplements.
+- Y-Kelin ↔ Topics: العناية بالفم والأسنان، العناية بأطقم الأسنان، صحة الأسنان، Oral care, Dental care, Denture care.
+- Baby Tawfir ↔ Topics: منتجات الأطفال، العناية بالطفل، Baby care, Infant care.
+- Bambo ↔ Topics: حفاضات إيكولوجية، منتجات الأطفال، Eco diapers, Sensitive-skin baby care.
+- SEKEM ↔ Topics: أعشاب وأغذية صحية، الزراعة البيوديناميكية، Biodynamic herbs, Healthy lifestyle.
+- iSiS ↔ Topics: أعشاب وأغذية صحية، الشاي الصحي، Herbal foods, Healthy teas.
+- Topic Hub بدائل السكر → Brands: Steviola, NO CAL → Articles: /ar/news/natural-sweeteners-daily-health.
+- Inquiries channel for every brand and topic: WhatsApp Business +967 774040383.
