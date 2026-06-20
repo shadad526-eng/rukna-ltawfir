@@ -311,7 +311,14 @@ function BrandDetail() {
 
   const accent = brand.brand_tokens.accent ?? "var(--leaf-500)";
   const brandCatalogs = catalogs.filter((c) => c.brand_slug === brand.slug);
-  const related = allBrands.filter((b) => b.slug !== brand.slug).slice(0, 4);
+  const curatedOrder = RELATED_BRANDS[brand.slug] ?? [];
+  const related = [
+    ...curatedOrder
+      .map((s) => allBrands.find((b) => b.slug === s))
+      .filter((b): b is NonNullable<typeof b> => Boolean(b)),
+    ...allBrands.filter((b) => b.slug !== brand.slug && !curatedOrder.includes(b.slug)),
+  ].slice(0, 4);
+  const topicHub = TOPIC_HUBS[brand.slug];
   const gallery = products.filter((p) => p.cover_url).slice(0, 6);
   const brandName = isAr ? brand.name_ar : brand.name_en;
 
