@@ -29,6 +29,125 @@ const productsQO = (brandSlug: string) =>
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 
+const BRAND_TOPICS: Record<string, string[]> = {
+  nocal: ["بدائل السكر", "محليات خالية من السعرات", "منتجات مرضى السكري", "Sugar alternatives", "Zero-calorie sweetener", "Diabetic-friendly"],
+  steviola: ["ستيفيا", "المحليات الطبيعية", "بدائل السكر", "منتجات مرضى السكري", "Natural stevia sweetener", "Sugar alternatives"],
+  monivo: ["فيتامين C", "دعم المناعة", "مكملات غذائية", "الحياة الصحية", "Vitamin C", "Immunity support", "Dietary supplements"],
+  "y-kelin": ["العناية بالفم والأسنان", "العناية بأطقم الأسنان", "صحة الأسنان", "Oral care", "Dental care", "Denture care"],
+  "baby-tawfir": ["منتجات الأطفال", "العناية بالطفل", "Baby care", "Infant care"],
+  bambo: ["حفاضات إيكولوجية", "منتجات الأطفال", "العناية بالطفل", "Eco diapers", "Baby care"],
+  sekem: ["أعشاب وأغذية صحية", "التغذية الصحية", "الحياة الصحية", "Biodynamic herbs", "Healthy lifestyle"],
+  isis: ["أعشاب وأغذية صحية", "التغذية الصحية", "الحياة الصحية", "Herbal foods", "Healthy teas", "Healthy lifestyle"],
+};
+
+const RELATED_BRANDS: Record<string, string[]> = {
+  nocal: ["steviola", "monivo", "sekem"],
+  steviola: ["nocal", "isis", "sekem"],
+  monivo: ["isis", "sekem", "steviola"],
+  "y-kelin": ["bambo", "baby-tawfir", "monivo"],
+  "baby-tawfir": ["bambo", "y-kelin", "monivo"],
+  bambo: ["baby-tawfir", "y-kelin", "sekem"],
+  sekem: ["isis", "steviola", "monivo"],
+  isis: ["sekem", "steviola", "monivo"],
+};
+
+type BrandFAQ = { q: string; a: string };
+const BRAND_FAQS: Record<string, { ar: BrandFAQ[]; en: BrandFAQ[] }> = {
+  nocal: {
+    ar: [
+      { q: "ما هو NO CAL وما الذي يميّزه؟", a: "NO CAL محلٍّ منخفض السعرات الحرارية يُستخدم كبديل آمن للسكر التقليدي، متوفر بصيغ عملية للاستخدام اليومي وأحجام عائلية مناسبة للخبز والطهي، وخالٍ من الأسبارتام في الحجم العائلي." },
+      { q: "هل NO CAL آمن لمرضى السكري؟", a: "نعم، يُعتبر NO CAL خياراً مناسباً لمرضى السكري ومن يتبعون أنظمة غذائية منخفضة الكربوهيدرات لأنه لا يرفع مستوى السكر في الدم بشكل ملحوظ." },
+      { q: "أين أجد NO CAL في اليمن؟", a: "ركن التوفير كوزمتك للتجارة هي الوكيل الحصري لـ NO CAL في الجمهورية اليمنية. للطلب والاستفسار: واتساب الأعمال +967 774040383." },
+    ],
+    en: [
+      { q: "What is NO CAL and what makes it different?", a: "NO CAL is a low-calorie sweetener used as a safe alternative to regular sugar. It comes in everyday formats and family-size packs suitable for baking and cooking, and is aspartame-free in the family size." },
+      { q: "Is NO CAL safe for diabetics?", a: "Yes. NO CAL is considered a suitable choice for diabetics and low-carb diets because it does not meaningfully raise blood sugar." },
+      { q: "Where can I find NO CAL in Yemen?", a: "Rukn Al-Tawfir Cosmetic for Trade is the exclusive agent for NO CAL in the Republic of Yemen. Orders and inquiries via WhatsApp Business: +967 774040383." },
+    ],
+  },
+  steviola: {
+    ar: [
+      { q: "ما هي Steviola وممَّ تُصنع؟", a: "Steviola محلٍّ طبيعي بنسبة 100% مستخلص من أوراق نبتة ستيفيا (Stevia rebaudiana)، خالٍ من السعرات الحرارية، وعملي بصيغ نقط وأقراص وأكياس وأحجام عائلية." },
+      { q: "هل Steviola مناسبة لمرضى السكري؟", a: "نعم، ستيفيا لا ترفع مستوى السكر في الدم بشكل ملحوظ، وهي ضمن الخيارات الموصى بها لمرضى السكري وحميات الكيتو ومنخفضي الكربوهيدرات." },
+      { q: "هل يمكن استخدام Steviola في الخبز؟", a: "نعم، الأحجام العائلية من Steviola مصممة للخبز والطهي وتحافظ على ثباتها في درجات الحرارة العالية." },
+    ],
+    en: [
+      { q: "What is Steviola and what is it made from?", a: "Steviola is a 100% natural sweetener extracted from the leaves of the Stevia rebaudiana plant. It is calorie-free and available as drops, tablets, sachets and family-size packs." },
+      { q: "Is Steviola suitable for diabetics?", a: "Yes. Stevia does not meaningfully raise blood sugar and is among the recommended options for diabetics, keto and low-carb diets." },
+      { q: "Can Steviola be used for baking?", a: "Yes. The Steviola family-size packs are designed for baking and cooking and stay heat-stable at high temperatures." },
+    ],
+  },
+  monivo: {
+    ar: [
+      { q: "ما هي منتجات Monivo؟", a: "Monivo علامة متخصصة في المكملات الغذائية والفيتامينات، أبرزها أقراص استحلاب فيتامين C بنكهات متعددة (برتقال، ليمون ومنثول، نعناع وأوكاليبتوس، فراولة، عسل وبروبوليس) بتركيبة خالية من السكر." },
+      { q: "ما الجرعة اليومية الموصى بها من فيتامين C؟", a: "تتراوح الجرعة اليومية للبالغين عادةً بين 75 و90 ملغ، مع حدّ أعلى يبلغ 2000 ملغ من جميع المصادر. يُنصح باتباع تعليمات الملصق ومراجعة الطبيب عند وجود حالات مزمنة." },
+      { q: "هل Monivo خالٍ من السكر؟", a: "نعم، أقراص استحلاب Monivo مصمَّمة بتركيبة خالية من السكر، ما يجعلها خياراً مناسباً للاستخدام اليومي." },
+    ],
+    en: [
+      { q: "What are Monivo products?", a: "Monivo is a brand specialized in dietary supplements and vitamins, most notably vitamin C lozenges in several flavors (orange, lemon & menthol, mint & eucalyptus, strawberry, honey & propolis) in a sugar-free formula." },
+      { q: "What is the recommended daily vitamin C intake?", a: "Typical adult intake ranges 75–90 mg per day, with an upper limit of 2,000 mg from all sources. Follow the label and consult a physician for chronic conditions." },
+      { q: "Is Monivo sugar-free?", a: "Yes, Monivo lozenges are formulated sugar-free, making them suitable for daily use." },
+    ],
+  },
+  "y-kelin": {
+    ar: [
+      { q: "ما الذي تقدمه Y-Kelin للعناية بالفم؟", a: "Y-Kelin علامة متخصصة في العناية بالفم والأسنان وأطقم الأسنان، من بينها فرشاة Sonic Electric Toothbrush بتقنية صوتية متقدمة، عمر بطارية طويل، ومقاومة كاملة للماء IPX7." },
+      { q: "هل لدى Y-Kelin منتجات للعناية بأطقم الأسنان؟", a: "نعم، تقدّم Y-Kelin حلولاً متخصصة في تنظيف أطقم الأسنان والعناية بها للحفاظ على نظافة وراحة المستخدم." },
+      { q: "كم مرة يجب تبديل رأس الفرشاة؟", a: "يُوصى بتبديل رأس الفرشاة كل 3 أشهر، مع تجنّب الضغط الزائد أثناء التنظيف وزيارة طبيب الأسنان دوريًا." },
+    ],
+    en: [
+      { q: "What does Y-Kelin offer for oral care?", a: "Y-Kelin is specialized in oral, dental and denture care, including the Sonic Electric Toothbrush with advanced sonic technology, long battery life, and IPX7 full waterproofing." },
+      { q: "Does Y-Kelin offer denture care products?", a: "Yes — Y-Kelin offers dedicated solutions for cleaning and caring for dentures to keep them hygienic and comfortable." },
+      { q: "How often should I replace the brush head?", a: "Replace the brush head every 3 months, avoid pressing too hard while brushing, and schedule regular dental check-ups." },
+    ],
+  },
+  "baby-tawfir": {
+    ar: [
+      { q: "ما هي Baby Tawfir؟", a: "Baby Tawfir علامة متخصصة في منتجات العناية بالأطفال والرضع، مصمَّمة لتوفير الراحة والأمان للأهل والطفل." },
+      { q: "هل منتجات Baby Tawfir آمنة لبشرة الأطفال؟", a: "نعم، مُصمَّمة وفق معايير دقيقة لمناسبة بشرة الرضع والأطفال الحساسة." },
+    ],
+    en: [
+      { q: "What is Baby Tawfir?", a: "Baby Tawfir is a brand specialized in baby and infant care products, designed to provide comfort and safety for parents and children." },
+      { q: "Are Baby Tawfir products safe for babies' skin?", a: "Yes — designed to suit sensitive infant and toddler skin." },
+    ],
+  },
+  bambo: {
+    ar: [
+      { q: "ما الذي يميّز حفاضات Bambo؟", a: "حفاضات Bambo إيكولوجية مختبَرة طبياً، مصمَّمة لتوفير امتصاص عالٍ ولطف على بشرة الطفل، مع التزام بمعايير الاستدامة." },
+      { q: "هل Bambo مناسبة للبشرة الحساسة؟", a: "نعم، Bambo معتمدة دلائلياً للبشرة الحساسة وخالية من العديد من المواد المثيرة للحساسية." },
+    ],
+    en: [
+      { q: "What makes Bambo diapers different?", a: "Bambo are eco-friendly, dermatologically tested diapers designed for high absorption and gentleness on baby skin, with a commitment to sustainability." },
+      { q: "Are Bambo suitable for sensitive skin?", a: "Yes — Bambo are dermatologically approved for sensitive skin and free of many common allergens." },
+    ],
+  },
+  sekem: {
+    ar: [
+      { q: "ما هي SEKEM؟", a: "SEKEM علامة مصرية مشهورة بالزراعة البيوديناميكية، تقدّم أعشاباً وشاياً ومنتجات صحية طبيعية." },
+      { q: "ما الذي يميّز شاي SEKEM؟", a: "يتميّز شاي SEKEM بكونه عضوياً بيوديناميكياً ومستخلصاً من نباتات منتقاة بعناية." },
+    ],
+    en: [
+      { q: "What is SEKEM?", a: "SEKEM is an Egyptian brand renowned for biodynamic agriculture, offering herbs, teas and natural wellness products." },
+      { q: "What makes SEKEM teas distinctive?", a: "SEKEM teas are biodynamic organic and crafted from carefully selected plants." },
+    ],
+  },
+  isis: {
+    ar: [
+      { q: "ما هي iSiS؟", a: "iSiS علامة متخصصة في الأغذية العشبية والشاي الصحي والمنتجات الطبيعية، تشمل تشكيلة واسعة من الأعشاب وزيت الزيتون والتمور والمنتجات الصحية." },
+      { q: "هل منتجات iSiS طبيعية؟", a: "نعم، تركّز iSiS على المصادر النباتية والطبيعية ضمن تركيبات مناسبة للحياة الصحية اليومية." },
+    ],
+    en: [
+      { q: "What is iSiS?", a: "iSiS is a brand specialized in herbal foods, healthy teas and natural products, including a wide range of herbs, olive oil, dates and wellness items." },
+      { q: "Are iSiS products natural?", a: "Yes — iSiS focuses on plant-based and natural sources in formulas suitable for a daily healthy lifestyle." },
+    ],
+  },
+};
+
+const TOPIC_HUBS: Record<string, { href: string; ar: string; en: string }> = {
+  nocal: { href: "/sugar-alternatives", ar: "افتح دليل بدائل السكر", en: "Open the sugar alternatives hub" },
+  steviola: { href: "/sugar-alternatives", ar: "افتح دليل بدائل السكر", en: "Open the sugar alternatives hub" },
+};
+
 export const Route = createFileRoute("/$lang/brands/$slug/")({
   loader: async ({ context, params }) => {
     const brand = await context.queryClient.ensureQueryData(brandQO(params.slug));
@@ -95,6 +214,14 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                 logo: brand?.logo_url ?? undefined,
                 description: brand?.description_ar ?? tagline ?? desc,
                 slogan: tagline || undefined,
+                knowsAbout: BRAND_TOPICS[params.slug] ?? [],
+                isRelatedTo: (RELATED_BRANDS[params.slug] ?? []).map((s: string) => ({
+                  "@type": "Brand",
+                  "@id": `https://ruknaltawfer.com/${params.lang}/brands/${s}#brand`,
+                  name: s,
+                  url: `https://ruknaltawfer.com/${params.lang}/brands/${s}`,
+                })),
+                parentOrganization: { "@id": "https://ruknaltawfer.com/#organization" },
               },
               {
                 "@type": "BreadcrumbList",
@@ -124,6 +251,19 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
                   })),
                 },
               },
+              ...((BRAND_FAQS[params.slug]?.[isAr ? "ar" : "en"]?.length ?? 0) > 0
+                ? [
+                    {
+                      "@type": "FAQPage",
+                      "@id": `${url}#faq`,
+                      mainEntity: BRAND_FAQS[params.slug][isAr ? "ar" : "en"].map((f: BrandFAQ) => ({
+                        "@type": "Question",
+                        name: f.q,
+                        acceptedAnswer: { "@type": "Answer", text: f.a },
+                      })),
+                    },
+                  ]
+                : []),
             ],
           }),
         },
@@ -171,7 +311,14 @@ function BrandDetail() {
 
   const accent = brand.brand_tokens.accent ?? "var(--leaf-500)";
   const brandCatalogs = catalogs.filter((c) => c.brand_slug === brand.slug);
-  const related = allBrands.filter((b) => b.slug !== brand.slug).slice(0, 4);
+  const curatedOrder = RELATED_BRANDS[brand.slug] ?? [];
+  const related = [
+    ...curatedOrder
+      .map((s) => allBrands.find((b) => b.slug === s))
+      .filter((b): b is NonNullable<typeof b> => Boolean(b)),
+    ...allBrands.filter((b) => b.slug !== brand.slug && !curatedOrder.includes(b.slug)),
+  ].slice(0, 4);
+  const topicHub = TOPIC_HUBS[brand.slug];
   const gallery = products.filter((p) => p.cover_url).slice(0, 6);
   const brandName = isAr ? brand.name_ar : brand.name_en;
 
@@ -393,6 +540,35 @@ function BrandDetail() {
           </div>
         </section>
       ) : null}
+
+      {topicHub ? (
+        <section className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+          <div className="rounded-2xl border border-trust-700/30 bg-trust-700/5 p-6 md:p-8">
+            <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
+              {isAr ? "مرجع المحتوى" : "Topic hub"}
+            </div>
+            <h2 className="mt-2 font-arabic text-lg font-bold text-foreground md:text-xl">
+              {isAr
+                ? `${brandName} ضمن دليل بدائل السكر في اليمن`
+                : `${brandName} in the sugar alternatives guide for Yemen`}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-loose text-ink-700">
+              {isAr
+                ? "اطّلع على الدليل المرجعي الذي يربط Steviola و NO CAL ببدائل السكر الطبيعية، المحليات الصحية، وخيارات مرضى السكري."
+                : "Read the reference guide that connects Steviola and NO CAL to natural sugar alternatives, healthy sweeteners, and diabetic-friendly options."}
+            </p>
+            <div className="mt-4">
+              <LLink
+                to="/$lang/sugar-alternatives"
+                className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white"
+              >
+                {isAr ? topicHub.ar : topicHub.en}
+              </LLink>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
 
       <SiteFooter
         legalName={ident.legalName}

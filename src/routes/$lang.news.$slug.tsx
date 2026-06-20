@@ -8,12 +8,49 @@ import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { getNewsBySlug } from "@/data/news";
+import { getNewsBySlug, NEWS } from "@/data/news";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
   queryFn: () => getCorporateIdentity(),
 });
+
+type RelatedMap = {
+  brands: { slug: string; ar: string; en: string }[];
+  topics: { href: "/$lang/sugar-alternatives"; ar: string; en: string }[];
+  articles: string[];
+};
+
+const ARTICLE_RELATIONS: Record<string, RelatedMap> = {
+  "natural-sweeteners-daily-health": {
+    brands: [
+      { slug: "steviola", ar: "ستيفيولا", en: "Steviola" },
+      { slug: "nocal", ar: "نو كال", en: "NO CAL" },
+    ],
+    topics: [{ href: "/$lang/sugar-alternatives", ar: "دليل بدائل السكر", en: "Sugar alternatives hub" }],
+    articles: ["vitamin-c-immunity-energy", "daily-dental-care-routine"],
+  },
+  "vitamin-c-immunity-energy": {
+    brands: [
+      { slug: "monivo", ar: "مونيفو", en: "Monivo" },
+      { slug: "isis", ar: "ايزيس", en: "iSiS" },
+      { slug: "sekem", ar: "سيكم", en: "SEKEM" },
+    ],
+    topics: [],
+    articles: ["natural-sweeteners-daily-health", "daily-dental-care-routine"],
+  },
+  "daily-dental-care-routine": {
+    brands: [{ slug: "y-kelin", ar: "واي كيلين", en: "Y-Kelin" }],
+    topics: [],
+    articles: ["vitamin-c-immunity-energy", "natural-sweeteners-daily-health"],
+  },
+};
+
+const ARTICLE_TOPIC_KEYWORDS: Record<string, string[]> = {
+  "natural-sweeteners-daily-health": ["بدائل السكر", "المحليات الطبيعية", "ستيفيا", "منتجات مرضى السكري", "Sugar alternatives", "Natural sweeteners", "Stevia"],
+  "vitamin-c-immunity-energy": ["فيتامين C", "دعم المناعة", "الحياة الصحية", "مكملات غذائية", "Vitamin C", "Immunity support", "Healthy lifestyle"],
+  "daily-dental-care-routine": ["العناية بالفم والأسنان", "صحة الأسنان", "Oral care", "Dental care"],
+};
 
 export const Route = createFileRoute("/$lang/news/$slug")({
   head: ({ params }) => {
@@ -27,18 +64,68 @@ export const Route = createFileRoute("/$lang/news/$slug")({
     const title = item.title[isAr ? "ar" : "en"];
     const desc = item.excerpt[isAr ? "ar" : "en"];
     const url = `https://ruknaltawfer.com/${params.lang}/news/${item.slug}`;
+    const rel = ARTICLE_RELATIONS[item.slug];
+    const aboutEntities = [
+      ...(rel?.brands.map((b) => ({
+        "@type": "Brand",
+        "@id": `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}#brand`,
+        name: isAr ? b.ar : b.en,
+        url: `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}`,
+      })) ?? []),
+      ...((ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).map((name) => ({
+        "@type": "Thing",
+        name,
+      }))),
+    ];
     return {
       meta: [
         { title: `${title} — ${isAr ? "ركن التوفير" : "Rukn Al-Tawfir"}` },
         { name: "description", content: desc },
+        { name: "keywords", content: (ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).join(", ") },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:image", content: item.cover },
         { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        { property: "article:published_time", content: item.date },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:image", content: item.cover },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 2, name: isAr ? "المعرفة" : "News", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 3, name: title, item: url },
+                ],
+              },
+              {
+                "@type": "Article",
+                "@id": `${url}#article`,
+                headline: title,
+                description: desc,
+                image: item.cover,
+                datePublished: item.date,
+                dateModified: item.date,
+                inLanguage: isAr ? "ar" : "en",
+                mainEntityOfPage: url,
+                author: { "@id": "https://ruknaltawfer.com/#organization" },
+                publisher: { "@id": "https://ruknaltawfer.com/#organization" },
+                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+                about: aboutEntities,
+                keywords: ARTICLE_TOPIC_KEYWORDS[item.slug] ?? [],
+              },
+            ],
+          }),
+        },
+      ],
     };
   },
   loader: async ({ context, params }) => {
@@ -167,7 +254,82 @@ function NewsArticle() {
             </WhatsAppCTA>
           </div>
         </div>
+
+        {(() => {
+          const rel = ARTICLE_RELATIONS[slug];
+          if (!rel) return null;
+          const relArticles = rel.articles
+            .map((s) => NEWS.find((n) => n.slug === s))
+            .filter((n): n is NonNullable<typeof n> => Boolean(n));
+          const hasAny = rel.brands.length || rel.topics.length || relArticles.length;
+          if (!hasAny) return null;
+          return (
+            <aside className="mt-12 grid gap-6 md:grid-cols-2">
+              {rel.brands.length > 0 && (
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <h2 className="font-arabic text-base font-bold text-foreground">
+                    {isAr ? "علامات تجارية ذات صلة" : "Related brands"}
+                  </h2>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {rel.brands.map((b) => (
+                      <li key={b.slug}>
+                        <LLink
+                          to="/$lang/brands/$slug"
+                          params={{ slug: b.slug }}
+                          className="inline-flex items-center rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-semibold text-trust-700 hover:border-trust-700"
+                        >
+                          {isAr ? b.ar : b.en}
+                        </LLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {(rel.topics.length > 0 || relArticles.length > 0) && (
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  {rel.topics.length > 0 && (
+                    <>
+                      <h2 className="font-arabic text-base font-bold text-foreground">
+                        {isAr ? "موضوعات ذات صلة" : "Related topics"}
+                      </h2>
+                      <ul className="mt-3 space-y-2 text-sm">
+                        {rel.topics.map((tp) => (
+                          <li key={tp.href}>
+                            <LLink to={tp.href} className="text-trust-700 hover:underline">
+                              ← {isAr ? tp.ar : tp.en}
+                            </LLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {relArticles.length > 0 && (
+                    <>
+                      <h2 className={`font-arabic text-base font-bold text-foreground ${rel.topics.length ? "mt-5" : ""}`}>
+                        {isAr ? "مقالات ذات صلة" : "Related articles"}
+                      </h2>
+                      <ul className="mt-3 space-y-2 text-sm">
+                        {relArticles.map((a) => (
+                          <li key={a.slug}>
+                            <LLink
+                              to="/$lang/news/$slug"
+                              params={{ slug: a.slug }}
+                              className="text-trust-700 hover:underline"
+                            >
+                              ← {a.title[isAr ? "ar" : "en"]}
+                            </LLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
+            </aside>
+          );
+        })()}
       </article>
+
 
       <SiteFooter
         legalName={ident.legalName}

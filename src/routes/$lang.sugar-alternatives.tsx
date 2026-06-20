@@ -120,6 +120,46 @@ const FAQS: FAQ[] = [
       en: "They can be used in moderation as part of a balanced diet for children above a certain age, sticking to the serving sizes on the pack. We recommend consulting a pediatrician to determine age-appropriate amounts.",
     },
   },
+  {
+    q: {
+      ar: "ما هو أفضل بديل للسكر في اليمن لمتّبعي حمية الكيتو؟",
+      en: "What is the best sugar substitute in Yemen for keto dieters?",
+    },
+    a: {
+      ar: "Steviola هو الخيار الأول لمتّبعي حمية الكيتو لأنه طبيعي 100%، صفر سعرات، ولا يرفع مستوى الإنسولين. أما NO CAL فيُعدّ بديلًا منخفض الكربوهيدرات يدعم نمط الكيتو، خاصةً في الحجم العائلي للخبز والطهي.",
+      en: "Steviola is the first choice for keto dieters because it is 100% natural, zero-calorie, and does not spike insulin. NO CAL is a low-carb alternative that supports keto, especially the family-size pack for baking and cooking.",
+    },
+  },
+  {
+    q: {
+      ar: "هل ستيفيا تسبب ارتفاع ضغط الدم؟",
+      en: "Does stevia raise blood pressure?",
+    },
+    a: {
+      ar: "على العكس، تشير الدراسات السريرية إلى أن ستيفيا قد تساهم في خفض ضغط الدم بشكل طفيف لدى بعض الأشخاص. تبقى الاستشارة الطبية ضرورية لمن يتناولون أدوية ضغط الدم.",
+      en: "On the contrary, clinical studies suggest stevia may help slightly lower blood pressure in some people. Medical consultation remains essential for those taking blood pressure medication.",
+    },
+  },
+  {
+    q: {
+      ar: "هل يمكن استخدام Steviola و NO CAL أثناء الحمل والرضاعة؟",
+      en: "Can Steviola and NO CAL be used during pregnancy and breastfeeding?",
+    },
+    a: {
+      ar: "تُعتبر مستخلصات الستيفيا النقية (الموجودة في Steviola) ضمن قائمة GRAS الآمنة عمومًا. مع ذلك، نوصي بالاعتدال واستشارة الطبيب أو أخصائي التغذية خلال الحمل والرضاعة.",
+      en: "Pure stevia extracts (in Steviola) are on the GRAS list of generally recognized as safe ingredients. Still, we recommend moderation and consulting a doctor or dietitian during pregnancy and breastfeeding.",
+    },
+  },
+  {
+    q: {
+      ar: "هل بدائل السكر تساعد في إنقاص الوزن؟",
+      en: "Do sugar alternatives help with weight loss?",
+    },
+    a: {
+      ar: "نعم، استبدال السكر التقليدي ببدائل خالية أو منخفضة السعرات مثل Steviola و NO CAL يقلّل السعرات اليومية، وعند دمجه مع نظام غذائي متوازن ونشاط بدني منتظم يدعم خسارة الوزن.",
+      en: "Yes. Swapping regular sugar for zero or low-calorie alternatives like Steviola and NO CAL reduces daily calorie intake, and when combined with a balanced diet and regular exercise it supports weight loss.",
+    },
+  },
 ];
 
 export const Route = createFileRoute("/$lang/sugar-alternatives")({
