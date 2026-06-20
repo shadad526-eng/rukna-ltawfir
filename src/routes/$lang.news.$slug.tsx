@@ -8,12 +8,49 @@ import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { getNewsBySlug } from "@/data/news";
+import { getNewsBySlug, NEWS } from "@/data/news";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
   queryFn: () => getCorporateIdentity(),
 });
+
+type RelatedMap = {
+  brands: { slug: string; ar: string; en: string }[];
+  topics: { href: "/$lang/sugar-alternatives"; ar: string; en: string }[];
+  articles: string[];
+};
+
+const ARTICLE_RELATIONS: Record<string, RelatedMap> = {
+  "natural-sweeteners-daily-health": {
+    brands: [
+      { slug: "steviola", ar: "ستيفيولا", en: "Steviola" },
+      { slug: "nocal", ar: "نو كال", en: "NO CAL" },
+    ],
+    topics: [{ href: "/$lang/sugar-alternatives", ar: "دليل بدائل السكر", en: "Sugar alternatives hub" }],
+    articles: ["vitamin-c-immunity-energy", "daily-dental-care-routine"],
+  },
+  "vitamin-c-immunity-energy": {
+    brands: [
+      { slug: "monivo", ar: "مونيفو", en: "Monivo" },
+      { slug: "isis", ar: "ايزيس", en: "iSiS" },
+      { slug: "sekem", ar: "سيكم", en: "SEKEM" },
+    ],
+    topics: [],
+    articles: ["natural-sweeteners-daily-health", "daily-dental-care-routine"],
+  },
+  "daily-dental-care-routine": {
+    brands: [{ slug: "y-kelin", ar: "واي كيلين", en: "Y-Kelin" }],
+    topics: [],
+    articles: ["vitamin-c-immunity-energy", "natural-sweeteners-daily-health"],
+  },
+};
+
+const ARTICLE_TOPIC_KEYWORDS: Record<string, string[]> = {
+  "natural-sweeteners-daily-health": ["بدائل السكر", "المحليات الطبيعية", "ستيفيا", "منتجات مرضى السكري", "Sugar alternatives", "Natural sweeteners", "Stevia"],
+  "vitamin-c-immunity-energy": ["فيتامين C", "دعم المناعة", "الحياة الصحية", "مكملات غذائية", "Vitamin C", "Immunity support", "Healthy lifestyle"],
+  "daily-dental-care-routine": ["العناية بالفم والأسنان", "صحة الأسنان", "Oral care", "Dental care"],
+};
 
 export const Route = createFileRoute("/$lang/news/$slug")({
   head: ({ params }) => {
