@@ -254,7 +254,82 @@ function NewsArticle() {
             </WhatsAppCTA>
           </div>
         </div>
+
+        {(() => {
+          const rel = ARTICLE_RELATIONS[slug];
+          if (!rel) return null;
+          const relArticles = rel.articles
+            .map((s) => NEWS.find((n) => n.slug === s))
+            .filter((n): n is NonNullable<typeof n> => Boolean(n));
+          const hasAny = rel.brands.length || rel.topics.length || relArticles.length;
+          if (!hasAny) return null;
+          return (
+            <aside className="mt-12 grid gap-6 md:grid-cols-2">
+              {rel.brands.length > 0 && (
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <h2 className="font-arabic text-base font-bold text-foreground">
+                    {isAr ? "علامات تجارية ذات صلة" : "Related brands"}
+                  </h2>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {rel.brands.map((b) => (
+                      <li key={b.slug}>
+                        <LLink
+                          to="/$lang/brands/$slug"
+                          params={{ slug: b.slug }}
+                          className="inline-flex items-center rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-semibold text-trust-700 hover:border-trust-700"
+                        >
+                          {isAr ? b.ar : b.en}
+                        </LLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {(rel.topics.length > 0 || relArticles.length > 0) && (
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  {rel.topics.length > 0 && (
+                    <>
+                      <h2 className="font-arabic text-base font-bold text-foreground">
+                        {isAr ? "موضوعات ذات صلة" : "Related topics"}
+                      </h2>
+                      <ul className="mt-3 space-y-2 text-sm">
+                        {rel.topics.map((tp) => (
+                          <li key={tp.href}>
+                            <LLink to={tp.href} className="text-trust-700 hover:underline">
+                              ← {isAr ? tp.ar : tp.en}
+                            </LLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {relArticles.length > 0 && (
+                    <>
+                      <h2 className={`font-arabic text-base font-bold text-foreground ${rel.topics.length ? "mt-5" : ""}`}>
+                        {isAr ? "مقالات ذات صلة" : "Related articles"}
+                      </h2>
+                      <ul className="mt-3 space-y-2 text-sm">
+                        {relArticles.map((a) => (
+                          <li key={a.slug}>
+                            <LLink
+                              to="/$lang/news/$slug"
+                              params={{ slug: a.slug }}
+                              className="text-trust-700 hover:underline"
+                            >
+                              ← {a.title[isAr ? "ar" : "en"]}
+                            </LLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
+            </aside>
+          );
+        })()}
       </article>
+
 
       <SiteFooter
         legalName={ident.legalName}
