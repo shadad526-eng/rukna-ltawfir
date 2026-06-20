@@ -64,18 +64,68 @@ export const Route = createFileRoute("/$lang/news/$slug")({
     const title = item.title[isAr ? "ar" : "en"];
     const desc = item.excerpt[isAr ? "ar" : "en"];
     const url = `https://ruknaltawfer.com/${params.lang}/news/${item.slug}`;
+    const rel = ARTICLE_RELATIONS[item.slug];
+    const aboutEntities = [
+      ...(rel?.brands.map((b) => ({
+        "@type": "Brand",
+        "@id": `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}#brand`,
+        name: isAr ? b.ar : b.en,
+        url: `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}`,
+      })) ?? []),
+      ...((ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).map((name) => ({
+        "@type": "Thing",
+        name,
+      }))),
+    ];
     return {
       meta: [
         { title: `${title} — ${isAr ? "ركن التوفير" : "Rukn Al-Tawfir"}` },
         { name: "description", content: desc },
+        { name: "keywords", content: (ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).join(", ") },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:image", content: item.cover },
         { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        { property: "article:published_time", content: item.date },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:image", content: item.cover },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 2, name: isAr ? "المعرفة" : "News", item: `https://ruknaltawfer.com/${params.lang}` },
+                  { "@type": "ListItem", position: 3, name: title, item: url },
+                ],
+              },
+              {
+                "@type": "Article",
+                "@id": `${url}#article`,
+                headline: title,
+                description: desc,
+                image: item.cover,
+                datePublished: item.date,
+                dateModified: item.date,
+                inLanguage: isAr ? "ar" : "en",
+                mainEntityOfPage: url,
+                author: { "@id": "https://ruknaltawfer.com/#organization" },
+                publisher: { "@id": "https://ruknaltawfer.com/#organization" },
+                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
+                about: aboutEntities,
+                keywords: ARTICLE_TOPIC_KEYWORDS[item.slug] ?? [],
+              },
+            ],
+          }),
+        },
+      ],
     };
   },
   loader: async ({ context, params }) => {
