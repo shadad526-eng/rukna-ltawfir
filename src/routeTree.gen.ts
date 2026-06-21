@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
+import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
 import { Route as LangContactRouteImport } from './routes/$lang.contact'
 import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
 import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
@@ -53,6 +54,11 @@ const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
 const LangPartnersRoute = LangPartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangOralCareRoute = LangOralCareRouteImport.update({
+  id: '/oral-care',
+  path: '/oral-care',
   getParentRoute: () => LangRoute,
 } as any)
 const LangContactRoute = LangContactRouteImport.update({
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang/': typeof LangIndexRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/$lang/about': typeof LangAboutRoute
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang': typeof LangIndexRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/$lang/': typeof LangIndexRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
     | '/$lang/'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/$lang/about'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
     | '/$lang'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
     | '/$lang/'
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/$lang/partners'
       preLoaderRoute: typeof LangPartnersRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/oral-care': {
+      id: '/$lang/oral-care'
+      path: '/oral-care'
+      fullPath: '/$lang/oral-care'
+      preLoaderRoute: typeof LangOralCareRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/contact': {
@@ -351,6 +370,7 @@ interface LangRouteChildren {
   LangBrandsRoute: typeof LangBrandsRouteWithChildren
   LangCatalogsRoute: typeof LangCatalogsRoute
   LangContactRoute: typeof LangContactRoute
+  LangOralCareRoute: typeof LangOralCareRoute
   LangPartnersRoute: typeof LangPartnersRoute
   LangSugarAlternativesRoute: typeof LangSugarAlternativesRoute
   LangIndexRoute: typeof LangIndexRoute
@@ -362,6 +382,7 @@ const LangRouteChildren: LangRouteChildren = {
   LangBrandsRoute: LangBrandsRouteWithChildren,
   LangCatalogsRoute: LangCatalogsRoute,
   LangContactRoute: LangContactRoute,
+  LangOralCareRoute: LangOralCareRoute,
   LangPartnersRoute: LangPartnersRoute,
   LangSugarAlternativesRoute: LangSugarAlternativesRoute,
   LangIndexRoute: LangIndexRoute,
