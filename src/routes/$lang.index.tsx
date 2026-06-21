@@ -388,7 +388,7 @@ function Home() {
                   >
                     <div className="podium relative grid aspect-square place-items-center p-5">
                       {p.cover_url ? (
-                        <img src={p.cover_url} alt={pname} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                        <img src={p.cover_url} alt={productAlt(p.brand_slug, p.brand_slug, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
                       ) : (
                         <span className="text-[11px] text-muted-foreground">{t("common.officialImage")}</span>
                       )}
