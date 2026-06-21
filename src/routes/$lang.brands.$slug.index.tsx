@@ -20,6 +20,7 @@ import { SteviolaExtraProducts } from "@/components/site/SteviolaExtraProducts";
 import { NocalExtraProducts } from "@/components/site/NocalExtraProducts";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
