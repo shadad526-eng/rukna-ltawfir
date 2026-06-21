@@ -430,7 +430,7 @@ function BrandDetail() {
                     {p.cover_url ? (
                       <img
                         src={p.cover_url}
-                        alt={pname}
+                        alt={productAlt(brand.slug, brandName, pname, isAr ? "ar" : "en")}
                         className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
                         loading="lazy"
                       />
