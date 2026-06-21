@@ -61,7 +61,21 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
                 "@type": "Product",
                 name: pname,
                 description,
-                ...(image ? { image } : {}),
+                ...(image
+                  ? {
+                      image: [image],
+                      ...(p.gallery && p.gallery.length > 0
+                        ? {
+                            subjectOf: {
+                              "@type": "ImageObject",
+                              contentUrl: image,
+                              caption: productCaption(params.slug, bname, pname, isAr ? "ar" : "en"),
+                              description: productAlt(params.slug, bname, pname, isAr ? "ar" : "en"),
+                            },
+                          }
+                        : {}),
+                    }
+                  : {}),
                 brand: { "@type": "Brand", name: bname },
                 url,
               }),
