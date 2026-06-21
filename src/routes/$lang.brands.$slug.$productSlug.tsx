@@ -152,16 +152,23 @@ function ProductDetailPage() {
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:grid-cols-2 md:px-6 md:py-12">
         <div>
           <div className="prem-card p-8 md:p-10">
-            <div className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
+            <figure className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
               {hero ? (
-                <img src={hero} alt={pname} className="size-full object-contain" />
+                <img
+                  src={hero}
+                  alt={productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
+                  className="size-full object-contain"
+                />
               ) : (
                 <div className="grid size-full place-items-center text-sm text-muted-foreground">{t("common.officialPackageImage")}</div>
               )}
-            </div>
+            </figure>
+            <figcaption className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+              {productCaption(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
+            </figcaption>
             {p.gallery.length > 0 ? (
               <div className="mt-4 grid grid-cols-4 gap-2">
-                {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url) => (
+                {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url, idx) => (
                   <button
                     key={url}
                     type="button"
@@ -170,7 +177,11 @@ function ProductDetailPage() {
                       hero === url ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
                     }`}
                   >
-                    <img src={url ?? ""} alt="" className="size-full object-contain" />
+                    <img
+                      src={url ?? ""}
+                      alt={`${productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")} — ${isAr ? "صورة" : "view"} ${idx + 1}`}
+                      className="size-full object-contain"
+                    />
                   </button>
                 ))}
               </div>
@@ -182,7 +193,7 @@ function ProductDetailPage() {
           <div className="flex items-center gap-3">
             <div className="podium grid size-12 place-items-center overflow-hidden rounded-xl p-1">
               {p.brand.logo_url ? (
-                <img src={p.brand.logo_url} alt={bname} className="size-full object-contain" />
+                <img src={p.brand.logo_url} alt={brandLogoAlt(p.brand.slug, bname, isAr ? "ar" : "en")} className="size-full object-contain" />
               ) : null}
             </div>
             <LLink
