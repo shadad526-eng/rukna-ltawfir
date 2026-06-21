@@ -16,6 +16,7 @@ import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
 import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
+import { Route as LangImmunityVitaminCRouteImport } from './routes/$lang.immunity-vitamin-c'
 import { Route as LangContactRouteImport } from './routes/$lang.contact'
 import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
 import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
@@ -60,6 +61,11 @@ const LangPartnersRoute = LangPartnersRouteImport.update({
 const LangOralCareRoute = LangOralCareRouteImport.update({
   id: '/oral-care',
   path: '/oral-care',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangImmunityVitaminCRoute = LangImmunityVitaminCRouteImport.update({
+  id: '/immunity-vitamin-c',
+  path: '/immunity-vitamin-c',
   getParentRoute: () => LangRoute,
 } as any)
 const LangContactRoute = LangContactRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/immunity-vitamin-c': typeof LangImmunityVitaminCRoute
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/$lang/baby-care': typeof LangBabyCareRoute
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/immunity-vitamin-c': typeof LangImmunityVitaminCRoute
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
+  '/$lang/immunity-vitamin-c': typeof LangImmunityVitaminCRoute
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/immunity-vitamin-c'
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/$lang/baby-care'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/immunity-vitamin-c'
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
+    | '/$lang/immunity-vitamin-c'
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
@@ -281,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/oral-care'
       fullPath: '/$lang/oral-care'
       preLoaderRoute: typeof LangOralCareRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/immunity-vitamin-c': {
+      id: '/$lang/immunity-vitamin-c'
+      path: '/immunity-vitamin-c'
+      fullPath: '/$lang/immunity-vitamin-c'
+      preLoaderRoute: typeof LangImmunityVitaminCRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/contact': {
@@ -390,6 +409,7 @@ interface LangRouteChildren {
   LangBrandsRoute: typeof LangBrandsRouteWithChildren
   LangCatalogsRoute: typeof LangCatalogsRoute
   LangContactRoute: typeof LangContactRoute
+  LangImmunityVitaminCRoute: typeof LangImmunityVitaminCRoute
   LangOralCareRoute: typeof LangOralCareRoute
   LangPartnersRoute: typeof LangPartnersRoute
   LangSugarAlternativesRoute: typeof LangSugarAlternativesRoute
@@ -403,6 +423,7 @@ const LangRouteChildren: LangRouteChildren = {
   LangBrandsRoute: LangBrandsRouteWithChildren,
   LangCatalogsRoute: LangCatalogsRoute,
   LangContactRoute: LangContactRoute,
+  LangImmunityVitaminCRoute: LangImmunityVitaminCRoute,
   LangOralCareRoute: LangOralCareRoute,
   LangPartnersRoute: LangPartnersRoute,
   LangSugarAlternativesRoute: LangSugarAlternativesRoute,
