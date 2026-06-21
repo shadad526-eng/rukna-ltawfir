@@ -336,7 +336,7 @@ function ProductDetailPage() {
                   >
                     <div className="podium grid aspect-square place-items-center p-5">
                       {r.cover_url ? (
-                        <img src={r.cover_url} alt={rname} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                        <img src={r.cover_url} alt={productAlt(p.brand.slug, bname, rname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
                       ) : (
                         <span className="text-xs text-muted-foreground">{t("common.officialPackage")}</span>
                       )}
