@@ -20,6 +20,7 @@ import { SteviolaExtraProducts } from "@/components/site/SteviolaExtraProducts";
 import { NocalExtraProducts } from "@/components/site/NocalExtraProducts";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandQO = (slug: string) =>
@@ -347,7 +348,8 @@ function BrandDetail() {
             />
             <div className="podium premium-shadow grid size-44 place-items-center p-6 md:size-56 md:p-8">
               {brand.logo_url ? (
-                <img src={brand.logo_url} alt={t("header.brandLogoAlt", { name: brandName })} className="max-h-full max-w-full object-contain prem-float" />
+                <img src={brand.logo_url} alt={brandLogoAlt(brand.slug, brandName, isAr ? "ar" : "en")} className="max-h-full max-w-full object-contain prem-float" />
+
               ) : (
                 <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
               )}
@@ -428,7 +430,7 @@ function BrandDetail() {
                     {p.cover_url ? (
                       <img
                         src={p.cover_url}
-                        alt={pname}
+                        alt={productAlt(brand.slug, brandName, pname, isAr ? "ar" : "en")}
                         className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
                         loading="lazy"
                       />
@@ -479,7 +481,7 @@ function BrandDetail() {
                     title={pname}
                   >
                     {p.cover_url ? (
-                      <img src={p.cover_url} alt={pname} className="max-h-full w-auto object-contain" loading="lazy" />
+                      <img src={p.cover_url} alt={productAlt(brand.slug, brandName, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain" loading="lazy" />
                     ) : null}
                   </LLink>
                 );

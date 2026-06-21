@@ -4,7 +4,7 @@ import { listBrands, listBrandProducts } from "@/lib/site.functions";
 
 const BASE_URL = "https://ruknaltawfer.com";
 const LOCALES = ["ar", "en"] as const;
-const STATIC_PATHS = ["", "/about", "/brands", "/catalogs", "/partners", "/contact", "/sugar-alternatives"];
+const STATIC_PATHS = ["", "/about", "/brands", "/catalogs", "/partners", "/contact", "/sugar-alternatives", "/oral-care", "/baby-care", "/immunity-vitamin-c"];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
