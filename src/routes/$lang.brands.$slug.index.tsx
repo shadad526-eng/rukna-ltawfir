@@ -348,7 +348,8 @@ function BrandDetail() {
             />
             <div className="podium premium-shadow grid size-44 place-items-center p-6 md:size-56 md:p-8">
               {brand.logo_url ? (
-                <img src={brand.logo_url} alt={t("header.brandLogoAlt", { name: brandName })} className="max-h-full max-w-full object-contain prem-float" />
+                <img src={brand.logo_url} alt={brandLogoAlt(brand.slug, brandName, isAr ? "ar" : "en")} className="max-h-full max-w-full object-contain prem-float" />
+
               ) : (
                 <span className="text-sm font-bold text-muted-foreground">{brand.name_en}</span>
               )}
