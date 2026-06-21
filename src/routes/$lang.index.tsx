@@ -16,6 +16,7 @@ import { BrandCard } from "@/components/site/BrandCard";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { NEWS } from "@/data/news";
+import { productAlt } from "@/lib/seo-alt";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
