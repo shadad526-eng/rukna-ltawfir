@@ -55,13 +55,14 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Arabic typography system — Hero font (Cairo) is the primary brand face.
-   * Cairo: headings, navigation, menus, buttons, cards, brand & product UI.
-   * IBM Plex Sans Arabic: long-form body (articles, FAQ, knowledge center).
+  /* Unified Arabic typography — Cairo (Hero font) is the SINGLE global brand
+   * face across the entire platform. Hierarchy is achieved via weight, size
+   * and letter-spacing only — never by switching font families.
    */
-  --font-arabic: "Cairo", "IBM Plex Sans Arabic", "Noto Sans Arabic", system-ui, sans-serif;
-  --font-arabic-body: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Cairo", system-ui, sans-serif;
-  --font-brand: "Cairo", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-arabic: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-arabic-body: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-brand: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-sans: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
   --font-latin: "Inter Tight", "Inter", system-ui, sans-serif;
 
   /* Centralized type scale (fluid, responsive) */
@@ -162,56 +163,68 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { font-family: var(--font-arabic-body); font-size: 16px; }
+
+  /* Cairo is the SINGLE global font face across the entire platform.
+   * Every element inherits Cairo by default. Hierarchy is created with
+   * weight / size / letter-spacing only — never via family switching.
+   * English pages (lang="en") fall back to the Latin display family.
+   */
+  html {
+    font-family: var(--font-arabic);
+    font-size: 16px;
+  }
   html[lang="en"] { font-family: var(--font-latin); }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-arabic-body);
+    font-family: inherit;
     font-size: var(--text-base);
     line-height: var(--leading-normal);
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  html[lang="en"] body { font-family: var(--font-latin); }
 
-  /* Headings — Hero brand font (Cairo) across the platform */
+  /* Force every text-bearing element to inherit the root family.
+   * This neutralizes UA stylesheets (button/input/select/textarea ship
+   * with platform fonts by default) and any legacy utility overrides.
+   */
+  body, p, span, div, a, li, ul, ol, dl, dt, dd,
+  h1, h2, h3, h4, h5, h6,
+  blockquote, figcaption, small, strong, em, b, i,
+  label, legend, fieldset,
+  button, [role="button"], .btn,
+  input, select, textarea, optgroup, option,
+  nav, [role="navigation"], [role="menu"], [role="menuitem"],
+  [role="tab"], [role="tablist"],
+  article, section, aside, header, footer, main,
+  table, th, td, caption,
+  .card, [data-card], [data-brand-card],
+  .prose, .prose-arabic, [data-longform] {
+    font-family: inherit;
+  }
+
+  /* Hierarchy via weight / spacing only — same family everywhere */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-arabic);
     font-weight: var(--weight-bold);
     letter-spacing: -0.01em;
     line-height: var(--leading-tight);
   }
-  h1 { font-weight: var(--weight-extrabold); }
-  html[lang="en"] :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-latin); }
+  h1 { font-weight: var(--weight-black); letter-spacing: -0.02em; }
+  h2 { font-weight: var(--weight-extrabold); }
 
-  /* UI surfaces — navigation, menus, buttons, form controls, cards, tabs */
-  button, [role="button"], .btn,
-  nav, [role="navigation"],
-  [role="menu"], [role="menuitem"], [role="tab"], [role="tablist"],
-  input, select, textarea, label,
-  .card, [data-card], [data-brand-card] {
-    font-family: var(--font-arabic);
-  }
-  html[lang="en"] :is(button, [role="button"], nav, [role="navigation"], [role="menu"], [role="menuitem"], [role="tab"], input, select, textarea, label) {
-    font-family: var(--font-latin);
-  }
-
-  /* Long-form readability — articles, FAQs, knowledge center, descriptions */
+  /* Long-form readability — same family, relaxed leading + regular weight */
   .prose-arabic, .prose-arabic p, .prose-arabic li,
   article p, article li,
   [data-longform], [data-longform] p, [data-longform] li {
-    font-family: var(--font-arabic-body);
     font-size: var(--text-md);
     line-height: var(--leading-relaxed);
     font-weight: var(--weight-regular);
-  }
-  .prose-arabic :is(h1, h2, h3, h4, h5, h6),
-  article :is(h1, h2, h3, h4, h5, h6) {
-    font-family: var(--font-arabic);
+    letter-spacing: 0;
   }
 }
+
 
 @utility wa-pulse {
   box-shadow: var(--shadow-glow-green);
