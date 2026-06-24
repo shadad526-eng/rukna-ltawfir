@@ -162,16 +162,54 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { font-family: var(--font-arabic-body); }
+  html { font-family: var(--font-arabic-body); font-size: 16px; }
   html[lang="en"] { font-family: var(--font-latin); }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-arabic-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
     font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 { font-family: var(--font-arabic); font-weight: 700; letter-spacing: -0.01em; }
-  html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] h3, html[lang="en"] h4 {
+  html[lang="en"] body { font-family: var(--font-latin); }
+
+  /* Headings — Hero brand font (Cairo) across the platform */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-arabic);
+    font-weight: var(--weight-bold);
+    letter-spacing: -0.01em;
+    line-height: var(--leading-tight);
+  }
+  h1 { font-weight: var(--weight-extrabold); }
+  html[lang="en"] :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-latin); }
+
+  /* UI surfaces — navigation, menus, buttons, form controls, cards, tabs */
+  button, [role="button"], .btn,
+  nav, [role="navigation"],
+  [role="menu"], [role="menuitem"], [role="tab"], [role="tablist"],
+  input, select, textarea, label,
+  .card, [data-card], [data-brand-card] {
+    font-family: var(--font-arabic);
+  }
+  html[lang="en"] :is(button, [role="button"], nav, [role="navigation"], [role="menu"], [role="menuitem"], [role="tab"], input, select, textarea, label) {
     font-family: var(--font-latin);
+  }
+
+  /* Long-form readability — articles, FAQs, knowledge center, descriptions */
+  .prose-arabic, .prose-arabic p, .prose-arabic li,
+  article p, article li,
+  [data-longform], [data-longform] p, [data-longform] li {
+    font-family: var(--font-arabic-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    font-weight: var(--weight-regular);
+  }
+  .prose-arabic :is(h1, h2, h3, h4, h5, h6),
+  article :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-arabic);
   }
 }
 
