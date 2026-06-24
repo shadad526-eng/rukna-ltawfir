@@ -38,7 +38,7 @@ export const Route = createFileRoute("/$lang/catalogs")({
     ]);
   },
   component: CatalogsHub,
-  errorComponent: ({ error }) => <CatalogsErrorState message={error.message} />,
+  errorComponent: ({ error }) => { if (typeof console !== "undefined") console.error("[CatalogsErrorState] load failed", error); return <CatalogsErrorState message={"تعذّر تحميل الكتالوجات. يرجى المحاولة لاحقًا."} />; },
 });
 
 function CatalogsErrorState({ message }: { message: string }) {

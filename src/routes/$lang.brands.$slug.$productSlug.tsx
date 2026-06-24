@@ -86,7 +86,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
   },
   component: ProductDetailPage,
   notFoundComponent: () => <ProductNotFound />,
-  errorComponent: ({ error }) => <ProductError message={error.message} />,
+  errorComponent: ({ error }) => { if (typeof console !== "undefined") console.error("[ProductError] load failed", error); return <ProductError message={"تعذّر تحميل بيانات المنتج. يرجى المحاولة لاحقًا."} />; },
 });
 
 function ProductNotFound() {

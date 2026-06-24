@@ -273,7 +273,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/")({
   },
   component: BrandDetail,
   notFoundComponent: () => <BrandNotFound />,
-  errorComponent: ({ error }) => <BrandError message={error.message} />,
+  errorComponent: ({ error }) => { if (typeof console !== "undefined") console.error("[BrandError] load failed", error); return <BrandError message={"تعذّر تحميل بيانات العلامة التجارية. يرجى المحاولة لاحقًا."} />; },
 });
 
 function BrandNotFound() {

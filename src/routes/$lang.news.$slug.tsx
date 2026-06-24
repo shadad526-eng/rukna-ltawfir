@@ -138,11 +138,14 @@ export const Route = createFileRoute("/$lang/news/$slug")({
       <h1 className="font-arabic text-3xl font-bold">404</h1>
     </div>
   ),
-  errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-3xl px-6 py-32 text-center">
-      <p className="text-sm text-ink-600">{error.message}</p>
-    </div>
-  ),
+  errorComponent: ({ error }) => {
+    if (typeof console !== "undefined") console.error("[news] load failed", error);
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-32 text-center">
+        <p className="text-sm text-ink-600">تعذّر تحميل المحتوى. يرجى المحاولة لاحقًا.</p>
+      </div>
+    );
+  },
 });
 
 function NewsArticle() {

@@ -84,7 +84,7 @@ export const Route = createFileRoute("/$lang/brands/")({
     return { brands };
   },
   component: BrandsPage,
-  errorComponent: ({ error }) => <ErrorState message={error.message} />,
+  errorComponent: ({ error }) => { if (typeof console !== "undefined") console.error("[ErrorState] load failed", error); return <ErrorState message={"تعذّر تحميل العلامات التجارية. يرجى المحاولة لاحقًا."} />; },
 });
 
 function ErrorState({ message }: { message: string }) {
