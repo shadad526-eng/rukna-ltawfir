@@ -407,26 +407,7 @@ function Home() {
         </section>
       ) : null}
 
-      <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
-        <div className="mb-10 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="hq-eyebrow">{t("home.collectionsEyebrow")}</div>
-            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-              {t("home.collectionsTitle")}
-            </h2>
-          </div>
-          <LLink to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
-            {t("common.viewAll")}
-          </LLink>
-        </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {brands.map((b) => (
-            <BrandCard key={b.id} brand={b} compact ctaLabel={t("cta.exploreCollection")} />
-          ))}
-        </div>
-      </section>
-
-      <section className="border-y border-border bg-card">
+      <section className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mb-10 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
             <div>
