@@ -1,6 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { requireSeoAdmin } from "@/lib/admin-seo.functions";
 
 export const Route = createFileRoute("/$lang/admin/seo")({
+  ssr: false,
+  beforeLoad: async ({ params }) => {
+    try {
+      await requireSeoAdmin();
+    } catch {
+      throw redirect({ to: "/$lang", params: { lang: params.lang } });
+    }
+  },
   head: () => ({
     meta: [
       { title: "SEO & AI Visibility Dashboard — Architecture" },
