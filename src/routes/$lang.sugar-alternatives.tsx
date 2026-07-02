@@ -170,8 +170,8 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
       ? "بدائل السكر في اليمن — Steviola و NO CAL | ركن التوفير"
       : "Sugar Alternatives in Yemen — Steviola & NO CAL | Rukn Al-Tawfir";
     const desc = isAr
-      ? "الدليل الشامل لبدائل السكر الصحية في اليمن: ستيفيا الطبيعية، محليات خالية من السعرات، خيارات لمرضى السكري. تعرّف على Steviola و NO CAL من ركن التوفير كوزمتك للتجارة."
-      : "The comprehensive guide to healthy sugar alternatives in Yemen: natural stevia, zero-calorie sweeteners, diabetic-friendly options. Discover Steviola and NO CAL from Rukn Al-Tawfir.";
+      ? "دليل بدائل السكر الصحية في اليمن: ستيفيا طبيعية، محليات خالية من السعرات لمرضى السكري، ودليل التحويل بين الستيفيا والسكر."
+      : "Healthy sugar alternatives in Yemen: natural stevia, zero-calorie sweeteners for diabetics, plus a stevia-to-sugar conversion guide.";
 
     const breadcrumb = {
       "@context": "https://schema.org",
@@ -471,6 +471,75 @@ function SugarAlternativesHub() {
         </div>
       </section>
 
+      {/* STEVIA vs SUGAR — CONVERSION GUIDE */}
+      <section id="conversion" className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+        <SectionHeading
+          eyebrow={isAr ? "دليل التحويل" : "Conversion guide"}
+          title={isAr ? "دليل تحويل الستيفيا مقابل السكر — للطبخ والمشروبات" : "Stevia vs sugar conversion guide — for cooking and beverages"}
+        />
+        <p className="mt-4 max-w-3xl text-base leading-loose text-ink-700">
+          {isAr
+            ? "الستيفيا النقية أحلى من السكر بنحو 200–300 مرة، لذلك يُستبدل السكر بكميات صغيرة جدًا. الجدول التالي يعرض النِسَب التقريبية باستخدام Steviola (نقط ومسحوق) و NO CAL (أكياس وحجم عائلي) لتحلية المشروبات والخبز. المقادير إرشادية — عدّلها حسب ذوقك واقرأ الملصق دائمًا."
+            : "Pure stevia is roughly 200–300× sweeter than sugar, so it replaces sugar in very small amounts. The table below shows approximate ratios using Steviola (drops & powder) and NO CAL (sachets & family-size) for beverages and baking. Values are guidance — adjust to taste and always check the pack label."}
+        </p>
+        <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-background">
+          <table className="w-full min-w-[720px] text-start text-sm">
+            <thead className="bg-muted/40 text-xs uppercase tracking-wider text-ink-600">
+              <tr>
+                <th className="px-4 py-3 text-start">{isAr ? "كمية السكر" : "Amount of sugar"}</th>
+                <th className="px-4 py-3 text-start">{isAr ? "Steviola نقط" : "Steviola drops"}</th>
+                <th className="px-4 py-3 text-start">{isAr ? "Steviola / NO CAL مسحوق" : "Steviola / NO CAL powder"}</th>
+                <th className="px-4 py-3 text-start">{isAr ? "NO CAL أكياس" : "NO CAL sachets"}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border text-ink-700">
+              {[
+                [isAr ? "1 ملعقة صغيرة (4 جم)" : "1 tsp (4 g)", isAr ? "2–3 نقط" : "2–3 drops", isAr ? "⅛ ملعقة صغيرة" : "⅛ tsp", isAr ? "1 كيس" : "1 sachet"],
+                [isAr ? "1 ملعقة كبيرة (12 جم)" : "1 tbsp (12 g)", isAr ? "6–9 نقط" : "6–9 drops", isAr ? "⅓ ملعقة صغيرة" : "⅓ tsp", isAr ? "3 أكياس" : "3 sachets"],
+                [isAr ? "¼ كوب (50 جم)" : "¼ cup (50 g)", isAr ? "24 نقطة" : "24 drops", isAr ? "1½ ملعقة صغيرة" : "1½ tsp", isAr ? "12 كيس" : "12 sachets"],
+                [isAr ? "½ كوب (100 جم)" : "½ cup (100 g)", isAr ? "48 نقطة" : "48 drops", isAr ? "1 ملعقة كبيرة" : "1 tbsp", isAr ? "24 كيس" : "24 sachets"],
+                [isAr ? "1 كوب (200 جم)" : "1 cup (200 g)", isAr ? "—" : "—", isAr ? "2 ملعقة كبيرة" : "2 tbsp", isAr ? "الحجم العائلي" : "Use family-size"],
+              ].map((row) => (
+                <tr key={row[0]}>
+                  {row.map((cell, i) => (
+                    <td key={i} className={`px-4 py-3 ${i === 0 ? "font-semibold text-foreground" : ""}`}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h3 className="font-arabic text-lg font-bold text-foreground">
+              {isAr ? "للمشروبات (شاي، قهوة، عصائر)" : "For beverages (tea, coffee, juice)"}
+            </h3>
+            <ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700">
+              <li>{isAr ? "ابدأ بنقطتين من Steviola لكل كوب واذق قبل الزيادة." : "Start with 2 drops of Steviola per cup and taste before adding more."}</li>
+              <li>{isAr ? "لتحلية إبريق شاي 1 لتر: 8–12 نقطة." : "For a 1-litre teapot: 8–12 Steviola drops."}</li>
+              <li>{isAr ? "كيس NO CAL واحد يعادل ملعقة سكر صغيرة تقريبًا." : "One NO CAL sachet ≈ 1 teaspoon of sugar."}</li>
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h3 className="font-arabic text-lg font-bold text-foreground">
+              {isAr ? "للخبز والحلويات" : "For baking and desserts"}
+            </h3>
+            <ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700">
+              <li>{isAr ? "استخدم الحجم العائلي المخصص للخبز لضمان الحجم والقوام." : "Use the family-size baking pack to preserve batter volume and texture."}</li>
+              <li>{isAr ? "لتعويض حجم السكر أضف ملعقة زبادي أو تفاح مبشور لكل كوب." : "Compensate the missing sugar bulk with a tablespoon of yogurt or grated apple per cup."}</li>
+              <li>{isAr ? "الستيفيا ثابتة حراريًا حتى 200°م، مناسبة للفرن." : "Stevia is heat-stable up to 200°C — oven-safe."}</li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-6 text-xs text-ink-600">
+          {isAr
+            ? "ملاحظة: النِسَب تقديرية وقد تختلف حسب صيغة المنتج. راجع الملصق على العبوة، واستشر طبيبك في حالات السكري أو الحمل."
+            : "Note: ratios are approximate and vary by product formulation. Check the pack label, and consult your physician for diabetes or pregnancy."}
+        </p>
+      </section>
+
       {/* STEVIA */}
       <section id="stevia" className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
         <SectionHeading
@@ -653,7 +722,7 @@ function SugarAlternativesHub() {
       {/* RELATED ARTICLES */}
       <section id="articles" className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
         <SectionHeading
-          eyebrow={isAr ? "اقرأ المزيد" : "Read more"}
+          eyebrow={isAr ? "أدلة بدائل السكر" : "Sugar-alternatives guides"}
           title={isAr ? "مقالات ذات صلة" : "Related articles"}
         />
         <div className="mt-8 grid gap-5 md:grid-cols-2">

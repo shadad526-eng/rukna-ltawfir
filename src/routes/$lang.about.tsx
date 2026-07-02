@@ -203,7 +203,7 @@ function AboutPage() {
                   title={name}
                 >
                   {b.logo_url ? (
-                    <img src={b.logo_url} alt={name} className="max-h-14 w-auto object-contain" loading="lazy" />
+                    <img src={b.logo_url} alt={isAr ? `شعار العلامة التجارية ${name} — ضمن منظومة ركن التوفير` : `${name} brand emblem — part of the Rukn Al-Tawfir portfolio`} className="max-h-14 w-auto object-contain" loading="lazy" />
                   ) : (
                     <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                   )}

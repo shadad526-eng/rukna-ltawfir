@@ -111,14 +111,21 @@ export function HeroLogoStage() {
 
 function RuknHeroLogo() {
   const { lang } = useLocale();
-  const alt = lang === "ar" ? "شعار ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade logo";
+  const alt =
+    lang === "ar"
+      ? "شعار شركة ركن التوفير كوزمتك للتجارة — الموزّع الرسمي للعلامات الصحية في اليمن"
+      : "Official Rukn Al-Tawfir Cosmetic for Trade company emblem — health brands distributor in Yemen";
   return (
     <div className="absolute inset-0 grid place-items-center">
       <img
         src={rukn.url}
         alt={alt}
+        width={560}
+        height={560}
         className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
         loading="eager"
+        fetchPriority="high"
+        decoding="async"
       />
 
       {/* 3-tier blue podium under orb */}
@@ -232,7 +239,7 @@ export function HeroBrandStrip() {
           >
             <img
               src={b.url}
-              alt={`شعار ${b.name}`}
+              alt={`شعار العلامة التجارية ${b.name} — متوفرة عبر ركن التوفير في اليمن`}
               className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
               loading="lazy"
               decoding="async"

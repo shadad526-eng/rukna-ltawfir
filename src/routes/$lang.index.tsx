@@ -34,11 +34,11 @@ export const Route = createFileRoute("/$lang/")({
     const url = `https://ruknaltawfer.com/${params.lang}`;
     const isAr = params.lang === "ar";
     const title = isAr
-      ? "ركن التوفير كوزمتك للتجارة | مستحضرات التجميل والعناية الشخصية والمنتجات الصحية ومنتجات العناية بالاطفال في اليمن"
-      : "Rukn Al-Tawfir Cosmetic for Trade — Official Digital HQ";
+      ? "ركن التوفير كوزمتك | جمال وصحة وعناية بالأطفال في اليمن"
+      : "Rukn Al-Tawfir — Leading Health & Beauty Brands Distributor in Yemen";
     const desc = isAr
-      ? "ركن التوفير كوزمتك للتجارة، شريكك الاستراتيجي في قطاع الصحة والجمال في اليمن، نوفر منتجات العناية الشخصية ومستحضرات التجميل والمنتجات الصحية ومنتجات الأطفال بعلامات تجارية موثوقة."
-      : "Exclusive agent for a system of global health brands in Yemen: NO CAL, Steviola, Monivo, Baby Tawfir, Bambo, Y-Kelin, iSiS, SEKEM.";
+      ? "الوكيل الحصري في اليمن لعلامات صحية عالمية: مستحضرات تجميل، عناية شخصية، منتجات صحية، وعناية بالأطفال من علامات موثوقة."
+      : "Exclusive agent in Yemen for global health brands: NO CAL, Steviola, Monivo, Baby Tawfir, Bambo, Y-Kelin, iSiS, SEKEM.";
     const ogTitle = isAr ? "ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade";
     const ogDesc = isAr
       ? "منظومة علامات صحية عالمية برعاية ركن التوفير في اليمن."
@@ -241,7 +241,13 @@ function Home() {
               className="mt-7 font-black tracking-tight"
               style={{ fontFamily: 'var(--font-brand)', fontWeight: 900 }}
             >
+              <span className="sr-only">
+                {isAr
+                  ? "ركن التوفير كوزمتك للتجارة — الموزّع الرائد لعلامات الصحة والجمال والعناية بالأطفال في اليمن"
+                  : "Rukn Al-Tawfir Cosmetic for Trade — Leading Health, Beauty & Baby-Care Brands Distributor in Yemen"}
+              </span>
               <span
+                aria-hidden
                 className="block text-[2.2rem] md:text-[3.4rem] lg:text-[4.1rem]"
                 style={{
                   lineHeight: 1.45,
@@ -255,6 +261,7 @@ function Home() {
                 {t("home.heroTitleLine1")}
               </span>
               <span
+                aria-hidden
                 className="mt-3 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
                 style={{
                   lineHeight: 1.45,

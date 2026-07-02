@@ -283,7 +283,7 @@ function ImmunityVitaminCHub() {
         <section className="border-t border-border bg-card">
           <div className="mx-auto max-w-7xl px-4 py-14 md:px-8">
             <div className="hq-eyebrow">{isAr ? "مقالات ذات صلة" : "Related articles"}</div>
-            <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">{isAr ? "اقرأ المزيد" : "Read more"}</h2>
+            <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">{isAr ? "أدلة دعم المناعة وفيتامين C" : "Immunity & vitamin C guides"}</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {articles.map((n) => (
                 <LLink key={n.slug} to="/$lang/news/$slug" params={{ slug: n.slug }} className="prem-card overflow-hidden">
