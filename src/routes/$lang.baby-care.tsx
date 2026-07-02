@@ -74,11 +74,11 @@ export const Route = createFileRoute("/$lang/baby-care")({
     const isAr = params.lang === "ar";
     const url = `${BASE}/${params.lang}/baby-care`;
     const title = isAr
-      ? "منتجات الأطفال والعناية بالطفل — Baby Tawfir و Bambo | ركن التوفير"
-      : "Baby Care Products — Baby Tawfir & Bambo | Rukn Al-Tawfir";
+      ? "منتجات الأطفال في اليمن — Baby Tawfir و Bambo | ركن التوفير"
+      : "Baby Care in Yemen — Baby Tawfir & Bambo | Rukn Al-Tawfir";
     const desc = isAr
-      ? "الدليل الشامل لمنتجات الأطفال في اليمن: مناديل مبللة، حفاضات إيكولوجية، والعناية ببشرة الطفل عبر Baby Tawfir و Bambo من ركن التوفير كوزمتك للتجارة."
-      : "Complete guide to baby care products in Yemen: wet wipes, eco diapers, and baby skin care via Baby Tawfir and Bambo from Rukn Al-Tawfir.";
+      ? "منتجات الأطفال في اليمن: مناديل مبللة، حفاضات إيكولوجية، والعناية ببشرة الرضّع عبر Baby Tawfir و Bambo من ركن التوفير."
+      : "Baby care in Yemen: wet wipes, eco diapers and infant skincare via Baby Tawfir and Bambo from Rukn Al-Tawfir.";
     const ogImage = `${BASE}/rukn-logo.webp`;
 
     const breadcrumb = {
