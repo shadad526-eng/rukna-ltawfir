@@ -1,53 +1,28 @@
-# خطة إصلاح نظام تعدد اللغات
+## SEO fixes — remaining findings
 
-## التشخيص
+Google Search Console is now connected, so I'll finish the three failing items.
 
-- **البنية التحتية للترجمة تعمل**: `LocaleProvider` + `$lang` route + `LanguageSwitcher` يبدّلون اللغة والاتجاه (RTL/LTR) بشكل صحيح، وملف القاموس يحتوي على ~50 مفتاحاً فقط (التنقل + الفوتر + رسائل الخطأ).
-- **المشكلة الفعلية**: معظم محتوى الموقع مكتوب بالعربية مباشرةً داخل ملفات الصفحات والمكونات بدلاً من استخدام القاموس. لذلك عند التبديل إلى EN: يتغير الاتجاه + النصوص القليلة من القاموس فقط (Home/Brands/Catalogs…)، بينما العناوين والأوصاف والمنتجات والشارات تبقى عربية.
+### 1. Verify domain & submit sitemap to GSC (`gsc:gsc`)
+Via the connector gateway from the sandbox (no code changes):
+- Request a META verification token for `https://ruknaltawfer.com/`
+- Add the `<meta name="google-site-verification">` tag to `src/routes/__root.tsx` head
+- Call `siteVerification/v1/webResource?verificationMethod=META` to verify
+- `PUT /webmasters/v3/sites/https%3A%2F%2Fruknaltawfer.com%2F` to add the site
+- `PUT /webmasters/v3/sites/.../sitemaps/https%3A%2F%2Fruknaltawfer.com%2Fsitemap.xml` to submit the sitemap
 
-## النطاق (ما الذي يحتاج ترجمة)
+Note: verification requires the meta tag to be present on the live production HTML, so this step lands fully only after publishing. I'll add the tag and run the token/verify calls; if verify 400s with `failedToFindMetaTag`, ask to publish then re-run verify.
 
-| الملف | عدد كتل النص العربية المرئية |
-|---|---|
-| `routes/$lang.index.tsx` (الرئيسية) | ~67 |
-| `routes/$lang.about.tsx` | ~19 |
-| `routes/$lang.brands.index.tsx` | ~11 |
-| `routes/$lang.brands.$slug.index.tsx` | ~29 |
-| `routes/$lang.brands.$slug.$productSlug.tsx` | ~21 |
-| `routes/$lang.catalogs.tsx` | ~36 |
-| `routes/$lang.partners.tsx` | ~28 |
-| `routes/$lang.contact.tsx` | ~30 |
-| `components/site/*.tsx` (Header, Footer, BrandCard, HeroLogos…) | ~30 |
-| منتجات سيكم/إيزيس/ستيفيولا/نوكال (Extra) | تستخدم `isAr` بالفعل ✅ |
+### 2. `<main>` landmark + `<html lang>` (`lighthouse` + `lint:page_basics`)
+- Wrap the per-route content in a single `<main>` element inside the shared `$lang.tsx` layout (between `<Header />` and `<Footer />`), so every route gets exactly one `<main>` without touching individual pages.
+- `<html lang>` is already set dynamically in `RootShell`; the lint finding is scan-time stale — I'll re-verify after the change and mark it fixed.
 
-## المنهج
+### 3. Low-contrast text (`lighthouse`)
+Audit `muted-foreground`/opacity usages that fall below 4.5:1 on the current backgrounds and swap the worst offenders to `text-foreground` or a darker token. Scope limited to obvious violators (footer, hero subtitles, card meta) — no layout changes.
 
-### 1) توسيع القاموس بدلاً من `isAr` المبعثر
-- إضافة مفاتيح منظمة (`home.*`, `about.*`, `brands.*`, `contact.*`, `partners.*`, `catalogs.*`, `product.*`, `cta.*`) إلى `src/i18n/locales/ar.json` و `en.json`.
-- المحتوى الديناميكي القادم من قاعدة البيانات (أسماء العلامات/المنتجات) سيستخدم الحقل المقابل للغة إن وُجد (`name_en` / `description_en`)، وإلا يقع رجوعاً للعربي.
+### Out of scope
+Content, URLs, schema, images, layout structure (per prior constraints).
 
-### 2) استبدال النصوص العربية الصلبة بـ `t("...")`
-- كل صفحة تستدعي `const { t, lang } = useLocale();` وتستبدل السلاسل الحرفية بـ `t(...)`.
-- البيانات الثابتة في الأعلى (`TRUST_BADGES`, `WHY_CARDS`, `KNOWLEDGE`, إلخ.) تُحوَّل إلى دوال تأخذ `t` أو تُنقل داخل المكون.
-
-### 3) الميتا (SEO)
-- `head()` لكل صفحة يقرأ `params.lang` ويرجع title/description بلغة الصفحة (AR لـ `/ar/...`, EN لـ `/en/...`).
-
-### 4) التحقق
-- التنقل بين `/ar` و `/en` لكل صفحة (الرئيسية، العلامات، علامة واحدة، منتج واحد، الكتالوجات، الشراكة، التواصل، من نحن).
-- التأكد من `dir="rtl"` على AR و `dir="ltr"` على EN، ومن أن التصميم لا يكسر في الاتجاهين.
-
-## ما لن يتغير
-- لا تعديل على Routes أو Slugs أو URLs.
-- لا تعديل على Logic، الاستعلامات، الـ Schema، أو الـ Backend.
-- لا تعديل على الهوية البصرية، الألوان، الخطوط، أو التخطيط.
-- لا حذف/إضافة لمكونات أو صفحات.
-
-## التنفيذ المرحلي (مع موافقتك بين المراحل)
-
-- **المرحلة 1**: توسيع القاموس + ترجمة الرأس/الفوتر/الصفحة الرئيسية + بطاقة العلامة.
-- **المرحلة 2**: صفحات العلامات (قائمة + تفاصيل علامة + تفاصيل منتج).
-- **المرحلة 3**: من نحن + الشراكة + التواصل + الكتالوجات.
-- **المرحلة 4**: ميتا SEO ثنائية اللغة + تدقيق نهائي.
-
-هل أبدأ بالمرحلة 1؟
+### Verify
+- `tsgo` typecheck
+- `list_findings` → `update_findings` marking the three items fixed
+- Re-run GSC verify after user publishes if the first attempt fails
