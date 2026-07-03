@@ -163,9 +163,9 @@ function AboutPage() {
             </span>
           </div>
           <blockquote className="mt-8 font-arabic text-2xl font-bold leading-[1.5] text-white md:text-4xl md:leading-[1.45]">
-            <span className="text-white/40">{isAr ? "”" : "“"}</span>
+            <span className="text-white/80">{isAr ? "”" : "“"}</span>
             {t("about.promise.body")}
-            <span className="text-white/40">{isAr ? "“" : "”"}</span>
+            <span className="text-white/80">{isAr ? "“" : "”"}</span>
           </blockquote>
           <div className="mx-auto mt-8 h-px w-24 bg-white/40" />
         </div>

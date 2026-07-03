@@ -27,7 +27,9 @@ function LangLayout() {
 
   return (
     <LocaleProvider lang={locale}>
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
     </LocaleProvider>
   );
 }
