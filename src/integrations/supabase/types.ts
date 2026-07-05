@@ -511,6 +511,71 @@ export type Database = {
           },
         ]
       }
+      homepage_sections: {
+        Row: {
+          body_ar: string | null
+          body_en: string | null
+          created_at: string
+          cta_label_ar: string | null
+          cta_url: string | null
+          extra: Json
+          id: string
+          is_enabled: boolean
+          media_asset_id: string | null
+          section_key: string
+          sort_order: number
+          subtitle_ar: string | null
+          subtitle_en: string | null
+          title_ar: string | null
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          cta_label_ar?: string | null
+          cta_url?: string | null
+          extra?: Json
+          id?: string
+          is_enabled?: boolean
+          media_asset_id?: string | null
+          section_key: string
+          sort_order?: number
+          subtitle_ar?: string | null
+          subtitle_en?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body_ar?: string | null
+          body_en?: string | null
+          created_at?: string
+          cta_label_ar?: string | null
+          cta_url?: string | null
+          extra?: Json
+          id?: string
+          is_enabled?: boolean
+          media_asset_id?: string | null
+          section_key?: string
+          sort_order?: number
+          subtitle_ar?: string | null
+          subtitle_en?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homepage_sections_media_asset_id_fkey"
+            columns: ["media_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inquiries: {
         Row: {
           assigned_to: string | null
@@ -687,6 +752,56 @@ export type Database = {
             columns: ["cover_asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      navigation_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean
+          label_ar: string
+          label_en: string | null
+          location: string
+          open_in_new_tab: boolean
+          parent_id: string | null
+          sort_order: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          label_ar: string
+          label_en?: string | null
+          location?: string
+          open_in_new_tab?: boolean
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          label_ar?: string
+          label_en?: string | null
+          location?: string
+          open_in_new_tab?: boolean
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "navigation_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "navigation_items"
             referencedColumns: ["id"]
           },
         ]
@@ -1198,6 +1313,89 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      topic_hubs: {
+        Row: {
+          cover_asset_id: string | null
+          created_at: string
+          id: string
+          intro_ar: string | null
+          intro_en: string | null
+          is_published: boolean
+          related_article_ids: string[] | null
+          related_brand_ids: string[] | null
+          related_product_ids: string[] | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sort_order: number
+          title_ar: string
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_asset_id?: string | null
+          created_at?: string
+          id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          is_published?: boolean
+          related_article_ids?: string[] | null
+          related_brand_ids?: string[] | null
+          related_product_ids?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sort_order?: number
+          title_ar: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_asset_id?: string | null
+          created_at?: string
+          id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          is_published?: boolean
+          related_article_ids?: string[] | null
+          related_brand_ids?: string[] | null
+          related_product_ids?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort_order?: number
+          title_ar?: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_hubs_cover_asset_id_fkey"
+            columns: ["cover_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           brand_id: string | null
@@ -1319,6 +1517,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
       user_manages_brand_path: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
