@@ -67,7 +67,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     });
     if (error) throw error;
     if (data.role && created.user) {
-      await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role });
+      await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role as any });
     }
     return { id: created.user?.id };
   });
