@@ -81,7 +81,7 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
     if (data.roles.length) {
       await supabaseAdmin.from("user_roles").insert(
-        data.roles.map((role) => ({ user_id: data.user_id, role })),
+        data.roles.map((role) => ({ user_id: data.user_id, role: role as any })),
       );
     }
     return { ok: true };
