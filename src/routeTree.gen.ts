@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LangRouteImport } from './routes/$lang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
 import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
@@ -60,6 +61,11 @@ const LangIndexRoute = LangIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LangRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
 } as any)
 const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
   id: '/sugar-alternatives',
@@ -141,7 +147,7 @@ const LangBrandsSlugProductSlugRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
@@ -163,7 +170,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/$lang': typeof LangIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/news/$slug': typeof LangNewsSlugRoute
@@ -185,7 +193,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/login': typeof AdminLoginRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/login'
     | '/$lang/'
     | '/$lang/admin/seo'
     | '/$lang/brands/$slug'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/login'
     | '/$lang'
     | '/$lang/admin/seo'
     | '/$lang/news/$slug'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/login'
     | '/$lang/'
     | '/$lang/admin/seo'
     | '/$lang/brands/$slug'
@@ -277,7 +289,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   SiteDotwebmanifestRoute: typeof SiteDotwebmanifestRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -325,6 +337,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$lang/'
       preLoaderRoute: typeof LangIndexRouteImport
       parentRoute: typeof LangRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/$lang/sugar-alternatives': {
       id: '/$lang/sugar-alternatives'
@@ -494,10 +513,20 @@ const LangRouteChildren: LangRouteChildren = {
 
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 
+interface AdminRouteChildren {
+  AdminLoginRoute: typeof AdminLoginRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLoginRoute: AdminLoginRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   SiteDotwebmanifestRoute: SiteDotwebmanifestRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
