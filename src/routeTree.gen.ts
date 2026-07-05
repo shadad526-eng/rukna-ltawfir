@@ -14,6 +14,7 @@ import { Route as SiteDotwebmanifestRouteImport } from './routes/site[.]webmanif
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LangRouteImport } from './routes/$lang'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
@@ -56,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const LangIndexRoute = LangIndexRouteImport.update({
   id: '/',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/admin/login': typeof AdminLoginRoute
   '/$lang/': typeof LangIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
@@ -170,7 +177,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
   '/site.webmanifest': typeof SiteDotwebmanifestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
@@ -183,6 +189,7 @@ export interface FileRoutesByTo {
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/admin/login': typeof AdminLoginRoute
   '/$lang': typeof LangIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
@@ -207,6 +214,7 @@ export interface FileRoutesById {
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
   '/admin/login': typeof AdminLoginRoute
   '/$lang/': typeof LangIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
@@ -233,6 +241,7 @@ export interface FileRouteTypes {
     | '/$lang/sugar-alternatives'
     | '/admin/login'
     | '/$lang/'
+    | '/admin/'
     | '/$lang/admin/seo'
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
@@ -242,7 +251,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/site.webmanifest'
     | '/sitemap.xml'
     | '/$lang/about'
@@ -255,6 +263,7 @@ export interface FileRouteTypes {
     | '/$lang/sugar-alternatives'
     | '/admin/login'
     | '/$lang'
+    | '/admin'
     | '/$lang/admin/seo'
     | '/$lang/news/$slug'
     | '/$lang/brands'
@@ -278,6 +287,7 @@ export interface FileRouteTypes {
     | '/$lang/sugar-alternatives'
     | '/admin/login'
     | '/$lang/'
+    | '/admin/'
     | '/$lang/admin/seo'
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
@@ -330,6 +340,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/$lang/': {
       id: '/$lang/'
@@ -515,10 +532,12 @@ const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 
 interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
