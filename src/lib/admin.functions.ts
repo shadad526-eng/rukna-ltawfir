@@ -230,13 +230,18 @@ export const adminUploadStorage = createServerFn({ method: "POST" })
     if (error) throw error;
     let asset_id: string | null = null;
     if (data.registerAsset) {
-      const kind = data.kind ?? (data.contentType.startsWith("image/") ? "image" : data.contentType === "application/pdf" ? "pdf" : "file");
-      const { data: a } = await supabaseAdmin.from("assets").insert({
+      const channel = data.kind
+        ?? (data.contentType === "application/pdf" ? "catalog_pdf"
+          : data.contentType.startsWith("image/") ? "marketing_generated"
+          : "document");
+      const { data: a } = await supabaseAdmin.from("assets").upsert({
         storage_bucket: data.bucket,
         storage_path: data.path,
-        kind,
+        channel,
         mime_type: data.contentType,
-      } as any).select("id").maybeSingle();
+        original_filename: data.path.split("/").pop() ?? data.path,
+        uploaded_by: context.userId,
+      } as any, { onConflict: "storage_bucket,storage_path" }).select("id").maybeSingle();
       asset_id = (a as any)?.id ?? null;
     }
     return { ok: true, asset_id };
