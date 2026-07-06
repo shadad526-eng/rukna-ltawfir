@@ -2,12 +2,27 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ENTITIES } from "@/lib/admin-entities";
+import {
+  LayoutDashboard, Users, Image as ImageIcon, LogOut,
+  Package, Layers, Tag, FileText, BookOpen, Globe, Award,
+  Menu, Settings, Building2, ClipboardList, Send, Handshake,
+  ScrollText, Search,
+} from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Admin — Rukn Al-Tawfir" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "لوحة التحكم — ركن التوفير" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminShell,
 });
+
+const ENTITY_ICONS: Record<string, any> = {
+  brands: Tag, products: Package, product_variants: Layers, product_categories: Tag,
+  insights: FileText, topic_hubs: BookOpen, pages: Globe, catalogs: FileText,
+  certifications: Award, navigation_items: Menu, homepage_sections: LayoutDashboard,
+  inquiries: Send, catalog_requests: ClipboardList, b2b_partner_applications: Handshake,
+  site_settings: Settings, corporate_identity: Building2, audit_log: ScrollText,
+  assets: ImageIcon,
+};
 
 function AdminShell() {
   const loc = useLocation();
@@ -15,6 +30,7 @@ function AdminShell() {
   const [ready, setReady] = useState(false);
   const [isSuper, setIsSuper] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
   const isLogin = loc.pathname === "/admin/login" || loc.pathname === "/admin/login/";
 
   useEffect(() => {
@@ -27,8 +43,9 @@ function AdminShell() {
         if (!isLogin) navigate({ to: "/admin/login", replace: true });
         return;
       }
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
-      const superAdmin = (roles ?? []).some((r) => r.role === "super_admin");
+      const { data: roles } = await supabase
+        .from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "super_admin").limit(1);
+      const superAdmin = (roles ?? []).length > 0;
       setIsSuper(superAdmin);
       setEmail(session.user.email ?? null);
       setReady(true);
@@ -38,38 +55,87 @@ function AdminShell() {
   }, [loc.pathname, isLogin, navigate]);
 
   if (isLogin) {
-    return <div dir="ltr" className="min-h-screen bg-slate-950 text-slate-100"><Outlet /></div>;
+    return <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100"><Outlet /></div>;
   }
-  if (!ready) return <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">Loading…</div>;
+  if (!ready) return <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">جارٍ التحميل…</div>;
   if (!isSuper) return null;
 
   const groups = Array.from(new Set(ENTITIES.map((e) => e.group)));
+  const filteredEntities = query
+    ? ENTITIES.filter((e) => e.label.includes(query) || e.key.includes(query.toLowerCase()))
+    : ENTITIES;
+
   return (
-    <div dir="ltr" className="min-h-screen bg-slate-950 text-slate-100 flex">
-      <aside className="w-64 border-r border-slate-800 p-4 flex flex-col gap-4 sticky top-0 h-screen overflow-y-auto">
-        <div>
-          <div className="text-xs uppercase tracking-widest text-slate-400">Rukn Admin</div>
-          <div className="text-sm text-slate-300 mt-1 truncate">{email}</div>
-        </div>
-        <nav className="flex flex-col gap-1 text-sm">
-          <Link to="/admin" className="px-2 py-1.5 rounded hover:bg-slate-800" activeOptions={{ exact: true }} activeProps={{ className: "px-2 py-1.5 rounded bg-slate-800 text-emerald-300" }}>Dashboard</Link>
-          <Link to="/admin/users" className="px-2 py-1.5 rounded hover:bg-slate-800" activeProps={{ className: "px-2 py-1.5 rounded bg-slate-800 text-emerald-300" }}>Administrators</Link>
-          {groups.map((g) => (
-            <div key={g} className="mt-3">
-              <div className="text-xs uppercase text-slate-500 px-2">{g}</div>
-              {ENTITIES.filter((e) => e.group === g).map((e) => (
-                <Link key={e.key} to="/admin/e/$entity" params={{ entity: e.key }} className="px-2 py-1.5 rounded hover:bg-slate-800 block"
-                  activeProps={{ className: "px-2 py-1.5 rounded bg-slate-800 text-emerald-300 block" }}>{e.label}</Link>
-              ))}
+    <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 flex" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif" }}>
+      <aside className="w-72 border-l border-slate-800 bg-slate-900/50 flex flex-col sticky top-0 h-screen">
+        <div className="p-4 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-bold">ر</div>
+            <div>
+              <div className="text-sm font-semibold">ركن التوفير</div>
+              <div className="text-xs text-slate-400">لوحة الإدارة</div>
             </div>
-          ))}
+          </div>
+          <div className="mt-3 text-xs text-slate-400 truncate">{email}</div>
+        </div>
+
+        <div className="p-3 border-b border-slate-800">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              value={query} onChange={(e) => setQuery(e.target.value)}
+              placeholder="ابحث في القوائم…"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg pr-8 pl-3 py-1.5 text-sm placeholder:text-slate-500"
+            />
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 text-sm">
+          <SidebarLink to="/admin" exact icon={LayoutDashboard} label="الرئيسية" />
+          <SidebarLink to="/admin/users" icon={Users} label="المدراء والصلاحيات" />
+          <SidebarLink to="/admin/media" icon={ImageIcon} label="مكتبة الوسائط" />
+
+          {groups.map((g) => {
+            const items = filteredEntities.filter((e) => e.group === g);
+            if (items.length === 0) return null;
+            return (
+              <div key={g} className="mt-4">
+                <div className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">{g}</div>
+                {items.map((e) => {
+                  const Icon = ENTITY_ICONS[e.key] ?? FileText;
+                  return <SidebarLink key={e.key} to="/admin/e/$entity" params={{ entity: e.key }} icon={Icon} label={e.label} />;
+                })}
+              </div>
+            );
+          })}
+        </nav>
+
+        <div className="p-3 border-t border-slate-800">
           <button
             onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/admin/login", replace: true }); }}
-            className="mt-4 px-2 py-1.5 rounded bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 text-left"
-          >Sign out</button>
-        </nav>
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-600/10 text-rose-300 hover:bg-rose-600/20 text-sm"
+          >
+            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          </button>
+        </div>
       </aside>
-      <main className="flex-1 p-6 overflow-x-hidden"><Outlet /></main>
+
+      <main className="flex-1 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto p-6"><Outlet /></div>
+      </main>
     </div>
+  );
+}
+
+function SidebarLink({ to, params, exact, icon: Icon, label }: any) {
+  const base = "flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-800/60 text-slate-300";
+  const active = "flex items-center gap-2.5 px-3 py-2 rounded-lg bg-emerald-600/15 text-emerald-300 border border-emerald-500/20";
+  return (
+    <Link to={to} params={params} className={base}
+      activeOptions={exact ? { exact: true } : undefined}
+      activeProps={{ className: active }}>
+      <Icon className="w-4 h-4 shrink-0" />
+      <span className="truncate">{label}</span>
+    </Link>
   );
 }
