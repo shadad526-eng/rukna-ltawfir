@@ -1,16 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Admin Login" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "تسجيل الدخول — لوحة الإدارة" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("rukn@ruknaltawfer.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,15 +22,15 @@ function LoginPage() {
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error || !data.session) {
-      setError(error?.message ?? "Sign-in failed");
+      setError(error?.message === "Invalid login credentials" ? "بيانات الدخول غير صحيحة" : (error?.message ?? "فشل تسجيل الدخول"));
       setLoading(false);
       return;
     }
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.session.user.id);
-    const superAdmin = (roles ?? []).some((r) => r.role === "super_admin");
-    if (!superAdmin) {
+    const { data: roles } = await supabase
+      .from("user_roles").select("role").eq("user_id", data.session.user.id).eq("role", "super_admin").limit(1);
+    if (!roles || roles.length === 0) {
       await supabase.auth.signOut();
-      setError("This account does not have admin access.");
+      setError("لا يملك هذا الحساب صلاحيات المدير.");
       setLoading(false);
       return;
     }
@@ -37,23 +38,32 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div>
-          <h1 className="text-xl font-semibold">Rukn Al-Tawfir — Admin</h1>
-          <p className="text-sm text-slate-400 mt-1">Sign in with your administrator account.</p>
+    <div dir="rtl" className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/40" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif" }}>
+      <form onSubmit={onSubmit} className="w-full max-w-md bg-slate-900/70 backdrop-blur border border-slate-800 rounded-2xl p-8 space-y-5 shadow-2xl">
+        <div className="text-center">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto">
+            <Lock className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold mt-4">ركن التوفير</h1>
+          <p className="text-sm text-slate-400 mt-1">لوحة الإدارة — تسجيل الدخول</p>
         </div>
-        <label className="block text-sm">Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required
-            className="mt-1 w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm" />
+
+        <label className="block space-y-1.5">
+          <span className="text-sm text-slate-300">البريد الإلكتروني</span>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required dir="ltr"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none" />
         </label>
-        <label className="block text-sm">Password
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required
-            className="mt-1 w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm" />
+
+        <label className="block space-y-1.5">
+          <span className="text-sm text-slate-300">كلمة المرور</span>
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required dir="ltr"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none" />
         </label>
-        {error && <div className="text-sm text-rose-400">{error}</div>}
-        <button disabled={loading} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 rounded px-3 py-2 text-sm font-medium disabled:opacity-50">
-          {loading ? "Signing in…" : "Sign in"}
+
+        {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">{error}</div>}
+
+        <button disabled={loading} type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg px-3 py-2.5 text-sm font-medium disabled:opacity-50">
+          {loading ? "جارٍ الدخول…" : "تسجيل الدخول"}
         </button>
       </form>
     </div>
