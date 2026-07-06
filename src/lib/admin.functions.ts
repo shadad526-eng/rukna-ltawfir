@@ -1,15 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-// Guard middleware: ensure caller is super_admin
 async function assertSuperAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", ctx.userId)
     .eq("role", "super_admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("Forbidden");
+    .limit(1);
+  if (error || !data || data.length === 0) throw new Error("Forbidden");
 }
 
 export const adminWhoAmI = createServerFn({ method: "GET" })
@@ -52,8 +51,8 @@ export const adminListUsers = createServerFn({ method: "GET" })
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { email: string; password: string; role?: string; display_name?: string }) => {
-    if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) throw new Error("Invalid email");
-    if (!d.password || d.password.length < 8) throw new Error("Password must be at least 8 characters");
+    if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) throw new Error("بريد إلكتروني غير صالح");
+    if (!d.password || d.password.length < 8) throw new Error("كلمة المرور يجب ألا تقل عن 8 أحرف");
     return d;
   })
   .handler(async ({ context, data }) => {
@@ -79,9 +78,10 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
-    if (data.roles.length) {
+    const unique = Array.from(new Set(data.roles));
+    if (unique.length) {
       await supabaseAdmin.from("user_roles").insert(
-        data.roles.map((role) => ({ user_id: data.user_id, role: role as any })),
+        unique.map((role) => ({ user_id: data.user_id, role: role as any })),
       );
     }
     return { ok: true };
@@ -90,7 +90,7 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { user_id: string; password: string }) => {
-    if (!d.password || d.password.length < 8) throw new Error("Password must be at least 8 characters");
+    if (!d.password || d.password.length < 8) throw new Error("كلمة المرور يجب ألا تقل عن 8 أحرف");
     return d;
   })
   .handler(async ({ context, data }) => {
@@ -144,6 +144,25 @@ export const adminDashboardStats = createServerFn({ method: "GET" })
     return out;
   });
 
+export const adminRecentActivity = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [audit, inquiries, catalogReqs, partners] = await Promise.all([
+      supabaseAdmin.from("audit_log").select("*").order("created_at", { ascending: false }).limit(10),
+      supabaseAdmin.from("inquiries").select("id,full_name,subject,created_at,status").order("created_at", { ascending: false }).limit(5),
+      supabaseAdmin.from("catalog_requests").select("id,full_name,company,created_at,status").order("created_at", { ascending: false }).limit(5),
+      supabaseAdmin.from("b2b_partner_applications").select("id,company_name,contact_name,created_at,status").order("created_at", { ascending: false }).limit(5),
+    ]);
+    return {
+      audit: audit.data ?? [],
+      inquiries: inquiries.data ?? [],
+      catalog_requests: catalogReqs.data ?? [],
+      partners: partners.data ?? [],
+    };
+  });
+
 export const adminSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { bucket: string; path: string; ttl?: number }) => d)
@@ -153,4 +172,89 @@ export const adminSignedUrl = createServerFn({ method: "POST" })
     const { data: r, error } = await supabaseAdmin.storage.from(data.bucket).createSignedUrl(data.path, data.ttl ?? 3600);
     if (error) throw error;
     return { url: r.signedUrl };
+  });
+
+export const adminSignedUrls = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { items: { bucket: string; path: string }[]; ttl?: number }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const out: Record<string, string> = {};
+    for (const it of data.items) {
+      const key = `${it.bucket}::${it.path}`;
+      const { data: r } = await supabaseAdmin.storage.from(it.bucket).createSignedUrl(it.path, data.ttl ?? 3600);
+      if (r?.signedUrl) out[key] = r.signedUrl;
+    }
+    return out;
+  });
+
+export const adminListStorage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { bucket: string; prefix?: string }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: files, error } = await supabaseAdmin.storage
+      .from(data.bucket)
+      .list(data.prefix ?? "", { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+    if (error) throw error;
+    const items = await Promise.all(
+      (files ?? []).filter((f) => f.name && !f.name.endsWith("/")).map(async (f) => {
+        const path = data.prefix ? `${data.prefix}/${f.name}` : f.name;
+        const { data: signed } = await supabaseAdmin.storage.from(data.bucket).createSignedUrl(path, 3600);
+        return {
+          name: f.name,
+          path,
+          size: (f.metadata as any)?.size ?? null,
+          mime: (f.metadata as any)?.mimetype ?? null,
+          created_at: f.created_at,
+          url: signed?.signedUrl ?? null,
+        };
+      }),
+    );
+    return items;
+  });
+
+export const adminUploadStorage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { bucket: string; path: string; base64: string; contentType: string; registerAsset?: boolean; kind?: string }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
+    const { error } = await supabaseAdmin.storage.from(data.bucket).upload(data.path, bytes, {
+      contentType: data.contentType,
+      upsert: true,
+    });
+    if (error) throw error;
+    let asset_id: string | null = null;
+    if (data.registerAsset) {
+      const channel = data.kind
+        ?? (data.contentType === "application/pdf" ? "catalog_pdf"
+          : data.contentType.startsWith("image/") ? "marketing_generated"
+          : "document");
+      const { data: a } = await supabaseAdmin.from("assets").upsert({
+        storage_bucket: data.bucket,
+        storage_path: data.path,
+        channel,
+        mime_type: data.contentType,
+        original_filename: data.path.split("/").pop() ?? data.path,
+        uploaded_by: context.userId,
+      } as any, { onConflict: "storage_bucket,storage_path" }).select("id").maybeSingle();
+      asset_id = (a as any)?.id ?? null;
+    }
+    return { ok: true, asset_id };
+  });
+
+export const adminDeleteStorage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { bucket: string; path: string }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage.from(data.bucket).remove([data.path]);
+    if (error) throw error;
+    await supabaseAdmin.from("assets").delete().eq("storage_bucket", data.bucket).eq("storage_path", data.path);
+    return { ok: true };
   });
