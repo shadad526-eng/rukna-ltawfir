@@ -57,7 +57,7 @@ function EntityPage() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
-  const [assetPickerFor, setAssetPickerFor] = useState<string | null>(null);
+  const [assetPickerFor, setAssetPickerFor] = useState<{ key: string; accept: "image" | "pdf" | "any" } | null>(null);
 
   const pk = cfg?.primaryKey ?? "id";
 
