@@ -444,8 +444,6 @@ export const ENTITIES: EntityConfig[] = [
     listColumns: [
       { key: "action", label: "الإجراء", type: "text" },
       { key: "entity_type", label: "الكيان", type: "text" },
-      { key: "entity_id", label: "المعرّف", type: "text" },
-      { key: "actor_id", label: "المستخدم", type: "text" },
       { key: "created_at", label: "التاريخ", type: "date" },
     ],
     searchColumns: ["action", "entity_type"],
@@ -454,7 +452,6 @@ export const ENTITIES: EntityConfig[] = [
     fields: [
       { key: "action", label: "الإجراء", type: "text" },
       { key: "entity_type", label: "نوع الكيان", type: "text" },
-      { key: "entity_id", label: "معرّف الكيان", type: "text" },
     ],
   },
 ];
