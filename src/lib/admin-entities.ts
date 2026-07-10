@@ -229,8 +229,9 @@ export const ENTITIES: EntityConfig[] = [
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref" },
-      { key: "cover_asset_id", label: "الغلاف", type: "asset" },
-      { key: "pdf_asset_id", label: "ملف PDF", type: "asset" },
+      { key: "cover_asset_id", label: "الغلاف", type: "asset", accept: "image" },
+      { key: "pdf_asset_id", label: "ملف PDF", type: "asset", accept: "pdf" },
+
       { key: "visibility", label: "الظهور", type: "select", options: [
         { value: "public", label: "عام" }, { value: "restricted", label: "مقيّد" }, { value: "b2b_only", label: "B2B فقط" },
       ] },
