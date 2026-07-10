@@ -124,6 +124,12 @@
     "knowledgeWhatsApp": "Inquire on WhatsApp →",
     "knowledgeReadMore": "Read article →",
     "knowledgeBack": "Back to home",
+    "knowledgeViewAll": "View all news & articles →",
+    "knowledgeRelatedTitle": "Read more",
+    "knowledgeListTitle": "News & Articles",
+    "knowledgeListSubtitle": "All published articles, newest first.",
+    "knowledgePrev": "Previous",
+    "knowledgeNext": "Next",
     "knowledgeWhatsAppCta": "Inquire on WhatsApp",
     "knowledgeWaMsg": "Hello, I'd like to know more about: {title}",
     "knowledge": {

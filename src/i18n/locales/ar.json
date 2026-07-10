@@ -124,6 +124,12 @@
     "knowledgeWhatsApp": "استفسر عبر واتساب ←",
     "knowledgeReadMore": "اقرأ المقال ←",
     "knowledgeBack": "العودة إلى الرئيسية",
+    "knowledgeViewAll": "عرض كل المقالات والأخبار ←",
+    "knowledgeRelatedTitle": "اقرأ المزيد",
+    "knowledgeListTitle": "الأخبار والمقالات",
+    "knowledgeListSubtitle": "جميع المقالات المنشورة، من الأحدث إلى الأقدم.",
+    "knowledgePrev": "السابق",
+    "knowledgeNext": "التالي",
     "knowledgeWhatsAppCta": "استفسر عبر واتساب",
     "knowledgeWaMsg": "السلام عليكم، أرغب بمعرفة المزيد حول: {title}",
     "knowledge": {
