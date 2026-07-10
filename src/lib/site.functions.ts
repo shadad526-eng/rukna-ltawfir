@@ -65,6 +65,23 @@ export type CatalogSummary = {
   pdf_url: string | null; // signed URL only for public visibility
 };
 
+export type InsightSummary = {
+  slug: string;
+  title_ar: string;
+  title_en: string | null;
+  excerpt_ar: string | null;
+  excerpt_en: string | null;
+  cover_url: string | null;
+  published_at: string | null;
+  tags: string[];
+  source: "db" | "static";
+};
+
+export type InsightDetail = InsightSummary & {
+  body_ar: string[];
+  body_en: string[];
+};
+
 // ---------- Helpers (server-only) ----------
 async function signedUrl(bucket: string, path: string | null | undefined, ttl = 3600) {
   if (!path) return null;
