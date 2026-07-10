@@ -22,7 +22,9 @@ export type Field = {
   options?: { value: string; label: string }[];
   required?: boolean;
   hint?: string;
+  accept?: "image" | "pdf" | "any";
 };
+
 
 export type Column = {
   key: string;
