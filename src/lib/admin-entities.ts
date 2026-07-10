@@ -10,7 +10,10 @@ export type FieldType =
   | "json"
   | "select"
   | "asset"
-  | "image_url";
+  | "image_url"
+  | "brand_ref"
+  | "product_ref"
+  | "nav_parent_ref";
 
 export type Field = {
   key: string;
@@ -24,7 +27,7 @@ export type Field = {
 export type Column = {
   key: string;
   label: string;
-  type?: "text" | "boolean" | "date" | "image" | "status" | "brand" | "number";
+  type?: "text" | "boolean" | "date" | "image" | "status" | "brand" | "product" | "number" | "asset_ref";
 };
 
 export type EntityConfig = {
