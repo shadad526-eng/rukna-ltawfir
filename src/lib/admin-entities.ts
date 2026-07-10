@@ -254,13 +254,14 @@ export const ENTITIES: EntityConfig[] = [
   {
     key: "assets", label: "مكتبة الوسائط", table: "assets", group: "الوسائط",
     listColumns: [
-      { key: "storage_path", label: "المسار", type: "text" },
-      { key: "storage_bucket", label: "الحاوية", type: "text" },
+      { key: "id", label: "المعاينة", type: "asset_ref" },
+      { key: "original_filename", label: "الملف", type: "text" },
       { key: "channel", label: "النوع", type: "text" },
       { key: "alt_text_ar", label: "النص البديل", type: "text" },
+      { key: "created_at", label: "أُضيف", type: "date" },
     ],
-    searchColumns: ["storage_path", "alt_text_ar"],
-    labelColumn: "storage_path",
+    searchColumns: ["storage_path", "alt_text_ar", "original_filename"],
+    labelColumn: "original_filename",
     orderBy: { column: "created_at", ascending: false },
     fields: [
       { key: "storage_bucket", label: "الحاوية", type: "select", options: [
