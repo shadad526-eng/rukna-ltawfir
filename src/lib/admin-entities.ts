@@ -225,7 +225,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
-      { key: "brand_id", label: "العلامة", type: "text" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref" },
       { key: "cover_asset_id", label: "الغلاف", type: "asset" },
       { key: "pdf_asset_id", label: "ملف PDF", type: "asset" },
       { key: "visibility", label: "الظهور", type: "select", options: [
