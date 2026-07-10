@@ -157,7 +157,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
-      { key: "brand_id", label: "العلامة", type: "text" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref" },
       { key: "tags", label: "الوسوم (JSON)", type: "json" },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "published_at", label: "تاريخ النشر", type: "date" },
