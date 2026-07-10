@@ -10,7 +10,10 @@ export type FieldType =
   | "json"
   | "select"
   | "asset"
-  | "image_url";
+  | "image_url"
+  | "brand_ref"
+  | "product_ref"
+  | "nav_parent_ref";
 
 export type Field = {
   key: string;
@@ -24,7 +27,7 @@ export type Field = {
 export type Column = {
   key: string;
   label: string;
-  type?: "text" | "boolean" | "date" | "image" | "status" | "brand" | "number";
+  type?: "text" | "boolean" | "date" | "image" | "status" | "brand" | "product" | "number" | "asset_ref";
 };
 
 export type EntityConfig = {
@@ -101,14 +104,14 @@ export const ENTITIES: EntityConfig[] = [
     listColumns: [
       { key: "cover_asset_id", label: "الصورة", type: "image" },
       { key: "name_ar", label: "الاسم", type: "text" },
-      { key: "product_id", label: "المنتج", type: "text" },
+      { key: "product_id", label: "المنتج", type: "product" },
       { key: "pack_size", label: "الحجم", type: "text" },
       { key: "is_published", label: "منشور", type: "boolean" },
     ],
     searchColumns: ["name_ar", "slug"],
     labelColumn: "name_ar",
     fields: [
-      { key: "product_id", label: "المنتج", type: "text", required: true },
+      { key: "product_id", label: "المنتج", type: "product_ref", required: true },
       { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
       { key: "pack_size", label: "حجم العبوة", type: "text" },
@@ -154,7 +157,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
-      { key: "brand_id", label: "العلامة", type: "text" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref" },
       { key: "tags", label: "الوسوم (JSON)", type: "json" },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "published_at", label: "تاريخ النشر", type: "date" },
@@ -222,7 +225,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
-      { key: "brand_id", label: "العلامة", type: "text" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref" },
       { key: "cover_asset_id", label: "الغلاف", type: "asset" },
       { key: "pdf_asset_id", label: "ملف PDF", type: "asset" },
       { key: "visibility", label: "الظهور", type: "select", options: [
@@ -251,13 +254,14 @@ export const ENTITIES: EntityConfig[] = [
   {
     key: "assets", label: "مكتبة الوسائط", table: "assets", group: "الوسائط",
     listColumns: [
-      { key: "storage_path", label: "المسار", type: "text" },
-      { key: "storage_bucket", label: "الحاوية", type: "text" },
+      { key: "id", label: "المعاينة", type: "asset_ref" },
+      { key: "original_filename", label: "الملف", type: "text" },
       { key: "channel", label: "النوع", type: "text" },
       { key: "alt_text_ar", label: "النص البديل", type: "text" },
+      { key: "created_at", label: "أُضيف", type: "date" },
     ],
-    searchColumns: ["storage_path", "alt_text_ar"],
-    labelColumn: "storage_path",
+    searchColumns: ["storage_path", "alt_text_ar", "original_filename"],
+    labelColumn: "original_filename",
     orderBy: { column: "created_at", ascending: false },
     fields: [
       { key: "storage_bucket", label: "الحاوية", type: "select", options: [
@@ -296,7 +300,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "label_ar", label: "التسمية (AR)", type: "text", required: true },
       { key: "label_en", label: "Label (EN)", type: "text" },
       { key: "url", label: "الرابط", type: "text", required: true },
-      { key: "parent_id", label: "المعرّف الأب", type: "text" },
+      { key: "parent_id", label: "العنصر الأب", type: "nav_parent_ref" },
       { key: "sort_order", label: "الترتيب", type: "number" },
       { key: "is_visible", label: "ظاهر", type: "boolean" },
       { key: "open_in_new_tab", label: "فتح في تبويب جديد", type: "boolean" },
@@ -440,8 +444,6 @@ export const ENTITIES: EntityConfig[] = [
     listColumns: [
       { key: "action", label: "الإجراء", type: "text" },
       { key: "entity_type", label: "الكيان", type: "text" },
-      { key: "entity_id", label: "المعرّف", type: "text" },
-      { key: "actor_id", label: "المستخدم", type: "text" },
       { key: "created_at", label: "التاريخ", type: "date" },
     ],
     searchColumns: ["action", "entity_type"],
@@ -450,7 +452,6 @@ export const ENTITIES: EntityConfig[] = [
     fields: [
       { key: "action", label: "الإجراء", type: "text" },
       { key: "entity_type", label: "نوع الكيان", type: "text" },
-      { key: "entity_id", label: "معرّف الكيان", type: "text" },
     ],
   },
 ];

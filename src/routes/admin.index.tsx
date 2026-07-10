@@ -149,15 +149,18 @@ function Dashboard() {
             <div className="text-sm text-slate-500">لا يوجد نشاط بعد.</div>
           ) : (
             <ul className="space-y-2 text-sm">
-              {(activity?.audit ?? []).slice(0, 8).map((row: any) => (
-                <li key={row.id} className="flex items-start justify-between gap-3 border-b border-slate-800/50 pb-2 last:border-0">
-                  <div>
-                    <div className="text-slate-200">{row.action}</div>
-                    <div className="text-xs text-slate-500">{row.entity_type} · {row.entity_id?.slice?.(0, 8) ?? "—"}</div>
-                  </div>
-                  <div className="text-xs text-slate-500 shrink-0">{fmtDate(row.created_at)}</div>
-                </li>
-              ))}
+              {(activity?.audit ?? []).slice(0, 8).map((row: any) => {
+                const cfg = ENTITIES.find((e) => e.table === row.entity_type);
+                return (
+                  <li key={row.id} className="flex items-start justify-between gap-3 border-b border-slate-800/50 pb-2 last:border-0">
+                    <div>
+                      <div className="text-slate-200">{row.action}</div>
+                      <div className="text-xs text-slate-500">{cfg?.label ?? row.entity_type ?? "—"}</div>
+                    </div>
+                    <div className="text-xs text-slate-500 shrink-0">{fmtDate(row.created_at)}</div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

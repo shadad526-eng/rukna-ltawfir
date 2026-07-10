@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getEntity, type Field, type Column } from "@/lib/admin-entities";
 import { adminSignedUrls } from "@/lib/admin.functions";
 import { toast } from "sonner";
-import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Copy } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
 
@@ -35,6 +35,14 @@ function fmtDate(v: any) {
   catch { return String(v); }
 }
 
+type RefMaps = {
+  brands: Record<string, string>;
+  products: Record<string, string>;
+  navItems: Record<string, string>;
+  assetUrls: Record<string, string>;
+  assetInfo: Record<string, { name: string; mime: string | null }>;
+};
+
 function EntityPage() {
   const { entity } = useParams({ from: "/admin/e/$entity" });
   const cfg = getEntity(entity);
@@ -47,8 +55,8 @@ function EntityPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [brands, setBrands] = useState<Record<string, string>>({});
-  const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
+  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
+  const [assetPickerFor, setAssetPickerFor] = useState<string | null>(null);
 
   const pk = cfg?.primaryKey ?? "id";
 
@@ -67,37 +75,62 @@ function EntityPage() {
 
   useEffect(() => { load(); setEditing(null); setPage(1); setQuery(""); }, [load, entity]);
 
-  // Load brands for label rendering / select options
+  // Load ref maps: brands, products, nav items
   useEffect(() => {
-    supabase.from("brands").select("id,name_ar").then(({ data }) => {
-      const map: Record<string, string> = {};
-      (data ?? []).forEach((b: any) => { map[b.id] = b.name_ar; });
-      setBrands(map);
-    });
+    (async () => {
+      const [{ data: bs }, { data: ps }, { data: ns }] = await Promise.all([
+        supabase.from("brands").select("id,name_ar").order("name_ar"),
+        supabase.from("products").select("id,name_ar").order("name_ar").limit(500),
+        supabase.from("navigation_items").select("id,label_ar,location").order("sort_order"),
+      ]);
+      const brands: Record<string, string> = {};
+      (bs ?? []).forEach((b: any) => { brands[b.id] = b.name_ar; });
+      const products: Record<string, string> = {};
+      (ps ?? []).forEach((p: any) => { products[p.id] = p.name_ar; });
+      const navItems: Record<string, string> = {};
+      (ns ?? []).forEach((n: any) => { navItems[n.id] = `${n.label_ar} · ${n.location}`; });
+      setRefs((r) => ({ ...r, brands, products, navItems }));
+    })();
   }, []);
 
-  // Load signed URLs for cover images
-  const imageColumnKey = useMemo(
-    () => cfg?.listColumns.find((c) => c.type === "image")?.key ?? null,
+  // Which asset columns show images?
+  const assetColumnKeys = useMemo(
+    () => cfg?.listColumns.filter((c) => c.type === "image" || c.type === "asset_ref").map((c) => c.key) ?? [],
     [cfg],
   );
 
+  // Load signed URLs & info for asset IDs referenced anywhere on-page
   useEffect(() => {
-    if (!cfg || !imageColumnKey || rows.length === 0) return;
-    const assetIds = Array.from(new Set(rows.map((r) => r[imageColumnKey]).filter(Boolean)));
+    if (!cfg || rows.length === 0) return;
+    // Collect asset ids from image columns AND, for the assets table, use the row's own id
+    let assetIds: string[] = [];
+    if (cfg.table === "assets") {
+      assetIds = rows.map((r) => r.id).filter(Boolean);
+    } else {
+      const ids = new Set<string>();
+      for (const key of assetColumnKeys) {
+        for (const r of rows) if (r[key]) ids.add(r[key]);
+      }
+      assetIds = Array.from(ids);
+    }
     if (assetIds.length === 0) return;
     (async () => {
-      const { data: assets } = await supabase.from("assets").select("id,storage_bucket,storage_path").in("id", assetIds);
+      const { data: assets } = await supabase
+        .from("assets")
+        .select("id,storage_bucket,storage_path,original_filename,mime_type")
+        .in("id", assetIds);
       if (!assets || assets.length === 0) return;
       const signed = await signUrls({ data: { items: assets.map((a: any) => ({ bucket: a.storage_bucket, path: a.storage_path })) } });
-      const map: Record<string, string> = {};
+      const urls: Record<string, string> = {};
+      const info: Record<string, { name: string; mime: string | null }> = {};
       assets.forEach((a: any) => {
-        const url = signed[`${a.storage_bucket}::${a.storage_path}`];
-        if (url) map[a.id] = url;
+        const u = signed[`${a.storage_bucket}::${a.storage_path}`];
+        if (u) urls[a.id] = u;
+        info[a.id] = { name: a.original_filename || a.storage_path.split("/").pop(), mime: a.mime_type };
       });
-      setAssetUrls(map);
+      setRefs((r) => ({ ...r, assetUrls: { ...r.assetUrls, ...urls }, assetInfo: { ...r.assetInfo, ...info } }));
     })();
-  }, [cfg, imageColumnKey, rows, signUrls]);
+  }, [cfg, rows, assetColumnKeys, signUrls]);
 
   const filtered = useMemo(() => {
     if (!cfg || !query.trim()) return rows;
@@ -215,7 +248,7 @@ function EntityPage() {
               {cfg.listColumns.map((c) => (
                 <th key={c.key} className="text-right p-3 font-medium">{c.label}</th>
               ))}
-              <th className="p-3 w-28"></th>
+              <th className="p-3 w-24"></th>
             </tr>
           </thead>
           <tbody>
@@ -229,15 +262,12 @@ function EntityPage() {
                   }} />
                 </td>
                 {cfg.listColumns.map((c) => (
-                  <td key={c.key} className="p-3 max-w-[240px]">{renderCell(c, r[c.key], { brands, assetUrls })}</td>
+                  <td key={c.key} className="p-3 max-w-[240px]">{renderCell(c, r[c.key], r, refs)}</td>
                 ))}
                 <td className="p-3">
                   <div className="flex items-center gap-1 justify-end">
                     <button onClick={() => setEditing(r)} className="p-1.5 rounded hover:bg-slate-700 text-sky-300" title="تعديل">
                       <Pencil className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => { navigator.clipboard.writeText(String(r[pk] ?? "")); toast.success("نُسخ المعرّف"); }} className="p-1.5 rounded hover:bg-slate-700 text-slate-400" title="نسخ المعرّف">
-                      <Copy className="w-4 h-4" />
                     </button>
                     <button onClick={() => setConfirmDel(r)} className="p-1.5 rounded hover:bg-slate-700 text-rose-300" title="حذف">
                       <Trash2 className="w-4 h-4" />
@@ -277,7 +307,8 @@ function EntityPage() {
             <form onSubmit={(e) => { e.preventDefault(); save(editing); }} className="p-5 space-y-4">
               {cfg.fields.map((f) => (
                 <FieldInput key={f.key} field={f} value={editing[f.key]}
-                  brands={brands}
+                  refs={refs}
+                  onOpenAssetPicker={() => setAssetPickerFor(f.key)}
                   onChange={(v) => setEditing({ ...editing, [f.key]: v })} />
               ))}
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
@@ -287,6 +318,21 @@ function EntityPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {assetPickerFor && editing && (
+        <AssetPicker
+          onClose={() => setAssetPickerFor(null)}
+          onPick={(id, url, info) => {
+            setEditing({ ...editing, [assetPickerFor]: id });
+            setRefs((r) => ({
+              ...r,
+              assetUrls: { ...r.assetUrls, [id]: url },
+              assetInfo: { ...r.assetInfo, [id]: info },
+            }));
+            setAssetPickerFor(null);
+          }}
+        />
       )}
 
       {confirmDel && (
@@ -305,10 +351,17 @@ function EntityPage() {
   );
 }
 
-function renderCell(col: Column, v: any, ctx: { brands: Record<string, string>; assetUrls: Record<string, string> }) {
+function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
+  if (col.type === "asset_ref") {
+    // Row IS an asset. Show a thumbnail from its own id.
+    const url = refs.assetUrls[row.id];
+    const isImg = (row.mime_type ?? "").startsWith("image/");
+    if (url && isImg) return <img src={url} alt="" className="w-12 h-12 rounded object-cover bg-slate-800" loading="lazy" />;
+    return <div className="w-12 h-12 rounded bg-slate-800 flex items-center justify-center text-slate-600"><ImageIcon className="w-5 h-5" /></div>;
+  }
   if (v === null || v === undefined || v === "") return <span className="text-slate-600">—</span>;
   if (col.type === "image") {
-    const url = ctx.assetUrls[v];
+    const url = refs.assetUrls[v];
     return url
       ? <img src={url} alt="" className="w-12 h-12 rounded object-cover bg-slate-800" loading="lazy" />
       : <div className="w-12 h-12 rounded bg-slate-800 flex items-center justify-center text-[10px] text-slate-500">لا صورة</div>;
@@ -324,20 +377,25 @@ function renderCell(col: Column, v: any, ctx: { brands: Record<string, string>; 
     return <span className={`text-xs px-2 py-0.5 rounded-full border ${cls}`}>{label}</span>;
   }
   if (col.type === "brand") {
-    return <span className="text-slate-300">{ctx.brands[v] ?? String(v).slice(0, 8)}</span>;
+    return <span className="text-slate-300">{refs.brands[v] ?? "—"}</span>;
+  }
+  if (col.type === "product") {
+    return <span className="text-slate-300">{refs.products[v] ?? "—"}</span>;
   }
   if (col.type === "date") return <span className="text-slate-400 text-xs">{fmtDate(v)}</span>;
   if (typeof v === "object") return <span className="text-slate-500 text-xs">{JSON.stringify(v).slice(0, 40)}…</span>;
   return <span className="text-slate-200 truncate block">{String(v)}</span>;
 }
 
-function FieldInput({ field, value, onChange, brands }: { field: Field; value: any; onChange: (v: any) => void; brands: Record<string, string> }) {
+function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
+  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void;
+}) {
   const base = "w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none";
+  const labelEl = <span className="text-slate-300 font-medium">{field.label}{field.required && <span className="text-rose-400"> *</span>}</span>;
 
   if (field.type === "textarea") {
     return (
-      <label className="block text-sm space-y-1">
-        <span className="text-slate-300 font-medium">{field.label}</span>
+      <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={base} />
       </label>
     );
@@ -350,14 +408,43 @@ function FieldInput({ field, value, onChange, brands }: { field: Field; value: a
       </label>
     );
   }
-  if (field.type === "select") {
-    // Special: brand_id select uses live brands
-    const options = field.key === "brand_id"
-      ? Object.entries(brands).map(([id, name]) => ({ value: id, label: name }))
-      : (field.options ?? []);
+  if (field.type === "brand_ref") {
+    const opts = Object.entries(refs.brands);
     return (
-      <label className="block text-sm space-y-1">
-        <span className="text-slate-300 font-medium">{field.label}</span>
+      <label className="block text-sm space-y-1">{labelEl}
+        <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={base}>
+          <option value="">— اختر علامة —</option>
+          {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+        </select>
+      </label>
+    );
+  }
+  if (field.type === "product_ref") {
+    const opts = Object.entries(refs.products);
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={base}>
+          <option value="">— اختر منتج —</option>
+          {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+        </select>
+      </label>
+    );
+  }
+  if (field.type === "nav_parent_ref") {
+    const opts = Object.entries(refs.navItems);
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={base}>
+          <option value="">— بدون أب —</option>
+          {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+        </select>
+      </label>
+    );
+  }
+  if (field.type === "select") {
+    const options = field.options ?? [];
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
         <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={base}>
           <option value="">—</option>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -365,19 +452,37 @@ function FieldInput({ field, value, onChange, brands }: { field: Field; value: a
       </label>
     );
   }
+  if (field.type === "asset") {
+    const url = value ? refs.assetUrls[value] : null;
+    const info = value ? refs.assetInfo[value] : null;
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-lg p-2">
+          <div className="w-16 h-16 rounded bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+            {url ? <img src={url} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-6 h-6 text-slate-600" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-slate-200 text-xs truncate">{info?.name ?? (value ? "الأصل محدّد" : "لم يُحدّد أصل")}</div>
+            <div className="flex gap-2 mt-2">
+              <button type="button" onClick={onOpenAssetPicker} className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-xs">اختيار من المكتبة</button>
+              {value && <button type="button" onClick={() => onChange(null)} className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs">إزالة</button>}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (field.type === "json") {
     const str = value === null || value === undefined ? "" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
     return (
-      <label className="block text-sm space-y-1">
-        <span className="text-slate-300 font-medium">{field.label}</span>
+      <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={str} onChange={(e) => onChange(e.target.value)} className={base + " font-mono text-xs"} dir="ltr" placeholder='{}' />
         {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
       </label>
     );
   }
   return (
-    <label className="block text-sm space-y-1">
-      <span className="text-slate-300 font-medium">{field.label}</span>
+    <label className="block text-sm space-y-1">{labelEl}
       <input
         type={field.type === "number" ? "number" : field.type === "date" ? "datetime-local" : "text"}
         value={value ?? ""} onChange={(e) => onChange(e.target.value)}
@@ -386,5 +491,74 @@ function FieldInput({ field, value, onChange, brands }: { field: Field; value: a
       />
       {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
     </label>
+  );
+}
+
+function AssetPicker({ onClose, onPick }: {
+  onClose: () => void;
+  onPick: (id: string, url: string, info: { name: string; mime: string | null }) => void;
+}) {
+  const signUrls = useServerFn(adminSignedUrls);
+  const [items, setItems] = useState<any[]>([]);
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("assets")
+        .select("id,storage_bucket,storage_path,original_filename,mime_type,channel,created_at")
+        .order("created_at", { ascending: false })
+        .limit(300);
+      setItems(data ?? []);
+      const signed = await signUrls({ data: { items: (data ?? []).map((a: any) => ({ bucket: a.storage_bucket, path: a.storage_path })) } });
+      const map: Record<string, string> = {};
+      (data ?? []).forEach((a: any) => {
+        const u = signed[`${a.storage_bucket}::${a.storage_path}`];
+        if (u) map[a.id] = u;
+      });
+      setUrls(map);
+    })();
+  }, [signUrls]);
+
+  const filtered = q.trim()
+    ? items.filter((a) => (a.original_filename ?? a.storage_path ?? "").toLowerCase().includes(q.toLowerCase()))
+    : items;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[60]" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-4xl max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+          <h3 className="font-semibold">اختيار من مكتبة الوسائط</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-200"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="p-4 border-b border-slate-800">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث بالاسم…"
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg pr-8 pl-3 py-2 text-sm" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          {filtered.map((a) => {
+            const url = urls[a.id];
+            const isImg = (a.mime_type ?? "").startsWith("image/");
+            return (
+              <button key={a.id} type="button"
+                onClick={() => onPick(a.id, url ?? "", { name: a.original_filename ?? a.storage_path, mime: a.mime_type })}
+                className="text-right bg-slate-950 border border-slate-800 hover:border-emerald-500 rounded-lg overflow-hidden group">
+                <div className="aspect-square bg-slate-900 flex items-center justify-center overflow-hidden">
+                  {url && isImg
+                    ? <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    : <ImageIcon className="w-8 h-8 text-slate-600" />}
+                </div>
+                <div className="p-1.5 text-[11px] text-slate-300 truncate">{a.original_filename ?? a.storage_path.split("/").pop()}</div>
+              </button>
+            );
+          })}
+          {filtered.length === 0 && <div className="col-span-full text-center text-slate-500 text-sm py-12">لا توجد نتائج.</div>}
+        </div>
+      </div>
+    </div>
   );
 }
