@@ -299,7 +299,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "label_ar", label: "التسمية (AR)", type: "text", required: true },
       { key: "label_en", label: "Label (EN)", type: "text" },
       { key: "url", label: "الرابط", type: "text", required: true },
-      { key: "parent_id", label: "المعرّف الأب", type: "text" },
+      { key: "parent_id", label: "العنصر الأب", type: "nav_parent_ref" },
       { key: "sort_order", label: "الترتيب", type: "number" },
       { key: "is_visible", label: "ظاهر", type: "boolean" },
       { key: "open_in_new_tab", label: "فتح في تبويب جديد", type: "boolean" },
