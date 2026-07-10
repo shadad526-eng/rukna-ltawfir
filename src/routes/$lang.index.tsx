@@ -6,6 +6,7 @@ import {
   listBrands,
   listFeaturedProducts,
   listCatalogs,
+  listInsights,
 } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
