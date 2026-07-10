@@ -446,3 +446,149 @@ export const submitCatalogRequest = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ---------- Insights (News & Knowledge Articles) ----------
+
+// Static fallback so the site keeps rendering existing articles if
+// the DB has no published rows yet. New DB rows take precedence
+// and are merged in ahead of static entries.
+async function staticInsights(): Promise<InsightDetail[]> {
+  const { NEWS } = await import("@/data/news");
+  return NEWS.map((n) => ({
+    slug: n.slug,
+    title_ar: n.title.ar,
+    title_en: n.title.en,
+    excerpt_ar: n.excerpt.ar,
+    excerpt_en: n.excerpt.en,
+    cover_url: n.cover,
+    published_at: n.date,
+    tags: [n.eyebrow.ar, n.eyebrow.en].filter(Boolean),
+    source: "static" as const,
+    body_ar: n.body.ar,
+    body_en: n.body.en,
+  }));
+}
+
+function paragraphs(input: unknown): string[] {
+  if (Array.isArray(input)) {
+    return input
+      .map((p) => (typeof p === "string" ? p : typeof p === "object" && p && "text" in p ? String((p as { text: unknown }).text) : ""))
+      .filter(Boolean);
+  }
+  if (typeof input === "string") {
+    return input.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+export const listInsights = createServerFn({ method: "GET" }).handler(
+  async (): Promise<InsightSummary[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("insights")
+      .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    const dbItems: InsightSummary[] = [];
+    for (const r of data ?? []) {
+      dbItems.push({
+        slug: r.slug,
+        title_ar: r.title_ar,
+        title_en: r.title_en,
+        excerpt_ar: r.excerpt_ar,
+        excerpt_en: r.excerpt_en,
+        cover_url: await assetUrl(r.cover_asset_id),
+        published_at: r.published_at ?? r.created_at,
+        tags: (r.tags as string[] | null) ?? [],
+        source: "db",
+      });
+    }
+
+    const seen = new Set(dbItems.map((i) => i.slug));
+    const staticItems = (await staticInsights())
+      .filter((s) => !seen.has(s.slug))
+      .map(({ body_ar: _a, body_en: _b, ...s }) => s);
+
+    const merged = [...dbItems, ...staticItems];
+    merged.sort((a, b) => {
+      const da = a.published_at ? Date.parse(a.published_at) : 0;
+      const db = b.published_at ? Date.parse(b.published_at) : 0;
+      return db - da;
+    });
+    return merged;
+  },
+);
+
+export const getInsightBySlug = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string }) => d)
+  .handler(async ({ data }): Promise<InsightDetail | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("insights")
+      .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags, body_ar, body_en")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (row) {
+      return {
+        slug: row.slug,
+        title_ar: row.title_ar,
+        title_en: row.title_en,
+        excerpt_ar: row.excerpt_ar,
+        excerpt_en: row.excerpt_en,
+        cover_url: await assetUrl(row.cover_asset_id),
+        published_at: row.published_at ?? row.created_at,
+        tags: (row.tags as string[] | null) ?? [],
+        source: "db",
+        body_ar: paragraphs(row.body_ar),
+        body_en: paragraphs(row.body_en),
+      };
+    }
+    const staticItems = await staticInsights();
+    return staticItems.find((s) => s.slug === data.slug) ?? null;
+  });
+
+export const listRelatedInsights = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string; limit?: number }) => d)
+  .handler(async ({ data }): Promise<InsightSummary[]> => {
+    const limit = data.limit ?? 4;
+    // Reuse listInsights internally
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("insights")
+      .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
+      .eq("is_published", true)
+      .neq("slug", data.slug)
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(limit + 4);
+
+    const dbItems: InsightSummary[] = [];
+    for (const r of rows ?? []) {
+      dbItems.push({
+        slug: r.slug,
+        title_ar: r.title_ar,
+        title_en: r.title_en,
+        excerpt_ar: r.excerpt_ar,
+        excerpt_en: r.excerpt_en,
+        cover_url: await assetUrl(r.cover_asset_id),
+        published_at: r.published_at ?? r.created_at,
+        tags: (r.tags as string[] | null) ?? [],
+        source: "db",
+      });
+    }
+    const seen = new Set([data.slug, ...dbItems.map((i) => i.slug)]);
+    const staticItems = (await staticInsights())
+      .filter((s) => !seen.has(s.slug))
+      .map(({ body_ar: _a, body_en: _b, ...s }) => s);
+    const merged = [...dbItems, ...staticItems];
+    merged.sort((a, b) => {
+      const da = a.published_at ? Date.parse(a.published_at) : 0;
+      const db = b.published_at ? Date.parse(b.published_at) : 0;
+      return db - da;
+    });
+    return merged.slice(0, limit);
+  });
