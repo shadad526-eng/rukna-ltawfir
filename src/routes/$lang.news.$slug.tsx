@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCorporateIdentity } from "@/lib/site.functions";
+import { getCorporateIdentity, getInsightBySlug, listRelatedInsights } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
@@ -8,88 +8,46 @@ import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { getNewsBySlug, NEWS } from "@/data/news";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
   queryFn: () => getCorporateIdentity(),
 });
 
-type RelatedMap = {
-  brands: { slug: string; ar: string; en: string }[];
-  topics: { href: "/$lang/sugar-alternatives"; ar: string; en: string }[];
-  articles: string[];
-};
+const articleQO = (slug: string) =>
+  queryOptions({
+    queryKey: ["insight", slug],
+    queryFn: () => getInsightBySlug({ data: { slug } }),
+  });
 
-const ARTICLE_RELATIONS: Record<string, RelatedMap> = {
-  "natural-sweeteners-daily-health": {
-    brands: [
-      { slug: "steviola", ar: "ستيفيولا", en: "Steviola" },
-      { slug: "nocal", ar: "نو كال", en: "NO CAL" },
-    ],
-    topics: [{ href: "/$lang/sugar-alternatives", ar: "دليل بدائل السكر", en: "Sugar alternatives hub" }],
-    articles: ["vitamin-c-immunity-energy", "daily-dental-care-routine"],
-  },
-  "vitamin-c-immunity-energy": {
-    brands: [
-      { slug: "monivo", ar: "مونيفو", en: "Monivo" },
-      { slug: "isis", ar: "ايزيس", en: "iSiS" },
-      { slug: "sekem", ar: "سيكم", en: "SEKEM" },
-    ],
-    topics: [],
-    articles: ["natural-sweeteners-daily-health", "daily-dental-care-routine"],
-  },
-  "daily-dental-care-routine": {
-    brands: [{ slug: "y-kelin", ar: "واي كيلين", en: "Y-Kelin" }],
-    topics: [],
-    articles: ["vitamin-c-immunity-energy", "natural-sweeteners-daily-health"],
-  },
-};
-
-const ARTICLE_TOPIC_KEYWORDS: Record<string, string[]> = {
-  "natural-sweeteners-daily-health": ["بدائل السكر", "المحليات الطبيعية", "ستيفيا", "منتجات مرضى السكري", "Sugar alternatives", "Natural sweeteners", "Stevia"],
-  "vitamin-c-immunity-energy": ["فيتامين C", "دعم المناعة", "الحياة الصحية", "مكملات غذائية", "Vitamin C", "Immunity support", "Healthy lifestyle"],
-  "daily-dental-care-routine": ["العناية بالفم والأسنان", "صحة الأسنان", "Oral care", "Dental care"],
-};
+const relatedQO = (slug: string) =>
+  queryOptions({
+    queryKey: ["insight-related", slug],
+    queryFn: () => listRelatedInsights({ data: { slug, limit: 4 } }),
+  });
 
 export const Route = createFileRoute("/$lang/news/$slug")({
-  head: ({ params }) => {
-    const item = getNewsBySlug(params.slug);
+  head: ({ params, loaderData }) => {
     const isAr = params.lang === "ar";
+    const item = (loaderData as { article: Awaited<ReturnType<typeof getInsightBySlug>> } | undefined)?.article;
     if (!item) {
-      return {
-        meta: [{ title: isAr ? "خبر غير موجود" : "News not found" }],
-      };
+      return { meta: [{ title: isAr ? "خبر غير موجود" : "News not found" }] };
     }
-    const title = item.title[isAr ? "ar" : "en"];
-    const desc = item.excerpt[isAr ? "ar" : "en"];
+    const title = (isAr ? item.title_ar : item.title_en || item.title_ar) || "";
+    const desc = (isAr ? item.excerpt_ar : item.excerpt_en || item.excerpt_ar) || "";
     const url = `https://ruknaltawfer.com/${params.lang}/news/${item.slug}`;
-    const rel = ARTICLE_RELATIONS[item.slug];
-    const aboutEntities = [
-      ...(rel?.brands.map((b) => ({
-        "@type": "Brand",
-        "@id": `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}#brand`,
-        name: isAr ? b.ar : b.en,
-        url: `https://ruknaltawfer.com/${params.lang}/brands/${b.slug}`,
-      })) ?? []),
-      ...((ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).map((name) => ({
-        "@type": "Thing",
-        name,
-      }))),
-    ];
     return {
       meta: [
         { title: `${title} — ${isAr ? "ركن التوفير" : "Rukn Al-Tawfir"}` },
         { name: "description", content: desc },
-        { name: "keywords", content: (ARTICLE_TOPIC_KEYWORDS[item.slug] ?? []).join(", ") },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
-        { property: "og:image", content: item.cover },
+        ...(item.cover_url ? [{ property: "og:image", content: item.cover_url }] : []),
         { property: "og:url", content: url },
         { property: "og:type", content: "article" },
-        { property: "article:published_time", content: item.date },
+        ...(item.published_at ? [{ property: "article:published_time", content: item.published_at }] : []),
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: item.cover },
+        ...(item.cover_url ? [{ name: "twitter:image", content: item.cover_url }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
@@ -97,40 +55,26 @@ export const Route = createFileRoute("/$lang/news/$slug")({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                  { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `https://ruknaltawfer.com/${params.lang}` },
-                  { "@type": "ListItem", position: 2, name: isAr ? "المعرفة" : "News", item: `https://ruknaltawfer.com/${params.lang}` },
-                  { "@type": "ListItem", position: 3, name: title, item: url },
-                ],
-              },
-              {
-                "@type": "Article",
-                "@id": `${url}#article`,
-                headline: title,
-                description: desc,
-                image: item.cover,
-                datePublished: item.date,
-                dateModified: item.date,
-                inLanguage: isAr ? "ar" : "en",
-                mainEntityOfPage: url,
-                author: { "@id": "https://ruknaltawfer.com/#organization" },
-                publisher: { "@id": "https://ruknaltawfer.com/#organization" },
-                isPartOf: { "@id": "https://ruknaltawfer.com/#website" },
-                about: aboutEntities,
-                keywords: ARTICLE_TOPIC_KEYWORDS[item.slug] ?? [],
-              },
-            ],
+            "@type": "Article",
+            headline: title,
+            description: desc,
+            image: item.cover_url ?? undefined,
+            datePublished: item.published_at ?? undefined,
+            inLanguage: isAr ? "ar" : "en",
+            mainEntityOfPage: url,
           }),
         },
       ],
     };
   },
   loader: async ({ context, params }) => {
-    if (!getNewsBySlug(params.slug)) throw notFound();
-    await context.queryClient.ensureQueryData(identityQO);
+    const article = await context.queryClient.ensureQueryData(articleQO(params.slug));
+    if (!article) throw notFound();
+    await Promise.all([
+      context.queryClient.ensureQueryData(identityQO),
+      context.queryClient.ensureQueryData(relatedQO(params.slug)),
+    ]);
+    return { article };
   },
   component: NewsArticle,
   notFoundComponent: () => (
@@ -153,17 +97,22 @@ function NewsArticle() {
   const { lang, t } = useLocale();
   const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
+  const { data: article } = useSuspenseQuery(articleQO(slug));
+  const { data: related } = useSuspenseQuery(relatedQO(slug));
   const ident = useLocalizedIdentity(id);
-  const item = getNewsBySlug(slug)!;
 
-  const title = item.title[isAr ? "ar" : "en"];
-  const eyebrow = item.eyebrow[isAr ? "ar" : "en"];
-  const paragraphs = item.body[isAr ? "ar" : "en"];
-  const dateLabel = new Date(item.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  if (!article) return null;
+
+  const title = (isAr ? article.title_ar : article.title_en || article.title_ar) || "";
+  const eyebrow = (article.tags && article.tags[0]) || t("home.knowledgeEyebrow");
+  const paragraphs = (isAr ? article.body_ar : article.body_en.length ? article.body_en : article.body_ar) || [];
+  const dateLabel = article.published_at
+    ? new Date(article.published_at).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,64 +125,40 @@ function NewsArticle() {
 
       <article className="mx-auto max-w-3xl px-4 py-12 md:px-8 md:py-16">
         <LLink
-          to="/$lang"
+          to="/$lang/news"
           className="inline-flex items-center gap-2 text-sm font-semibold text-trust-700 hover:underline"
         >
           <span aria-hidden>{isAr ? "→" : "←"}</span>
-          {t("home.knowledgeBack")}
+          {t("home.knowledgeListTitle")}
         </LLink>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <span className="rounded-full bg-trust-700/10 px-3 py-1 text-[11px] font-bold tracking-[0.18em] text-trust-700">
             {eyebrow}
           </span>
-          <span className="text-xs text-ink-600">{dateLabel}</span>
+          {dateLabel ? <span className="text-xs text-ink-600">{dateLabel}</span> : null}
         </div>
 
         <h1 className="mt-4 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
           {title}
         </h1>
 
-        <div className="relative mt-8 overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-          <img
-            src={item.cover}
-            alt={title}
-            className="block w-full h-auto object-cover"
-            loading="eager"
-          />
-        </div>
+        {article.cover_url ? (
+          <div className="relative mt-8 overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
+            <img
+              src={article.cover_url}
+              alt={title}
+              className="block w-full h-auto object-cover"
+              loading="eager"
+            />
+          </div>
+        ) : null}
 
         <div className="mt-10 space-y-5 text-base leading-loose text-ink-700">
           {paragraphs.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
         </div>
-
-        {slug === "natural-sweeteners-daily-health" && (
-          <div className="mt-10 rounded-2xl border border-trust-700/30 bg-trust-700/5 p-6">
-            <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
-              {isAr ? "الدليل الشامل" : "Complete guide"}
-            </div>
-            <h2 className="mt-2 font-arabic text-lg font-bold text-foreground">
-              {isAr
-                ? "تعمّق أكثر في دليل بدائل السكر في اليمن"
-                : "Dive deeper into the sugar alternatives guide for Yemen"}
-            </h2>
-            <p className="mt-2 text-sm leading-loose text-ink-700">
-              {isAr
-                ? "اطّلع على المرجع الكامل لـ Steviola و NO CAL، المقارنات، والأسئلة الشائعة لمرضى السكري ومتّبعي الحميات."
-                : "See the full reference for Steviola and NO CAL, comparisons, and FAQs for diabetics and dieters."}
-            </p>
-            <div className="mt-4">
-              <LLink
-                to="/$lang/sugar-alternatives"
-                className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white"
-              >
-                {isAr ? "افتح دليل بدائل السكر" : "Open the sugar alternatives hub"}
-              </LLink>
-            </div>
-          </div>
-        )}
 
         <div className="mt-12 rounded-2xl border border-border bg-card p-6 md:p-8">
           <h2 className="font-arabic text-lg font-bold text-foreground">
@@ -257,82 +182,66 @@ function NewsArticle() {
             </WhatsAppCTA>
           </div>
         </div>
-
-        {(() => {
-          const rel = ARTICLE_RELATIONS[slug];
-          if (!rel) return null;
-          const relArticles = rel.articles
-            .map((s) => NEWS.find((n) => n.slug === s))
-            .filter((n): n is NonNullable<typeof n> => Boolean(n));
-          const hasAny = rel.brands.length || rel.topics.length || relArticles.length;
-          if (!hasAny) return null;
-          return (
-            <aside className="mt-12 grid gap-6 md:grid-cols-2">
-              {rel.brands.length > 0 && (
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <h2 className="font-arabic text-base font-bold text-foreground">
-                    {isAr ? "علامات تجارية ذات صلة" : "Related brands"}
-                  </h2>
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {rel.brands.map((b) => (
-                      <li key={b.slug}>
-                        <LLink
-                          to="/$lang/brands/$slug"
-                          params={{ slug: b.slug }}
-                          className="inline-flex items-center rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-semibold text-trust-700 hover:border-trust-700"
-                        >
-                          {isAr ? b.ar : b.en}
-                        </LLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(rel.topics.length > 0 || relArticles.length > 0) && (
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  {rel.topics.length > 0 && (
-                    <>
-                      <h2 className="font-arabic text-base font-bold text-foreground">
-                        {isAr ? "موضوعات ذات صلة" : "Related topics"}
-                      </h2>
-                      <ul className="mt-3 space-y-2 text-sm">
-                        {rel.topics.map((tp) => (
-                          <li key={tp.href}>
-                            <LLink to={tp.href} className="text-trust-700 hover:underline">
-                              ← {isAr ? tp.ar : tp.en}
-                            </LLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                  {relArticles.length > 0 && (
-                    <>
-                      <h2 className={`font-arabic text-base font-bold text-foreground ${rel.topics.length ? "mt-5" : ""}`}>
-                        {isAr ? "مقالات ذات صلة" : "Related articles"}
-                      </h2>
-                      <ul className="mt-3 space-y-2 text-sm">
-                        {relArticles.map((a) => (
-                          <li key={a.slug}>
-                            <LLink
-                              to="/$lang/news/$slug"
-                              params={{ slug: a.slug }}
-                              className="text-trust-700 hover:underline"
-                            >
-                              ← {a.title[isAr ? "ar" : "en"]}
-                            </LLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </div>
-              )}
-            </aside>
-          );
-        })()}
       </article>
 
+      {related.length > 0 && (
+        <section className="border-t border-border bg-card">
+          <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+            <h2 className="font-arabic text-2xl font-bold text-foreground md:text-3xl">
+              {t("home.knowledgeRelatedTitle")}
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {related.map((k) => {
+                const ktitle = (isAr ? k.title_ar : k.title_en || k.title_ar) || "";
+                const kbody = (isAr ? k.excerpt_ar : k.excerpt_en || k.excerpt_ar) || "";
+                const keyebrow = (k.tags && k.tags[0]) || t("home.knowledgeEyebrow");
+                return (
+                  <LLink
+                    key={k.slug}
+                    to="/$lang/news/$slug"
+                    params={{ slug: k.slug }}
+                    className="prem-card group flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-1"
+                  >
+                    <div className="relative h-40 overflow-hidden rounded-b-[2rem] bg-muted">
+                      {k.cover_url ? (
+                        <img
+                          src={k.cover_url}
+                          alt={ktitle}
+                          loading="lazy"
+                          className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : null}
+                      <div className="absolute inset-x-4 top-4 flex justify-start">
+                        <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
+                          {keyebrow}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="font-arabic text-base font-bold leading-snug text-foreground line-clamp-2">
+                        {ktitle}
+                      </h3>
+                      {k.published_at ? (
+                        <div className="mt-2 text-[11px] text-ink-600">
+                          {new Date(k.published_at).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </div>
+                      ) : null}
+                      <p className="mt-2 text-xs leading-relaxed text-ink-600 line-clamp-2">{kbody}</p>
+                      <div className="mt-auto pt-4 text-xs font-bold text-trust-700">
+                        {t("home.knowledgeReadMore")}
+                      </div>
+                    </div>
+                  </LLink>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       <SiteFooter
         legalName={ident.legalName}

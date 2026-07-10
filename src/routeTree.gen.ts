@@ -28,6 +28,7 @@ import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
 import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
 import { Route as LangBabyCareRouteImport } from './routes/$lang.baby-care'
 import { Route as LangAboutRouteImport } from './routes/$lang.about'
+import { Route as LangNewsIndexRouteImport } from './routes/$lang.news.index'
 import { Route as LangBrandsIndexRouteImport } from './routes/$lang.brands.index'
 import { Route as AdminEEntityRouteImport } from './routes/admin.e.$entity'
 import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
@@ -131,6 +132,11 @@ const LangAboutRoute = LangAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => LangRoute,
 } as any)
+const LangNewsIndexRoute = LangNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => LangRoute,
+} as any)
 const LangBrandsIndexRoute = LangBrandsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
+  '/$lang/news/': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
 }
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
+  '/$lang/news': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugIndexRoute
 }
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
+  '/$lang/news/': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
 }
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/$lang/brands/'
+    | '/$lang/news/'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug/'
   fileRoutesByTo: FileRoutesByTo
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/$lang/brands'
+    | '/$lang/news'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug'
   id:
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/$lang/brands/'
+    | '/$lang/news/'
     | '/$lang/brands/$slug/$productSlug'
     | '/$lang/brands/$slug/'
   fileRoutesById: FileRoutesById
@@ -475,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangAboutRouteImport
       parentRoute: typeof LangRoute
     }
+    '/$lang/news/': {
+      id: '/$lang/news/'
+      path: '/news'
+      fullPath: '/$lang/news/'
+      preLoaderRoute: typeof LangNewsIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/$lang/brands/': {
       id: '/$lang/brands/'
       path: '/'
@@ -568,6 +587,7 @@ interface LangRouteChildren {
   LangIndexRoute: typeof LangIndexRoute
   LangAdminSeoRoute: typeof LangAdminSeoRoute
   LangNewsSlugRoute: typeof LangNewsSlugRoute
+  LangNewsIndexRoute: typeof LangNewsIndexRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
@@ -583,6 +603,7 @@ const LangRouteChildren: LangRouteChildren = {
   LangIndexRoute: LangIndexRoute,
   LangAdminSeoRoute: LangAdminSeoRoute,
   LangNewsSlugRoute: LangNewsSlugRoute,
+  LangNewsIndexRoute: LangNewsIndexRoute,
 }
 
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
