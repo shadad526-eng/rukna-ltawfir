@@ -104,14 +104,14 @@ export const ENTITIES: EntityConfig[] = [
     listColumns: [
       { key: "cover_asset_id", label: "الصورة", type: "image" },
       { key: "name_ar", label: "الاسم", type: "text" },
-      { key: "product_id", label: "المنتج", type: "text" },
+      { key: "product_id", label: "المنتج", type: "product" },
       { key: "pack_size", label: "الحجم", type: "text" },
       { key: "is_published", label: "منشور", type: "boolean" },
     ],
     searchColumns: ["name_ar", "slug"],
     labelColumn: "name_ar",
     fields: [
-      { key: "product_id", label: "المنتج", type: "text", required: true },
+      { key: "product_id", label: "المنتج", type: "product_ref", required: true },
       { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
       { key: "pack_size", label: "حجم العبوة", type: "text" },
