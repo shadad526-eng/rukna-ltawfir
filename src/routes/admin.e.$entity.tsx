@@ -458,23 +458,32 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
   if (field.type === "asset") {
     const url = value ? refs.assetUrls[value] : null;
     const info = value ? refs.assetInfo[value] : null;
+    const isImg = (info?.mime ?? "").startsWith("image/");
     return (
       <div className="block text-sm space-y-1">{labelEl}
         <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-lg p-2">
           <div className="w-16 h-16 rounded bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
-            {url ? <img src={url} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-6 h-6 text-slate-600" />}
+            {url && isImg
+              ? <img src={url} alt="" className="w-full h-full object-cover" />
+              : url
+                ? <FileText className="w-7 h-7 text-slate-500" />
+                : <ImageIcon className="w-6 h-6 text-slate-600" />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-slate-200 text-xs truncate">{info?.name ?? (value ? "الأصل محدّد" : "لم يُحدّد أصل")}</div>
-            <div className="flex gap-2 mt-2">
-              <button type="button" onClick={onOpenAssetPicker} className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-xs">اختيار من المكتبة</button>
-              {value && <button type="button" onClick={() => onChange(null)} className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs">إزالة</button>}
+            <div className="flex gap-2 mt-2 flex-wrap">
+              <button type="button" onClick={onOpenAssetPicker} className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-xs">
+                {value ? "استبدال" : "اختيار / رفع"}
+              </button>
+              {url && <a href={url} target="_blank" rel="noreferrer" className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs">معاينة</a>}
+              {value && <button type="button" onClick={() => onChange(null)} className="px-3 py-1 rounded bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs">إزالة</button>}
             </div>
           </div>
         </div>
       </div>
     );
   }
+
   if (field.type === "json") {
     const str = value === null || value === undefined ? "" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
     return (
