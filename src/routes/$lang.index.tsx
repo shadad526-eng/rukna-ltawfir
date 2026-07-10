@@ -29,6 +29,7 @@ const featuredQO = queryOptions({
   queryFn: () => listFeaturedProducts(),
 });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
+const insightsQO = queryOptions({ queryKey: ["insights"], queryFn: () => listInsights() });
 
 export const Route = createFileRoute("/$lang/")({
   head: ({ params }) => {
