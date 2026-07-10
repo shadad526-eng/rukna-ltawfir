@@ -309,7 +309,7 @@ function EntityPage() {
               {cfg.fields.map((f) => (
                 <FieldInput key={f.key} field={f} value={editing[f.key]}
                   refs={refs}
-                  onOpenAssetPicker={() => setAssetPickerFor(f.key)}
+                  onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
                   onChange={(v) => setEditing({ ...editing, [f.key]: v })} />
               ))}
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
@@ -323,9 +323,10 @@ function EntityPage() {
 
       {assetPickerFor && editing && (
         <AssetPicker
+          accept={assetPickerFor.accept}
           onClose={() => setAssetPickerFor(null)}
           onPick={(id, url, info) => {
-            setEditing({ ...editing, [assetPickerFor]: id });
+            setEditing({ ...editing, [assetPickerFor.key]: id });
             setRefs((r) => ({
               ...r,
               assetUrls: { ...r.assetUrls, [id]: url },
@@ -335,6 +336,7 @@ function EntityPage() {
           }}
         />
       )}
+
 
       {confirmDel && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setConfirmDel(null)}>
