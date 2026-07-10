@@ -3,9 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getEntity, type Field, type Column } from "@/lib/admin-entities";
-import { adminSignedUrls } from "@/lib/admin.functions";
+import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
-import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon, Upload, FileText } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
 
