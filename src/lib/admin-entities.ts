@@ -22,7 +22,9 @@ export type Field = {
   options?: { value: string; label: string }[];
   required?: boolean;
   hint?: string;
+  accept?: "image" | "pdf" | "any";
 };
+
 
 export type Column = {
   key: string;
@@ -87,7 +89,8 @@ export const ENTITIES: EntityConfig[] = [
     orderBy: { column: "sort_order", ascending: true },
     fields: [
       { key: "slug", label: "المعرّف", type: "text", required: true },
-      { key: "brand_id", label: "العلامة", type: "select", required: true, options: [] },
+      { key: "brand_id", label: "العلامة", type: "brand_ref", required: true },
+
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "short_description_ar", label: "وصف مختصر", type: "textarea" },
@@ -226,8 +229,9 @@ export const ENTITIES: EntityConfig[] = [
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref" },
-      { key: "cover_asset_id", label: "الغلاف", type: "asset" },
-      { key: "pdf_asset_id", label: "ملف PDF", type: "asset" },
+      { key: "cover_asset_id", label: "الغلاف", type: "asset", accept: "image" },
+      { key: "pdf_asset_id", label: "ملف PDF", type: "asset", accept: "pdf" },
+
       { key: "visibility", label: "الظهور", type: "select", options: [
         { value: "public", label: "عام" }, { value: "restricted", label: "مقيّد" }, { value: "b2b_only", label: "B2B فقط" },
       ] },
