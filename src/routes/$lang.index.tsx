@@ -168,7 +168,9 @@ function Home() {
   const { data: brands } = useSuspenseQuery(brandsQO);
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
+  const { data: insights } = useSuspenseQuery(insightsQO);
   const ident = useLocalizedIdentity(id);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const WHY_CARDS = [
     { i: "◆", t: t("home.why.exclusive"), d: t("home.why.exclusiveDesc") },
@@ -179,13 +181,21 @@ function Home() {
     { i: "✧", t: t("home.why.support"), d: t("home.why.supportDesc") },
   ];
 
-  const NEWS_CARDS = NEWS.map((n) => ({
+  const NEWS_CARDS = insights.map((n) => ({
     slug: n.slug,
-    cover: n.cover,
-    eyebrow: n.eyebrow[isAr ? "ar" : "en"],
-    title: n.title[isAr ? "ar" : "en"],
-    body: n.excerpt[isAr ? "ar" : "en"],
+    cover: n.cover_url ?? "",
+    eyebrow: (n.tags && n.tags[0]) || t("home.knowledgeEyebrow"),
+    title: (isAr ? n.title_ar : n.title_en || n.title_ar),
+    body: (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "",
+    date: n.published_at,
   }));
+
+  const scrollCarousel = (dir: 1 | -1) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const delta = el.clientWidth * 0.9 * (isAr ? -dir : dir);
+    el.scrollBy({ left: delta, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-background">
