@@ -89,7 +89,8 @@ export const ENTITIES: EntityConfig[] = [
     orderBy: { column: "sort_order", ascending: true },
     fields: [
       { key: "slug", label: "المعرّف", type: "text", required: true },
-      { key: "brand_id", label: "العلامة", type: "select", required: true, options: [] },
+      { key: "brand_id", label: "العلامة", type: "brand_ref", required: true },
+
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "short_description_ar", label: "وصف مختصر", type: "textarea" },
