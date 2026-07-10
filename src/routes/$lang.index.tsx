@@ -436,22 +436,47 @@ function Home() {
                 {t("home.knowledgeTitle")}
               </h2>
             </div>
+            {NEWS_CARDS.length > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => scrollCarousel(-1)}
+                  aria-label={t("home.knowledgePrev")}
+                  className="flex size-10 items-center justify-center rounded-full border border-border bg-background text-trust-700 shadow-sm transition-colors hover:border-trust-700"
+                >
+                  <span aria-hidden>{isAr ? "→" : "←"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollCarousel(1)}
+                  aria-label={t("home.knowledgeNext")}
+                  className="flex size-10 items-center justify-center rounded-full border border-border bg-background text-trust-700 shadow-sm transition-colors hover:border-trust-700"
+                >
+                  <span aria-hidden>{isAr ? "←" : "→"}</span>
+                </button>
+              </div>
+            )}
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div
+            ref={carouselRef}
+            className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
             {NEWS_CARDS.map((k) => (
               <LLink
                 key={k.slug}
                 to="/$lang/news/$slug"
                 params={{ slug: k.slug }}
-                className="prem-card group flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-1"
+                className="prem-card group flex h-full min-w-[85%] snap-start flex-col overflow-hidden transition-transform hover:-translate-y-1 sm:min-w-[60%] md:min-w-[calc((100%-3rem)/3)]"
               >
                 <div className="relative h-48 overflow-hidden rounded-b-[2rem] bg-muted">
-                  <img
-                    src={k.cover}
-                    alt={k.title}
-                    loading="lazy"
-                    className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  {k.cover ? (
+                    <img
+                      src={k.cover}
+                      alt={k.title}
+                      loading="lazy"
+                      className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : null}
                   <div className="absolute inset-x-6 top-6 flex justify-start">
                     <div className="rounded-full glass-dark px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-sand-50">
                       {k.eyebrow}
@@ -460,7 +485,12 @@ function Home() {
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
-                  <p className="mt-3 text-sm leading-loose text-ink-600">{k.body}</p>
+                  {k.date ? (
+                    <div className="mt-2 text-[11px] text-ink-600">
+                      {new Date(k.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </div>
+                  ) : null}
+                  <p className="mt-3 text-sm leading-loose text-ink-600 line-clamp-3">{k.body}</p>
                   <div className="mt-auto pt-6 text-xs font-bold text-trust-700 transition-transform group-hover:-translate-x-1">
                     {t("home.knowledgeReadMore")}
                   </div>
@@ -469,8 +499,17 @@ function Home() {
             ))}
           </div>
 
+          <div className="mt-10 flex justify-center">
+            <LLink
+              to="/$lang/news"
+              className="inline-flex items-center gap-2 rounded-full border border-trust-700 px-6 py-3 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-white"
+            >
+              {t("home.knowledgeViewAll")}
+            </LLink>
+          </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
         <div className="grid gap-6 md:grid-cols-2">
