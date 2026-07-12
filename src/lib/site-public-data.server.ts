@@ -23,8 +23,8 @@ function publicEnv(name: "SUPABASE_URL" | "SUPABASE_PUBLISHABLE_KEY") {
 export function getPublicDataClient() {
   if (!publicDataClient) {
     publicDataClient = createClient<Database>(
-      publicEnv("SUPABASE_URL", "VITE_SUPABASE_URL"),
-      publicEnv("SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PUBLISHABLE_KEY"),
+      publicEnv("SUPABASE_URL"),
+      publicEnv("SUPABASE_PUBLISHABLE_KEY"),
       {
         auth: {
           storage: undefined,
