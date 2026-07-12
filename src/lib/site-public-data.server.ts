@@ -5,9 +5,17 @@ import type { InsightDetail } from "./site.functions";
 
 let publicDataClient: SupabaseClient<Database> | undefined;
 
-function publicEnv(name: "SUPABASE_URL" | "SUPABASE_PUBLISHABLE_KEY", viteName: "VITE_SUPABASE_URL" | "VITE_SUPABASE_PUBLISHABLE_KEY") {
-  const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
-  const value = process.env[name] ?? viteEnv?.[viteName];
+// Static property access lets Vite inline VITE_* values into the server bundle
+// at build time. Dynamic access (`env[name]`) is NOT replaced and returns
+// undefined at runtime on hosts (e.g. Vercel) that don't populate the .env
+// file into `process.env` for server code.
+const SUPABASE_URL_STATIC =
+  process.env.SUPABASE_URL ?? import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY_STATIC =
+  process.env.SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+function publicEnv(name: "SUPABASE_URL" | "SUPABASE_PUBLISHABLE_KEY") {
+  const value = name === "SUPABASE_URL" ? SUPABASE_URL_STATIC : SUPABASE_PUBLISHABLE_KEY_STATIC;
   if (!value) throw new Error(`Missing public backend config: ${name}`);
   return value;
 }
