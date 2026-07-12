@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { assetUrl, getPublicDataClient, paragraphs, signedUrl, staticInsights } from "./site-public-data.server";
+
 // ---------- Types ----------
 export type CorporateIdentity = {
   legal_name_ar: string;
@@ -82,32 +84,12 @@ export type InsightDetail = InsightSummary & {
   body_en: string[];
 };
 
-// ---------- Helpers (server-only) ----------
-async function signedUrl(bucket: string, path: string | null | undefined, ttl = 3600) {
-  if (!path) return null;
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, ttl);
-  return data?.signedUrl ?? null;
-}
-
-async function assetUrl(assetId: string | null | undefined) {
-  if (!assetId) return null;
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("assets")
-    .select("storage_bucket, storage_path")
-    .eq("id", assetId)
-    .maybeSingle();
-  if (!data) return null;
-  return signedUrl(data.storage_bucket, data.storage_path);
-}
-
 // ---------- Public server functions ----------
 
 export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
   async (): Promise<CorporateIdentity> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
       .from("corporate_identity")
       .select(
         "legal_name_ar, legal_name_en, parent_group_ar, hero_headline_ar, hero_sub_ar, whatsapp_number, email, address_ar, logo_asset_id",
@@ -132,8 +114,8 @@ export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
 
 export const listBrands = createServerFn({ method: "GET" }).handler(
   async (): Promise<BrandSummary[]> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
       .from("brands")
       .select(
         "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, assets:logo_asset_id ( storage_bucket, storage_path )",
@@ -166,8 +148,8 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
 export const getBrandBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data }): Promise<BrandDetail | null> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data: row, error } = await supabase
       .from("brands")
       .select(
         "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
@@ -199,14 +181,14 @@ export const getBrandBySlug = createServerFn({ method: "GET" })
 export const listBrandProducts = createServerFn({ method: "GET" })
   .inputValidator((data: { brandSlug: string }) => data)
   .handler(async ({ data }): Promise<ProductSummary[]> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: brand } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data: brand } = await supabase
       .from("brands")
       .select("id, slug")
       .eq("slug", data.brandSlug)
       .maybeSingle();
     if (!brand) return [];
-    const { data: rows, error } = await supabaseAdmin
+    const { data: rows, error } = await supabase
       .from("products")
       .select("id, slug, name_ar, name_en, short_description_ar, cover_asset_id")
       .eq("brand_id", brand.id)
@@ -230,8 +212,8 @@ export const listBrandProducts = createServerFn({ method: "GET" })
 
 export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<ProductSummary[]> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
       .from("products")
       .select(
         "id, slug, name_ar, name_en, short_description_ar, cover_asset_id, sort_order, brand:brand_id ( slug, sort_order )",
@@ -277,14 +259,14 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: { brandSlug: string; productSlug: string }) => data)
   .handler(async ({ data }): Promise<ProductDetail | null> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: brand } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data: brand } = await supabase
       .from("brands")
       .select("id, slug, name_ar, tagline_ar, brand_tokens, logo_asset_id")
       .eq("slug", data.brandSlug)
       .maybeSingle();
     if (!brand) return null;
-    const { data: p, error } = await supabaseAdmin
+    const { data: p, error } = await supabase
       .from("products")
       .select(
         "id, slug, name_ar, name_en, short_description_ar, long_description_ar, usage_instructions_ar, key_benefits_ar, cover_asset_id",
@@ -299,28 +281,28 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const [cover_url, brandLogo, variants, gallery, ingredients, nutrition, faqs] = await Promise.all([
       assetUrl(p.cover_asset_id),
       assetUrl(brand.logo_asset_id),
-      supabaseAdmin
+      supabase
         .from("product_variants")
         .select("id, slug, name_ar, pack_size, cover_asset_id")
         .eq("product_id", p.id)
         .eq("is_published", true)
         .order("sort_order", { ascending: true }),
-      supabaseAdmin
+      supabase
         .from("product_assets")
         .select("caption_ar, sort_order, assets:asset_id ( storage_bucket, storage_path )")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
-      supabaseAdmin
+      supabase
         .from("product_ingredients")
         .select("name_ar, percentage, notes_ar, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
-      supabaseAdmin
+      supabase
         .from("product_nutrition")
         .select("label_ar, value, unit, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
-      supabaseAdmin
+      supabase
         .from("product_faqs")
         .select("question_ar, answer_ar, sort_order")
         .eq("product_id", p.id)
@@ -376,8 +358,8 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   });
 
 export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): Promise<CatalogSummary[]> => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  const supabase = getPublicDataClient();
+  const { data, error } = await supabase
     .from("catalogs")
     .select(
       "id, slug, title_ar, description_ar, year, visibility, cover_asset_id, pdf_asset_id, sort_order, brand:brand_id ( slug, name_ar )",
@@ -433,8 +415,8 @@ export const submitCatalogRequest = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("catalog_requests").insert({
+    const supabase = getPublicDataClient();
+    const { error } = await supabase.from("catalog_requests").insert({
       catalog_id: data.catalog_id,
       full_name: data.full_name.trim(),
       email: data.email.trim().toLowerCase(),
@@ -449,42 +431,10 @@ export const submitCatalogRequest = createServerFn({ method: "POST" })
 
 // ---------- Insights (News & Knowledge Articles) ----------
 
-// Static fallback so the site keeps rendering existing articles if
-// the DB has no published rows yet. New DB rows take precedence
-// and are merged in ahead of static entries.
-async function staticInsights(): Promise<InsightDetail[]> {
-  const { NEWS } = await import("@/data/news");
-  return NEWS.map((n) => ({
-    slug: n.slug,
-    title_ar: n.title.ar,
-    title_en: n.title.en,
-    excerpt_ar: n.excerpt.ar,
-    excerpt_en: n.excerpt.en,
-    cover_url: n.cover,
-    published_at: n.date,
-    tags: [n.eyebrow.ar, n.eyebrow.en].filter(Boolean),
-    source: "static" as const,
-    body_ar: n.body.ar,
-    body_en: n.body.en,
-  }));
-}
-
-function paragraphs(input: unknown): string[] {
-  if (Array.isArray(input)) {
-    return input
-      .map((p) => (typeof p === "string" ? p : typeof p === "object" && p && "text" in p ? String((p as { text: unknown }).text) : ""))
-      .filter(Boolean);
-  }
-  if (typeof input === "string") {
-    return input.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  }
-  return [];
-}
-
 export const listInsights = createServerFn({ method: "GET" }).handler(
   async (): Promise<InsightSummary[]> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
       .from("insights")
       .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
       .eq("is_published", true)
@@ -525,8 +475,8 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
 export const getInsightBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => d)
   .handler(async ({ data }): Promise<InsightDetail | null> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
+    const supabase = getPublicDataClient();
+    const { data: row } = await supabase
       .from("insights")
       .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags, body_ar, body_en")
       .eq("slug", data.slug)
@@ -555,9 +505,9 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string; limit?: number }) => d)
   .handler(async ({ data }): Promise<InsightSummary[]> => {
     const limit = data.limit ?? 4;
-    // Reuse listInsights internally
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows } = await supabaseAdmin
+    // Reuse the same public data access rules as the listing.
+    const supabase = getPublicDataClient();
+    const { data: rows } = await supabase
       .from("insights")
       .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
       .eq("is_published", true)
