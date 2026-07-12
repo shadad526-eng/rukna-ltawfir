@@ -17,7 +17,7 @@ import { BrandCard } from "@/components/site/BrandCard";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt } from "@/lib/seo-alt";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
@@ -196,6 +196,27 @@ function Home() {
     const delta = el.clientWidth * 0.9 * (isAr ? -dir : dir);
     el.scrollBy({ left: delta, behavior: "smooth" });
   };
+
+  const [isPaused, setIsPaused] = useState(false);
+  useEffect(() => {
+    if (isPaused || NEWS_CARDS.length <= 1) return;
+    const id = window.setInterval(() => {
+      const el = carouselRef.current;
+      if (!el) return;
+      const step = el.clientWidth * 0.9;
+      const dir = isAr ? -1 : 1;
+      // Detect end of scroll and loop back to start smoothly.
+      const atEnd = isAr
+        ? el.scrollLeft <= -(el.scrollWidth - el.clientWidth - 4)
+        : el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+      if (atEnd) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: step * dir, behavior: "smooth" });
+      }
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [isPaused, NEWS_CARDS.length, isAr]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -459,7 +480,14 @@ function Home() {
           </div>
           <div
             ref={carouselRef}
-            className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocusCapture={() => setIsPaused(true)}
+            onBlurCapture={() => setIsPaused(false)}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            onTouchCancel={() => setIsPaused(false)}
+            className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             {NEWS_CARDS.map((k) => (
               <LLink
