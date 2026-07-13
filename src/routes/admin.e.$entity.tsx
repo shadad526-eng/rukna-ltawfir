@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getEntity, type Field, type Column } from "@/lib/admin-entities";
 import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
-import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon, Upload, FileText } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, ChevronDown, Image as ImageIcon, Upload, FileText, Settings2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
@@ -15,6 +15,37 @@ const RICHTEXT_KEYS = new Set([
   "content_ar", "content_en",
   "description_ar", "description_en",
 ]);
+
+// URL-safe slug (keeps Arabic letters as-is, replaces spaces/punct with `-`).
+function slugify(input: string): string {
+  return (input ?? "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // strip Latin diacritics
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+// Turn any ISO / date-ish value into `YYYY-MM-DDTHH:mm` for <input type=datetime-local>.
+function toDatetimeLocal(v: any): string {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function asStringArray(v: any): string[] {
+  if (Array.isArray(v)) return v.filter((x) => typeof x === "string" && x.trim());
+  if (typeof v === "string" && v.trim()) {
+    try { const p = JSON.parse(v); if (Array.isArray(p)) return p.filter((x) => typeof x === "string"); } catch { /* noop */ }
+  }
+  return [];
+}
+
 
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
@@ -48,6 +79,7 @@ function fmtDate(v: any) {
 type RefMaps = {
   brands: Record<string, string>;
   products: Record<string, string>;
+  articles: Record<string, string>;
   navItems: Record<string, string>;
   assetUrls: Record<string, string>;
   assetInfo: Record<string, { name: string; mime: string | null }>;
@@ -65,8 +97,11 @@ function EntityPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
+  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
   const [assetPickerFor, setAssetPickerFor] = useState<{ key: string; accept: "image" | "pdf" | "any" } | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const pk = cfg?.primaryKey ?? "id";
 
@@ -85,23 +120,27 @@ function EntityPage() {
 
   useEffect(() => { load(); setEditing(null); setPage(1); setQuery(""); }, [load, entity]);
 
-  // Load ref maps: brands, products, nav items
+  // Load ref maps: brands, products, articles, nav items
   useEffect(() => {
     (async () => {
-      const [{ data: bs }, { data: ps }, { data: ns }] = await Promise.all([
+      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }] = await Promise.all([
         supabase.from("brands").select("id,name_ar").order("name_ar"),
         supabase.from("products").select("id,name_ar").order("name_ar").limit(500),
+        supabase.from("insights").select("id,title_ar").order("title_ar").limit(500),
         supabase.from("navigation_items").select("id,label_ar,location").order("sort_order"),
       ]);
       const brands: Record<string, string> = {};
       (bs ?? []).forEach((b: any) => { brands[b.id] = b.name_ar; });
       const products: Record<string, string> = {};
       (ps ?? []).forEach((p: any) => { products[p.id] = p.name_ar; });
+      const articles: Record<string, string> = {};
+      (arts ?? []).forEach((a: any) => { articles[a.id] = a.title_ar; });
       const navItems: Record<string, string> = {};
       (ns ?? []).forEach((n: any) => { navItems[n.id] = `${n.label_ar} · ${n.location}`; });
-      setRefs((r) => ({ ...r, brands, products, navItems }));
+      setRefs((r) => ({ ...r, brands, products, articles, navItems }));
     })();
   }, []);
+
 
   // Which asset columns show images?
   const assetColumnKeys = useMemo(
@@ -156,30 +195,77 @@ function EntityPage() {
 
   async function save(row: Record<string, any>) {
     setErr(null);
+    const errors: Record<string, string> = {};
     const payload: Record<string, any> = {};
     for (const f of cfg!.fields) {
+      if (f.hidden) continue;
       let v = row[f.key];
+
+      // Normalize empty → null
       if (v === "" || v === undefined) v = null;
-      if (f.type === "number" && v !== null) v = Number(v);
+
+      // Coerce by type
+      if (f.type === "number" && v !== null) {
+        const n = Number(v);
+        if (Number.isNaN(n)) { errors[f.key] = "قيمة رقمية غير صالحة"; continue; }
+        v = n;
+      }
       if (f.type === "boolean") v = !!v;
+      if (f.type === "date" && v !== null && typeof v === "string") {
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) { errors[f.key] = "تاريخ غير صالح"; continue; }
+        v = d.toISOString();
+      }
+      if (f.type === "slug" && typeof v === "string") {
+        v = slugify(v);
+        if (v && !/^[\p{L}\p{N}-]+$/u.test(v)) { errors[f.key] = "المعرّف يحتوي على أحرف غير صالحة"; continue; }
+      }
+      if ((f.type === "tags" || f.type === "brand_multi_ref" || f.type === "product_multi_ref" || f.type === "article_multi_ref")) {
+        v = Array.isArray(v) ? v : asStringArray(v);
+        if ((v as string[]).length === 0) v = null;
+      }
       if (f.type === "json" && typeof v === "string") {
         try { v = v.trim() ? JSON.parse(v) : null; }
-        catch { setErr(`JSON غير صالح في: ${f.label}`); toast.error(`JSON غير صالح في: ${f.label}`); return; }
+        catch { errors[f.key] = "JSON غير صالح"; continue; }
       }
+
+      // Required check
+      if (f.required && (v === null || v === undefined || v === "")) {
+        errors[f.key] = "هذا الحقل مطلوب";
+      }
+
       payload[f.key] = v;
     }
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      const first = cfg!.fields.find((f) => errors[f.key]);
+      const msg = first ? `${first.label}: ${errors[first.key]}` : "الرجاء تصحيح الأخطاء المميّزة.";
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
+    setFieldErrors({});
+
     const isNew = !row[pk];
+    setSaving(true);
     const q = isNew
       ? supabase.from(cfg!.table as any).insert(payload)
       : supabase.from(cfg!.table as any).update(payload).eq(pk, row[pk]);
     const { error } = await q;
-    if (error) { setErr(error.message); toast.error(error.message); }
-    else {
-      toast.success(isNew ? "تم إنشاء العنصر" : "تم حفظ التغييرات");
+    setSaving(false);
+    if (error) {
+      const msg = /duplicate key|unique/i.test(error.message)
+        ? "قيمة مكرّرة (تحقّق من المعرّف / Slug)."
+        : error.message;
+      setErr(msg); toast.error(msg);
+    } else {
+      toast.success(isNew ? "تم إنشاء العنصر بنجاح" : "تم حفظ التغييرات");
       setEditing(null);
       load();
     }
   }
+
 
   async function remove(row: any) {
     const { error } = await supabase.from(cfg!.table as any).delete().eq(pk, row[pk]);
@@ -307,7 +393,27 @@ function EntityPage() {
         </div>
       )}
 
-      {editing && (
+      {editing && (() => {
+        const isNew = !editing[pk];
+        const visibleFields = cfg.fields.filter((f) => !f.hidden && !f.advanced);
+        const advancedFields = cfg.fields.filter((f) => !f.hidden && f.advanced);
+        const setField = (key: string, v: any) => {
+          setEditing((prev) => {
+            if (!prev) return prev;
+            const next = { ...prev, [key]: v };
+            // Auto-fill slug from source on new records if slug is empty.
+            if (isNew) {
+              for (const f of cfg.fields) {
+                if (f.type === "slug" && f.slugFrom === key && !prev[f.key]) {
+                  next[f.key] = slugify(String(v ?? ""));
+                }
+              }
+            }
+            return next;
+          });
+          if (fieldErrors[key]) setFieldErrors((e) => { const c = { ...e }; delete c[key]; return c; });
+        };
+        return (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setEditing(null)}>
           <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
@@ -315,20 +421,44 @@ function EntityPage() {
               <button onClick={() => setEditing(null)} className="text-slate-400 hover:text-slate-200"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); save(editing); }} className="p-5 space-y-4">
-              {cfg.fields.map((f) => (
+              {visibleFields.map((f) => (
                 <FieldInput key={f.key} field={f} value={editing[f.key]}
-                  refs={refs}
+                  refs={refs} error={fieldErrors[f.key]}
                   onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
-                  onChange={(v) => setEditing({ ...editing, [f.key]: v })} />
+                  onChange={(v) => setField(f.key, v)} />
               ))}
+              {advancedFields.length > 0 && (
+                <div className="border-t border-slate-800 pt-3">
+                  <button type="button" onClick={() => setShowAdvanced((s) => !s)}
+                    className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200">
+                    <Settings2 className="w-3.5 h-3.5" />
+                    خيارات متقدمة
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+                  </button>
+                  {showAdvanced && (
+                    <div className="mt-3 space-y-4">
+                      {advancedFields.map((f) => (
+                        <FieldInput key={f.key} field={f} value={editing[f.key]}
+                          refs={refs} error={fieldErrors[f.key]}
+                          onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
+                          onChange={(v) => setField(f.key, v)} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
                 <button type="button" onClick={() => setEditing(null)} className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">إلغاء</button>
-                <button className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm">حفظ</button>
+                <button disabled={saving} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm disabled:opacity-50">
+                  {saving ? "جاري الحفظ…" : "حفظ"}
+                </button>
               </div>
             </form>
           </div>
         </div>
-      )}
+        );
+      })()}
+
 
       {assetPickerFor && editing && (
         <AssetPicker
@@ -399,11 +529,19 @@ function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
   return <span className="text-slate-200 truncate block">{String(v)}</span>;
 }
 
-function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
-  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void;
+function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: {
+  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string;
 }) {
-  const base = "w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none";
+  const baseCls = "w-full bg-slate-950 border rounded-lg px-3 py-2 text-sm focus:outline-none";
+  const border = error ? "border-rose-500 focus:border-rose-400" : "border-slate-800 focus:border-emerald-500";
+  const base = `${baseCls} ${border}`;
   const labelEl = <span className="text-slate-300 font-medium">{field.label}{field.required && <span className="text-rose-400"> *</span>}</span>;
+  const hintEl = (
+    <>
+      {error && <span className="block text-xs text-rose-400 mt-1">{error}</span>}
+      {!error && field.hint && <span className="block text-xs text-slate-500 mt-1">{field.hint}</span>}
+    </>
+  );
 
   if (field.type === "textarea") {
     if (RICHTEXT_KEYS.has(field.key)) {
@@ -414,13 +552,14 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
             onChange={onChange}
             dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
           />
-          {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+          {hintEl}
         </label>
       );
     }
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={base} />
+        {hintEl}
       </label>
     );
   }
@@ -440,6 +579,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— اختر علامة —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -451,6 +591,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— اختر منتج —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -462,7 +603,39 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— بدون أب —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
+    );
+  }
+  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref") {
+    const source =
+      field.type === "brand_multi_ref" ? refs.brands
+        : field.type === "product_multi_ref" ? refs.products
+          : refs.articles;
+    const current = asStringArray(value);
+    const remaining = Object.entries(source).filter(([id]) => !current.includes(id));
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className={`${base} min-h-[42px] flex flex-wrap gap-1.5 items-center`}>
+          {current.map((id) => (
+            <span key={id} className="inline-flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 rounded px-2 py-0.5 text-xs">
+              {source[id] ?? id}
+              <button type="button" onClick={() => onChange(current.filter((x) => x !== id))} className="hover:text-white">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          {current.length === 0 && <span className="text-slate-600 text-xs">لا يوجد اختيار</span>}
+        </div>
+        {remaining.length > 0 && (
+          <select value="" onChange={(e) => e.target.value && onChange([...current, e.target.value])}
+            className={`${base} mt-1`}>
+            <option value="">＋ أضف عنصر…</option>
+            {remaining.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+          </select>
+        )}
+        {hintEl}
+      </div>
     );
   }
   if (field.type === "select") {
@@ -473,6 +646,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">—</option>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -501,7 +675,59 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
             </div>
           </div>
         </div>
+        {hintEl}
       </div>
+    );
+  }
+
+  if (field.type === "tags") {
+    const current = asStringArray(value);
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className={`${base} min-h-[42px] flex flex-wrap gap-1.5 items-center`}>
+          {current.map((tag, i) => (
+            <span key={`${tag}-${i}`} className="inline-flex items-center gap-1 bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-0.5 text-xs">
+              {tag}
+              <button type="button" onClick={() => onChange(current.filter((_, j) => j !== i))} className="hover:text-white">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            placeholder={current.length === 0 ? "اكتب ثم اضغط Enter…" : ""}
+            onKeyDown={(e) => {
+              const v = (e.target as HTMLInputElement).value.trim();
+              if ((e.key === "Enter" || e.key === ",") && v) {
+                e.preventDefault();
+                if (!current.includes(v)) onChange([...current, v]);
+                (e.target as HTMLInputElement).value = "";
+              } else if (e.key === "Backspace" && !(e.target as HTMLInputElement).value && current.length) {
+                onChange(current.slice(0, -1));
+              }
+            }}
+            onBlur={(e) => {
+              const v = e.target.value.trim();
+              if (v && !current.includes(v)) { onChange([...current, v]); e.target.value = ""; }
+            }}
+            className="flex-1 min-w-[100px] bg-transparent outline-none text-sm"
+          />
+        </div>
+        {hintEl}
+      </div>
+    );
+  }
+
+  if (field.type === "slug") {
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <div className="flex gap-2">
+          <input type="text" value={value ?? ""} onChange={(e) => onChange(e.target.value)}
+            onBlur={(e) => onChange(slugify(e.target.value))}
+            className={base + " font-mono"} dir="ltr" placeholder="my-slug" />
+        </div>
+        {hintEl}
+      </label>
     );
   }
 
@@ -510,22 +736,34 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={str} onChange={(e) => onChange(e.target.value)} className={base + " font-mono text-xs"} dir="ltr" placeholder='{}' />
-        {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+        {hintEl}
       </label>
     );
   }
+
+  if (field.type === "date") {
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <input type="datetime-local" value={toDatetimeLocal(value)} onChange={(e) => onChange(e.target.value)}
+          className={base} dir="ltr" />
+        {hintEl}
+      </label>
+    );
+  }
+
   return (
     <label className="block text-sm space-y-1">{labelEl}
       <input
-        type={field.type === "number" ? "number" : field.type === "date" ? "datetime-local" : "text"}
+        type={field.type === "number" ? "number" : "text"}
         value={value ?? ""} onChange={(e) => onChange(e.target.value)}
-        className={base} required={field.required}
+        className={base}
         dir={field.type === "number" ? "ltr" : "auto"}
       />
-      {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+      {hintEl}
     </label>
   );
 }
+
 
 function AssetPicker({ onClose, onPick, accept }: {
   onClose: () => void;

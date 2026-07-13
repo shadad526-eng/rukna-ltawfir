@@ -13,7 +13,12 @@ export type FieldType =
   | "image_url"
   | "brand_ref"
   | "product_ref"
-  | "nav_parent_ref";
+  | "nav_parent_ref"
+  | "slug"
+  | "tags"
+  | "brand_multi_ref"
+  | "product_multi_ref"
+  | "article_multi_ref";
 
 export type Field = {
   key: string;
@@ -23,6 +28,12 @@ export type Field = {
   required?: boolean;
   hint?: string;
   accept?: "image" | "pdf" | "any";
+  /** Hidden from the form entirely (managed by the system). */
+  hidden?: boolean;
+  /** Rendered inside a collapsible "Advanced" section. */
+  advanced?: boolean;
+  /** For type="slug": key of the source field used to auto-generate. */
+  slugFrom?: string;
 };
 
 
@@ -45,6 +56,7 @@ export type EntityConfig = {
   group: "المحتوى" | "الكتالوج" | "الوسائط" | "الطلبات" | "الإعدادات" | "النظام";
 };
 
+
 export const ENTITIES: EntityConfig[] = [
   {
     key: "brands", label: "العلامات التجارية", table: "brands", group: "الكتالوج",
@@ -59,9 +71,9 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف (Slug)", type: "text", required: true },
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
+      { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true, hint: "يُستخدم في رابط الصفحة. يُولَّد تلقائياً من الاسم الإنجليزي." },
       { key: "tagline_ar", label: "الشعار الفرعي (AR)", type: "text" },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "is_partner", label: "علامة شريكة", type: "boolean" },
@@ -71,7 +83,7 @@ export const ENTITIES: EntityConfig[] = [
       ] },
       { key: "logo_asset_id", label: "شعار العلامة", type: "asset" },
       { key: "hero_asset_id", label: "صورة الهيرو", type: "asset" },
-      { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json" },
+      { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json", advanced: true, hint: "إعدادات فنية متقدمة (ألوان مخصصة)." },
     ],
   },
   {
@@ -88,15 +100,14 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "brand_id", label: "العلامة", type: "brand_ref", required: true },
-
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
+      { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true },
       { key: "short_description_ar", label: "وصف مختصر", type: "textarea" },
       { key: "long_description_ar", label: "وصف تفصيلي", type: "textarea" },
       { key: "usage_instructions_ar", label: "طريقة الاستخدام", type: "textarea" },
-      { key: "key_benefits_ar", label: "الفوائد الرئيسية (JSON)", type: "json" },
+      { key: "key_benefits_ar", label: "الفوائد الرئيسية", type: "tags", hint: "أدخل فائدة ثم اضغط Enter لإضافتها." },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "sort_order", label: "ترتيب العرض", type: "number" },
@@ -115,8 +126,8 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     fields: [
       { key: "product_id", label: "المنتج", type: "product_ref", required: true },
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_ar", required: true },
       { key: "pack_size", label: "حجم العبوة", type: "text" },
       { key: "cover_asset_id", label: "الصورة", type: "asset" },
       { key: "is_published", label: "منشور", type: "boolean" },
@@ -134,9 +145,9 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_en", required: true },
       { key: "sort_order", label: "الترتيب", type: "number" },
     ],
   },
@@ -153,15 +164,15 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "title_ar",
     orderBy: { column: "published_at", ascending: false },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "title_ar", label: "العنوان بالعربية", type: "text", required: true },
       { key: "title_en", label: "Title (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true, hint: "يُولَّد تلقائياً من العنوان." },
       { key: "excerpt_ar", label: "المقتطف (AR)", type: "textarea" },
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
       { key: "brand_id", label: "العلامة", type: "brand_ref" },
-      { key: "tags", label: "الوسوم (JSON)", type: "json" },
+      { key: "tags", label: "الوسوم", type: "tags", hint: "أدخل وسمًا ثم اضغط Enter." },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "published_at", label: "تاريخ النشر", type: "date" },
     ],
@@ -178,17 +189,17 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "title_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
       { key: "title_en", label: "Title (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true },
       { key: "intro_ar", label: "المقدمة (AR)", type: "textarea" },
       { key: "intro_en", label: "Intro (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
-      { key: "seo_title", label: "عنوان SEO", type: "text" },
-      { key: "seo_description", label: "وصف SEO", type: "textarea" },
-      { key: "related_brand_ids", label: "معرّفات العلامات (JSON)", type: "json" },
-      { key: "related_product_ids", label: "معرّفات المنتجات (JSON)", type: "json" },
-      { key: "related_article_ids", label: "معرّفات المقالات (JSON)", type: "json" },
+      { key: "seo_title", label: "عنوان SEO", type: "text", advanced: true },
+      { key: "seo_description", label: "وصف SEO", type: "textarea", advanced: true },
+      { key: "related_brand_ids", label: "العلامات المرتبطة", type: "brand_multi_ref" },
+      { key: "related_product_ids", label: "المنتجات المرتبطة", type: "product_multi_ref" },
+      { key: "related_article_ids", label: "المقالات المرتبطة", type: "article_multi_ref" },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "sort_order", label: "الترتيب", type: "number" },
     ],
@@ -203,13 +214,13 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["title_ar", "slug"],
     labelColumn: "title_ar",
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
       { key: "title_en", label: "Title (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true },
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
-      { key: "seo_title", label: "عنوان SEO", type: "text" },
-      { key: "seo_description", label: "وصف SEO", type: "textarea" },
+      { key: "seo_title", label: "عنوان SEO", type: "text", advanced: true },
+      { key: "seo_description", label: "وصف SEO", type: "textarea", advanced: true },
       { key: "is_published", label: "منشور", type: "boolean" },
     ],
   },
@@ -224,8 +235,8 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["title_ar", "slug"],
     labelColumn: "title_ar",
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_ar", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref" },
@@ -248,9 +259,9 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["name_ar", "issuer"],
     labelColumn: "name_ar",
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم (AR)", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_en", required: true },
       { key: "issuer", label: "الجهة المانحة", type: "text" },
       { key: "icon_asset_id", label: "الأيقونة", type: "asset" },
     ],
@@ -322,7 +333,7 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "section_key",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "section_key", label: "مفتاح القسم", type: "text", required: true },
+      { key: "section_key", label: "مفتاح القسم", type: "text", required: true, hint: "معرّف تقني للقسم — لا يظهر للزوار." },
       { key: "title_ar", label: "العنوان (AR)", type: "text" },
       { key: "subtitle_ar", label: "العنوان الفرعي (AR)", type: "text" },
       { key: "body_ar", label: "النص (AR)", type: "textarea" },
@@ -331,7 +342,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "media_asset_id", label: "صورة القسم", type: "asset" },
       { key: "sort_order", label: "الترتيب", type: "number" },
       { key: "is_enabled", label: "مفعّل", type: "boolean" },
-      { key: "extra", label: "بيانات إضافية (JSON)", type: "json" },
+      { key: "extra", label: "بيانات إضافية (JSON)", type: "json", advanced: true },
     ],
   },
   {
