@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { listBrands, listBrandProducts, listInsights } from "@/lib/site.functions";
+import { listBrands, listBrandProducts } from "@/lib/site.functions";
+import { NEWS } from "@/data/news";
 
 const BASE_URL = "https://ruknaltawfer.com";
 const LOCALES = ["ar", "en"] as const;
@@ -15,14 +16,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           for (const p of STATIC_PATHS) {
             urls.push(`${BASE_URL}/${lang}${p}`);
           }
+          for (const n of NEWS) {
+            urls.push(`${BASE_URL}/${lang}/news/${n.slug}`);
+          }
         }
         try {
-          const [brands, insights] = await Promise.all([listBrands(), listInsights()]);
-          for (const lang of LOCALES) {
-            for (const n of insights) {
-              urls.push(`${BASE_URL}/${lang}/news/${n.slug}`);
-            }
-          }
+          const brands = await listBrands();
           for (const lang of LOCALES) {
             for (const b of brands) {
               urls.push(`${BASE_URL}/${lang}/brands/${b.slug}`);
