@@ -6,6 +6,15 @@ import { getEntity, type Field, type Column } from "@/lib/admin-entities";
 import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon, Upload, FileText } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+
+// Long-form fields get a rich-text editor instead of a plain textarea.
+const RICHTEXT_KEYS = new Set([
+  "body_ar", "body_en",
+  "long_description_ar", "long_description_en",
+  "content_ar", "content_en",
+  "description_ar", "description_en",
+]);
 
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
