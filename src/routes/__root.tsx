@@ -108,6 +108,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       {
+        // Global broken-image safety net: hides <img> whose src fails to load
+        // (missing storage object, expired signed URL, network error) so the
+        // container's placeholder/background renders instead of the browser's
+        // broken-image glyph. Runs before hydration via capture-phase listener.
+        children:
+          "(function(){function h(e){var t=e.target;if(!t||t.tagName!=='IMG')return;if(t.dataset.imgFallback==='1')return;t.dataset.imgFallback='1';t.style.visibility='hidden';t.style.opacity='0';}document.addEventListener('error',h,true);})();",
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
