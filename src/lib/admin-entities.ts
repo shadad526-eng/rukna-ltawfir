@@ -13,7 +13,12 @@ export type FieldType =
   | "image_url"
   | "brand_ref"
   | "product_ref"
-  | "nav_parent_ref";
+  | "nav_parent_ref"
+  | "slug"
+  | "tags"
+  | "brand_multi_ref"
+  | "product_multi_ref"
+  | "article_multi_ref";
 
 export type Field = {
   key: string;
@@ -23,6 +28,12 @@ export type Field = {
   required?: boolean;
   hint?: string;
   accept?: "image" | "pdf" | "any";
+  /** Hidden from the form entirely (managed by the system). */
+  hidden?: boolean;
+  /** Rendered inside a collapsible "Advanced" section. */
+  advanced?: boolean;
+  /** For type="slug": key of the source field used to auto-generate. */
+  slugFrom?: string;
 };
 
 
@@ -44,6 +55,7 @@ export type EntityConfig = {
   fields: Field[];
   group: "المحتوى" | "الكتالوج" | "الوسائط" | "الطلبات" | "الإعدادات" | "النظام";
 };
+
 
 export const ENTITIES: EntityConfig[] = [
   {
