@@ -568,3 +568,23 @@
 }
 
 
+
+/* Admin Rich Text Editor content */
+.rte-content { line-height: 1.7; color: #e2e8f0; }
+.rte-content:focus { outline: none; }
+.rte-content h1 { font-size: 1.6rem; font-weight: 700; margin: 0.8em 0 0.4em; color: #f8fafc; }
+.rte-content h2 { font-size: 1.35rem; font-weight: 700; margin: 0.8em 0 0.4em; color: #f1f5f9; }
+.rte-content h3 { font-size: 1.15rem; font-weight: 600; margin: 0.8em 0 0.4em; color: #f1f5f9; }
+.rte-content p { margin: 0.5em 0; }
+.rte-content a { color: #6CA848; text-decoration: underline; }
+.rte-content ul { list-style: disc; padding-inline-start: 1.5rem; margin: 0.5em 0; }
+.rte-content ol { list-style: decimal; padding-inline-start: 1.5rem; margin: 0.5em 0; }
+.rte-content li { margin: 0.2em 0; }
+.rte-content blockquote { border-inline-start: 3px solid #6CA848; padding-inline-start: 1rem; margin: 0.8em 0; color: #cbd5e1; font-style: italic; }
+.rte-content pre { background: #020617; padding: 0.75rem 1rem; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, monospace; font-size: 0.85rem; direction: ltr; text-align: left; }
+.rte-content code { background: #0f172a; padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; }
+.rte-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 0.5em 0; }
+.rte-content .rte-table, .rte-content table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+.rte-content th, .rte-content td { border: 1px solid #334155; padding: 0.5rem 0.75rem; text-align: start; }
+.rte-content th { background: #1e293b; font-weight: 600; }
+.rte-content:empty::before { content: attr(data-placeholder); color: #64748b; }
