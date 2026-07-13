@@ -6,6 +6,15 @@ import { getEntity, type Field, type Column } from "@/lib/admin-entities";
 import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon, Upload, FileText } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+
+// Long-form fields get a rich-text editor instead of a plain textarea.
+const RICHTEXT_KEYS = new Set([
+  "body_ar", "body_en",
+  "long_description_ar", "long_description_en",
+  "content_ar", "content_en",
+  "description_ar", "description_en",
+]);
 
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
@@ -397,6 +406,18 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
   const labelEl = <span className="text-slate-300 font-medium">{field.label}{field.required && <span className="text-rose-400"> *</span>}</span>;
 
   if (field.type === "textarea") {
+    if (RICHTEXT_KEYS.has(field.key)) {
+      return (
+        <label className="block text-sm space-y-1">{labelEl}
+          <RichTextEditor
+            value={value ?? ""}
+            onChange={onChange}
+            dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
+          />
+          {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+        </label>
+      );
+    }
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={base} />

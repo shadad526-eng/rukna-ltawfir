@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Lock } from "lucide-react";
+import ruknLogo from "@/assets/brands/rukn.json";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
@@ -41,11 +42,11 @@ function LoginPage() {
     <div dir="rtl" className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/40" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif" }}>
       <form onSubmit={onSubmit} className="w-full max-w-md bg-slate-900/70 backdrop-blur border border-slate-800 rounded-2xl p-8 space-y-5 shadow-2xl">
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto">
-            <Lock className="w-6 h-6 text-white" />
+          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mx-auto shadow-xl ring-1 ring-white/10 overflow-hidden">
+            <img src={ruknLogo.url} alt="ركن التوفير" className="w-full h-full object-contain p-2" />
           </div>
           <h1 className="text-2xl font-bold mt-4">ركن التوفير</h1>
-          <p className="text-sm text-slate-400 mt-1">لوحة الإدارة — تسجيل الدخول</p>
+          <p className="text-sm text-slate-400 mt-1 flex items-center justify-center gap-1.5"><Lock className="w-3.5 h-3.5" /> لوحة الإدارة — تسجيل الدخول</p>
         </div>
 
         <label className="block space-y-1.5">

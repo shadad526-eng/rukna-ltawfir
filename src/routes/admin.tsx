@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ENTITIES } from "@/lib/admin-entities";
+import ruknLogo from "@/assets/brands/rukn.json";
 import {
   LayoutDashboard, Users, Image as ImageIcon, LogOut,
   Package, Layers, Tag, FileText, BookOpen, Globe, Award,
@@ -69,10 +70,12 @@ function AdminShell() {
     <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 flex" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif" }}>
       <aside className="w-72 border-l border-slate-800 bg-slate-900/50 flex flex-col sticky top-0 h-screen">
         <div className="p-4 border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-bold">ر</div>
-            <div>
-              <div className="text-sm font-semibold">ركن التوفير</div>
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-white/95 flex items-center justify-center overflow-hidden shrink-0 shadow-sm ring-1 ring-white/10">
+              <img src={ruknLogo.url} alt="ركن التوفير" className="w-full h-full object-contain p-1" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">ركن التوفير</div>
               <div className="text-xs text-slate-400">لوحة الإدارة</div>
             </div>
           </div>
