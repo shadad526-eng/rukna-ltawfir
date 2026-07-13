@@ -230,7 +230,7 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
                 className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
                 loading="lazy"
                 decoding="async"
-                style={{ imageRendering: "auto" }}
+                style={{ imageRendering: "auto", mixBlendMode: "multiply" }}
               />
             ) : null}
           </LLink>
