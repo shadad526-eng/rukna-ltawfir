@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getEntity, type Field, type Column } from "@/lib/admin-entities";
 import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
-import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, Image as ImageIcon, Upload, FileText } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, ChevronDown, Image as ImageIcon, Upload, FileText, Settings2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
@@ -15,6 +15,37 @@ const RICHTEXT_KEYS = new Set([
   "content_ar", "content_en",
   "description_ar", "description_en",
 ]);
+
+// URL-safe slug (keeps Arabic letters as-is, replaces spaces/punct with `-`).
+function slugify(input: string): string {
+  return (input ?? "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // strip Latin diacritics
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+// Turn any ISO / date-ish value into `YYYY-MM-DDTHH:mm` for <input type=datetime-local>.
+function toDatetimeLocal(v: any): string {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function asStringArray(v: any): string[] {
+  if (Array.isArray(v)) return v.filter((x) => typeof x === "string" && x.trim());
+  if (typeof v === "string" && v.trim()) {
+    try { const p = JSON.parse(v); if (Array.isArray(p)) return p.filter((x) => typeof x === "string"); } catch { /* noop */ }
+  }
+  return [];
+}
+
 
 
 export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
