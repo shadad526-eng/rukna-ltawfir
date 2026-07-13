@@ -126,8 +126,8 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     fields: [
       { key: "product_id", label: "المنتج", type: "product_ref", required: true },
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_ar", required: true },
       { key: "pack_size", label: "حجم العبوة", type: "text" },
       { key: "cover_asset_id", label: "الصورة", type: "asset" },
       { key: "is_published", label: "منشور", type: "boolean" },
