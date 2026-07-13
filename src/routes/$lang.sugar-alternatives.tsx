@@ -4,7 +4,6 @@ import {
   getBrandBySlug,
   getCorporateIdentity,
   listBrandProducts,
-  listInsightsBySlugs,
 } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
@@ -13,6 +12,7 @@ import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
 import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { NEWS } from "@/data/news";
 
 const identityQO = queryOptions({
   queryKey: ["corporate-identity"],
@@ -33,10 +33,6 @@ const nocalProductsQO = queryOptions({
 const steviolaProductsQO = queryOptions({
   queryKey: ["brand-products", "steviola"],
   queryFn: () => listBrandProducts({ data: { brandSlug: "steviola" } }),
-});
-const relatedArticlesQO = queryOptions({
-  queryKey: ["insights-by-slugs", "natural-sweeteners-daily-health"],
-  queryFn: () => listInsightsBySlugs({ data: { slugs: ["natural-sweeteners-daily-health"] } }),
 });
 
 const BASE = "https://ruknaltawfer.com";
@@ -288,7 +284,6 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
       context.queryClient.ensureQueryData(steviolaQO),
       context.queryClient.ensureQueryData(nocalProductsQO),
       context.queryClient.ensureQueryData(steviolaProductsQO),
-      context.queryClient.ensureQueryData(relatedArticlesQO),
     ]);
   },
   component: SugarAlternativesHub,
@@ -312,8 +307,11 @@ function SugarAlternativesHub() {
   const { data: steviola } = useSuspenseQuery(steviolaQO);
   const { data: nocalProducts } = useSuspenseQuery(nocalProductsQO);
   const { data: steviolaProducts } = useSuspenseQuery(steviolaProductsQO);
-  const { data: relatedArticles } = useSuspenseQuery(relatedArticlesQO);
   const ident = useLocalizedIdentity(id);
+
+  const relatedArticles = NEWS.filter((n) =>
+    ["natural-sweeteners-daily-health"].includes(n.slug),
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -728,32 +726,27 @@ function SugarAlternativesHub() {
           title={isAr ? "مقالات ذات صلة" : "Related articles"}
         />
         <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {relatedArticles.map((n) => {
-            const title = (isAr ? n.title_ar : n.title_en || n.title_ar) || "";
-            const excerpt = (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "";
-            const eyebrow = n.tags[0] || (isAr ? "مقال" : "Article");
-            return (
-              <LLink
-                key={n.slug}
-                to="/$lang/news/$slug"
-                params={{ slug: n.slug }}
-                className="prem-card group overflow-hidden"
-              >
-                {n.cover_url ? (
-                  <img src={n.cover_url} alt={title} loading="lazy" className="block aspect-[16/9] w-full object-cover" />
-                ) : null}
-                <div className="p-5">
-                  <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
-                    {eyebrow}
-                  </div>
-                  <h3 className="mt-2 font-arabic text-lg font-bold text-foreground group-hover:text-trust-700">
-                    {title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-600">{excerpt}</p>
+          {relatedArticles.map((n) => (
+            <LLink
+              key={n.slug}
+              to="/$lang/news/$slug"
+              params={{ slug: n.slug }}
+              className="prem-card group overflow-hidden"
+            >
+              {n.cover && (
+                <img src={n.cover} alt={n.title[isAr ? "ar" : "en"]} loading="lazy" className="block aspect-[16/9] w-full object-cover" />
+              )}
+              <div className="p-5">
+                <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
+                  {n.eyebrow[isAr ? "ar" : "en"]}
                 </div>
-              </LLink>
-            );
-          })}
+                <h3 className="mt-2 font-arabic text-lg font-bold text-foreground group-hover:text-trust-700">
+                  {n.title[isAr ? "ar" : "en"]}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-600">{n.excerpt[isAr ? "ar" : "en"]}</p>
+              </div>
+            </LLink>
+          ))}
         </div>
       </section>
 

@@ -4,7 +4,6 @@ import {
   getBrandBySlug,
   getCorporateIdentity,
   listBrandProducts,
-  listInsightsBySlugs,
 } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
@@ -14,11 +13,11 @@ import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
+import { NEWS } from "@/data/news";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const monivoQO = queryOptions({ queryKey: ["brand", "monivo"], queryFn: () => getBrandBySlug({ data: { slug: "monivo" } }) });
 const monivoProductsQO = queryOptions({ queryKey: ["brand-products", "monivo"], queryFn: () => listBrandProducts({ data: { brandSlug: "monivo" } }) });
-const relatedArticlesQO = queryOptions({ queryKey: ["insights-by-slugs", "vitamin-c-immunity-energy"], queryFn: () => listInsightsBySlugs({ data: { slugs: ["vitamin-c-immunity-energy"] } }) });
 
 const BASE = "https://ruknaltawfer.com";
 
@@ -163,7 +162,6 @@ export const Route = createFileRoute("/$lang/immunity-vitamin-c")({
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(monivoQO),
       context.queryClient.ensureQueryData(monivoProductsQO),
-      context.queryClient.ensureQueryData(relatedArticlesQO),
     ]);
   },
   component: ImmunityVitaminCHub,
@@ -175,9 +173,9 @@ function ImmunityVitaminCHub() {
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: brand } = useSuspenseQuery(monivoQO);
   const { data: products } = useSuspenseQuery(monivoProductsQO);
-  const { data: articles } = useSuspenseQuery(relatedArticlesQO);
   const ident = useLocalizedIdentity(id);
   const bname = brand ? (isAr ? brand.name_ar : brand.name_en) : "Monivo";
+  const articles = NEWS.filter((n) => ["vitamin-c-immunity-energy"].includes(n.slug));
 
   return (
     <div className="min-h-screen bg-background">
@@ -287,20 +285,16 @@ function ImmunityVitaminCHub() {
             <div className="hq-eyebrow">{isAr ? "مقالات ذات صلة" : "Related articles"}</div>
             <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">{isAr ? "أدلة دعم المناعة وفيتامين C" : "Immunity & vitamin C guides"}</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {articles.map((n) => {
-                const title = (isAr ? n.title_ar : n.title_en || n.title_ar) || "";
-                const excerpt = (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "";
-                return (
-                  <LLink key={n.slug} to="/$lang/news/$slug" params={{ slug: n.slug }} className="prem-card overflow-hidden">
-                    {n.cover_url ? <img src={n.cover_url} alt={title} loading="lazy" className="block aspect-[16/9] w-full object-cover" /> : null}
-                    <div className="p-5">
-                      <div className="text-xs font-semibold text-trust-700">{n.tags[0] || (isAr ? "مقال" : "Article")}</div>
-                      <h3 className="mt-2 font-arabic text-base font-bold text-foreground">{title}</h3>
-                      <p className="mt-2 text-xs text-ink-600 line-clamp-3">{excerpt}</p>
-                    </div>
-                  </LLink>
-                );
-              })}
+              {articles.map((n) => (
+                <LLink key={n.slug} to="/$lang/news/$slug" params={{ slug: n.slug }} className="prem-card overflow-hidden">
+                  <img src={n.cover} alt={n.title[isAr ? "ar" : "en"]} loading="lazy" className="block aspect-[16/9] w-full object-cover" />
+                  <div className="p-5">
+                    <div className="text-xs font-semibold text-trust-700">{n.eyebrow[isAr ? "ar" : "en"]}</div>
+                    <h3 className="mt-2 font-arabic text-base font-bold text-foreground">{n.title[isAr ? "ar" : "en"]}</h3>
+                    <p className="mt-2 text-xs text-ink-600 line-clamp-3">{n.excerpt[isAr ? "ar" : "en"]}</p>
+                  </div>
+                </LLink>
+              ))}
             </div>
           </div>
         </section>

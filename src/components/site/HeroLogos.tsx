@@ -2,10 +2,31 @@ import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
 import { useT, useLocale } from "@/i18n/LocaleProvider";
-import type { BrandSummary } from "@/lib/site.functions";
+import rukn from "@/assets/brands/rukn.json";
+import steviola from "@/assets/brands/steviola.json";
+import nocal from "@/assets/brands/nocal.json";
+import babyTawfir from "@/assets/brands/baby-tawfir.json";
+import monivo from "@/assets/brands/monivo.json";
+import vkelin from "@/assets/brands/vkelin.json";
+import sekem from "@/assets/brands/sekem.json";
+import isis from "@/assets/brands/isis.json";
+import bambo from "@/assets/brands/bambo.json";
+
+export const RUKN_LOGO_URL = rukn.url;
+
+const BRANDS = [
+  { name: "Monivo", slug: "monivo", url: monivo.url },
+  { name: "Y-Kelin", slug: "y-kelin", url: vkelin.url },
+  { name: "Baby Tawfir", slug: "baby-tawfir", url: babyTawfir.url },
+  { name: "SEKEM", slug: "sekem", url: sekem.url },
+  { name: "Steviola", slug: "steviola", url: steviola.url },
+  { name: "NO CAL", slug: "no-cal", url: nocal.url },
+  { name: "Bambo Fresh", slug: "bambo", url: bambo.url },
+  { name: "iSiS", slug: "isis", url: isis.url },
+];
 
 /* ─────────────── HERO STAGE: Glass orb on a 3-tier blue podium ─────────────── */
-export function HeroLogoStage({ logoUrl }: { logoUrl: string | null }) {
+export function HeroLogoStage() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[560px]">
       {/* Ambient conic glow behind orb (very subtle premium lighting) */}
@@ -83,12 +104,12 @@ export function HeroLogoStage({ logoUrl }: { logoUrl: string | null }) {
       />
 
       {/* Rukn logo center */}
-      <RuknHeroLogo logoUrl={logoUrl} />
+      <RuknHeroLogo />
     </div>
   );
 }
 
-function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
+function RuknHeroLogo() {
   const { lang } = useLocale();
   const alt =
     lang === "ar"
@@ -96,18 +117,16 @@ function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
       : "Official Rukn Al-Tawfir Cosmetic for Trade company emblem — health brands distributor in Yemen";
   return (
     <div className="absolute inset-0 grid place-items-center">
-      {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt={alt}
-          width={560}
-          height={560}
-          className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
-      ) : null}
+      <img
+        src={rukn.url}
+        alt={alt}
+        width={560}
+        height={560}
+        className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+      />
 
       {/* 3-tier blue podium under orb */}
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
@@ -159,9 +178,7 @@ function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
 }
 
 /* ─────────────── Colored brand strip (white pill below hero) ─────────────── */
-export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
-  const { lang } = useLocale();
-  const isAr = lang === "ar";
+export function HeroBrandStrip() {
   return (
     <div
       className="relative overflow-hidden rounded-[40px] border border-white/90"
@@ -210,31 +227,26 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
         aria-hidden
       />
       <div className="relative grid grid-cols-4 gap-x-2 gap-y-8 px-5 py-10 md:grid-cols-8 md:gap-x-4 md:px-14 md:py-14">
-        {brands.map((b, i) => {
-          const name = isAr ? b.name_ar : b.name_en;
-          return (
+        {BRANDS.map((b, i) => (
           <LLink
             key={b.slug}
             to="/$lang/brands/$slug"
             params={{ slug: b.slug }}
-            title={name}
+            title={b.name}
             className={`group relative grid h-28 place-items-center transition-all duration-300 hover:-translate-y-1.5 md:h-36 ${
               i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+8px)] md:before:top-1/2 md:before:h-12 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/50 md:before:to-transparent" : ""
             }`}
           >
-            {b.logo_url ? (
-              <img
-                src={b.logo_url}
-                alt={`شعار العلامة التجارية ${name} — متوفرة عبر ركن التوفير في اليمن`}
-                className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
-                loading="lazy"
-                decoding="async"
-                style={{ imageRendering: "auto" }}
-              />
-            ) : null}
+            <img
+              src={b.url}
+              alt={`شعار العلامة التجارية ${b.name} — متوفرة عبر ركن التوفير في اليمن`}
+              className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
+              loading="lazy"
+              decoding="async"
+              style={{ imageRendering: "auto" }}
+            />
           </LLink>
-        );
-        })}
+        ))}
       </div>
     </div>
   );
