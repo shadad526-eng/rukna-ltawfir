@@ -1,6 +1,7 @@
 import { LLink } from "@/i18n/LLink";
 import { ArrowLeft } from "lucide-react";
 import type { BrandSummary } from "@/lib/site.functions";
+import { getBrandCardMedia } from "@/lib/brand-card-media";
 import { useLocale } from "@/i18n/LocaleProvider";
 
 type BrandCardProps = {
@@ -21,7 +22,7 @@ export function BrandCard({
   const { lang, t } = useLocale();
   const isAr = lang === "ar";
   const accent = (brand.brand_tokens?.accent as string) || "var(--trust-700)";
-  const mediaUrl = brand.hero_url;
+  const mediaUrl = getBrandCardMedia(brand.slug);
   const displayName = isAr ? brand.name_ar : brand.name_en;
   const subName = isAr ? brand.name_en : brand.name_ar;
   const cta = ctaLabel ?? t("cta.enterBrandPortal");
