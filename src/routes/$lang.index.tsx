@@ -341,13 +341,13 @@ function Home() {
           </div>
 
           <div className="order-1 md:order-2">
-            <HeroLogoStage />
+            <HeroLogoStage logoUrl={id.logo_url} />
           </div>
         </div>
       </section>
 
       <div className="relative z-30 mx-auto -mt-16 max-w-6xl px-4 md:-mt-24 md:px-8">
-        <HeroBrandStrip />
+        <HeroBrandStrip brands={brands} />
       </div>
 
       <section className="relative z-10 bg-card pt-14 md:pt-20">
