@@ -14,10 +14,6 @@ import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { BrandCard } from "@/components/site/BrandCard";
-import { SekemExtraProducts } from "@/components/site/SekemExtraProducts";
-import { IsisExtraProducts } from "@/components/site/IsisExtraProducts";
-import { SteviolaExtraProducts } from "@/components/site/SteviolaExtraProducts";
-import { NocalExtraProducts } from "@/components/site/NocalExtraProducts";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
@@ -456,11 +452,6 @@ function BrandDetail() {
           </div>
         )}
       </section>
-
-      {brand.slug === "sekem" ? <SekemExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
-      {brand.slug === "isis" ? <IsisExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
-      {brand.slug === "steviola" ? <SteviolaExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
-      {brand.slug === "nocal" || brand.slug === "no-cal" ? <NocalExtraProducts whatsappNumber={id.whatsapp_number} accent={accent as string} /> : null}
 
       {gallery.length > 0 ? (
         <section className="border-t border-border bg-card">
