@@ -195,30 +195,77 @@ function EntityPage() {
 
   async function save(row: Record<string, any>) {
     setErr(null);
+    const errors: Record<string, string> = {};
     const payload: Record<string, any> = {};
     for (const f of cfg!.fields) {
+      if (f.hidden) continue;
       let v = row[f.key];
+
+      // Normalize empty → null
       if (v === "" || v === undefined) v = null;
-      if (f.type === "number" && v !== null) v = Number(v);
+
+      // Coerce by type
+      if (f.type === "number" && v !== null) {
+        const n = Number(v);
+        if (Number.isNaN(n)) { errors[f.key] = "قيمة رقمية غير صالحة"; continue; }
+        v = n;
+      }
       if (f.type === "boolean") v = !!v;
+      if (f.type === "date" && v !== null && typeof v === "string") {
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) { errors[f.key] = "تاريخ غير صالح"; continue; }
+        v = d.toISOString();
+      }
+      if (f.type === "slug" && typeof v === "string") {
+        v = slugify(v);
+        if (v && !/^[\p{L}\p{N}-]+$/u.test(v)) { errors[f.key] = "المعرّف يحتوي على أحرف غير صالحة"; continue; }
+      }
+      if ((f.type === "tags" || f.type === "brand_multi_ref" || f.type === "product_multi_ref" || f.type === "article_multi_ref")) {
+        v = Array.isArray(v) ? v : asStringArray(v);
+        if ((v as string[]).length === 0) v = null;
+      }
       if (f.type === "json" && typeof v === "string") {
         try { v = v.trim() ? JSON.parse(v) : null; }
-        catch { setErr(`JSON غير صالح في: ${f.label}`); toast.error(`JSON غير صالح في: ${f.label}`); return; }
+        catch { errors[f.key] = "JSON غير صالح"; continue; }
       }
+
+      // Required check
+      if (f.required && (v === null || v === undefined || v === "")) {
+        errors[f.key] = "هذا الحقل مطلوب";
+      }
+
       payload[f.key] = v;
     }
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      const first = cfg!.fields.find((f) => errors[f.key]);
+      const msg = first ? `${first.label}: ${errors[first.key]}` : "الرجاء تصحيح الأخطاء المميّزة.";
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
+    setFieldErrors({});
+
     const isNew = !row[pk];
+    setSaving(true);
     const q = isNew
       ? supabase.from(cfg!.table as any).insert(payload)
       : supabase.from(cfg!.table as any).update(payload).eq(pk, row[pk]);
     const { error } = await q;
-    if (error) { setErr(error.message); toast.error(error.message); }
-    else {
-      toast.success(isNew ? "تم إنشاء العنصر" : "تم حفظ التغييرات");
+    setSaving(false);
+    if (error) {
+      const msg = /duplicate key|unique/i.test(error.message)
+        ? "قيمة مكرّرة (تحقّق من المعرّف / Slug)."
+        : error.message;
+      setErr(msg); toast.error(msg);
+    } else {
+      toast.success(isNew ? "تم إنشاء العنصر بنجاح" : "تم حفظ التغييرات");
       setEditing(null);
       load();
     }
   }
+
 
   async function remove(row: any) {
     const { error } = await supabase.from(cfg!.table as any).delete().eq(pk, row[pk]);
