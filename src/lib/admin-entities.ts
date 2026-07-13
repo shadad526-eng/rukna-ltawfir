@@ -145,9 +145,9 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_en", required: true },
       { key: "sort_order", label: "الترتيب", type: "number" },
     ],
   },
