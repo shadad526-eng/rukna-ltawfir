@@ -42,9 +42,9 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
       <div className="h-0.5 w-full hq-rule" />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
         <LLink to="/$lang/" className="flex min-w-0 items-center gap-3">
-          <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="relative grid size-12 place-items-center overflow-hidden rounded-full border border-border bg-white shadow-sm">
             {logoUrl ? (
-              <img src={logoUrl} alt={t("header.logoAlt", { name: legalName })} className="size-full object-contain p-1" />
+              <img src={logoUrl} alt={t("header.logoAlt", { name: legalName })} className="size-full object-contain p-1" style={{ mixBlendMode: "multiply" }} />
             ) : (
               <span className="text-xs font-bold text-trust-700">{t("header.ruknShort")}</span>
             )}
