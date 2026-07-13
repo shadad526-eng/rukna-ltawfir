@@ -66,6 +66,7 @@ export function BrandCard({
                 src={brand.logo_url}
                 alt={t("header.brandLogoAlt", { name: displayName })}
                 className="relative max-h-28 w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
+                style={{ mixBlendMode: "multiply" }}
                 loading="lazy"
               />
             ) : (
