@@ -2,8 +2,6 @@ import { LLink } from "@/i18n/LLink";
 import { WhatsAppCTA } from "./WhatsAppCTA";
 import { SocialLinks } from "./SocialLinks";
 import { useT } from "@/i18n/LocaleProvider";
-import { useQuery } from "@tanstack/react-query";
-import { getCorporateIdentity } from "@/lib/site.functions";
 
 type Props = {
   legalName: string;
@@ -11,34 +9,18 @@ type Props = {
   whatsappNumber: string;
   email: string | null;
   address: string | null;
-  logoUrl?: string | null;
 };
 
-export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, address, logoUrl }: Props) {
+export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, address }: Props) {
   const t = useT();
-  const { data } = useQuery({
-    queryKey: ["corporate-identity"],
-    queryFn: () => getCorporateIdentity(),
-    staleTime: 60_000,
-  });
-  const footerLogoUrl = logoUrl ?? data?.logo_url ?? null;
   return (
     <footer className="relative mt-24 overflow-hidden">
       <div className="aurora-mesh text-sand-50">
         <div className="absolute inset-x-0 top-0 h-px hq-rule" />
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-12 md:px-8">
           <div className="md:col-span-5">
-            <div className="flex items-center gap-4">
-              {footerLogoUrl ? (
-                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/95 p-1.5 shadow-sm">
-                  <img src={footerLogoUrl} alt={legalName} className="size-full object-contain" loading="lazy" />
-                </div>
-              ) : null}
-              <div>
-                <div className="font-arabic text-2xl font-bold">{legalName}</div>
-                {parentGroup ? <div className="mt-1 text-sm opacity-70">{parentGroup}</div> : null}
-              </div>
-            </div>
+            <div className="font-arabic text-2xl font-bold">{legalName}</div>
+            {parentGroup ? <div className="mt-1 text-sm opacity-70">{parentGroup}</div> : null}
             <p className="mt-5 max-w-md text-sm leading-loose opacity-85">{t("footer.tagline")}</p>
             <div className="mt-7 inline-flex items-center gap-3 rounded-2xl glass-dark px-4 py-3">
               <span className="grid size-9 place-items-center rounded-full bg-leaf-500 text-trust-900">↗</span>

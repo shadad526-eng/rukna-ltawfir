@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import type { InsightDetail } from "./site.functions";
 
 let publicDataClient: SupabaseClient<Database> | undefined;
 
@@ -9,9 +10,9 @@ let publicDataClient: SupabaseClient<Database> | undefined;
 // undefined at runtime on hosts (e.g. Vercel) that don't populate the .env
 // file into `process.env` for server code.
 const SUPABASE_URL_STATIC =
-  import.meta.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  process.env.SUPABASE_URL ?? import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY_STATIC =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
+  process.env.SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 function publicEnv(name: "SUPABASE_URL" | "SUPABASE_PUBLISHABLE_KEY") {
   const value = name === "SUPABASE_URL" ? SUPABASE_URL_STATIC : SUPABASE_PUBLISHABLE_KEY_STATIC;
@@ -51,6 +52,23 @@ export async function assetUrl(assetId: string | null | undefined) {
     .maybeSingle();
   if (!data) return null;
   return signedUrl(data.storage_bucket, data.storage_path);
+}
+
+export async function staticInsights(): Promise<InsightDetail[]> {
+  const { NEWS } = await import("@/data/news");
+  return NEWS.map((n) => ({
+    slug: n.slug,
+    title_ar: n.title.ar,
+    title_en: n.title.en,
+    excerpt_ar: n.excerpt.ar,
+    excerpt_en: n.excerpt.en,
+    cover_url: n.cover,
+    published_at: n.date,
+    tags: [n.eyebrow.ar, n.eyebrow.en].filter(Boolean),
+    source: "static" as const,
+    body_ar: n.body.ar,
+    body_en: n.body.en,
+  }));
 }
 
 export function paragraphs(input: unknown): string[] {
