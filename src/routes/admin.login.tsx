@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Lock } from "lucide-react";
+import ruknLogo from "@/assets/brands/rukn.json";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
