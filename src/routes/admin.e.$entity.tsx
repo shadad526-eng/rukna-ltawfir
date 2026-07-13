@@ -406,6 +406,19 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
   const labelEl = <span className="text-slate-300 font-medium">{field.label}{field.required && <span className="text-rose-400"> *</span>}</span>;
 
   if (field.type === "textarea") {
+    if (RICHTEXT_KEYS.has(field.key)) {
+      return (
+        <label className="block text-sm space-y-1">{labelEl}
+          <RichTextEditor
+            value={value ?? ""}
+            onChange={onChange}
+            dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
+            onPickImage={onOpenAssetPicker}
+          />
+          {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+        </label>
+      );
+    }
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={base} />
