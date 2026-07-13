@@ -333,7 +333,7 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "section_key",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "section_key", label: "مفتاح القسم", type: "text", required: true },
+      { key: "section_key", label: "مفتاح القسم", type: "text", required: true, hint: "معرّف تقني للقسم — لا يظهر للزوار." },
       { key: "title_ar", label: "العنوان (AR)", type: "text" },
       { key: "subtitle_ar", label: "العنوان الفرعي (AR)", type: "text" },
       { key: "body_ar", label: "النص (AR)", type: "textarea" },
@@ -342,7 +342,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "media_asset_id", label: "صورة القسم", type: "asset" },
       { key: "sort_order", label: "الترتيب", type: "number" },
       { key: "is_enabled", label: "مفعّل", type: "boolean" },
-      { key: "extra", label: "بيانات إضافية (JSON)", type: "json" },
+      { key: "extra", label: "بيانات إضافية (JSON)", type: "json", advanced: true },
     ],
   },
   {
