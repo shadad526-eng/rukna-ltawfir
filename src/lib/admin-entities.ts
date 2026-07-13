@@ -259,9 +259,9 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["name_ar", "issuer"],
     labelColumn: "name_ar",
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "name_ar", label: "الاسم (AR)", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_en", required: true },
       { key: "issuer", label: "الجهة المانحة", type: "text" },
       { key: "icon_asset_id", label: "الأيقونة", type: "asset" },
     ],
