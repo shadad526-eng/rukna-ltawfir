@@ -529,11 +529,19 @@ function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
   return <span className="text-slate-200 truncate block">{String(v)}</span>;
 }
 
-function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
-  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void;
+function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: {
+  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string;
 }) {
-  const base = "w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none";
+  const baseCls = "w-full bg-slate-950 border rounded-lg px-3 py-2 text-sm focus:outline-none";
+  const border = error ? "border-rose-500 focus:border-rose-400" : "border-slate-800 focus:border-emerald-500";
+  const base = `${baseCls} ${border}`;
   const labelEl = <span className="text-slate-300 font-medium">{field.label}{field.required && <span className="text-rose-400"> *</span>}</span>;
+  const hintEl = (
+    <>
+      {error && <span className="block text-xs text-rose-400 mt-1">{error}</span>}
+      {!error && field.hint && <span className="block text-xs text-slate-500 mt-1">{field.hint}</span>}
+    </>
+  );
 
   if (field.type === "textarea") {
     if (RICHTEXT_KEYS.has(field.key)) {
@@ -544,13 +552,14 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
             onChange={onChange}
             dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
           />
-          {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+          {hintEl}
         </label>
       );
     }
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={base} />
+        {hintEl}
       </label>
     );
   }
@@ -570,6 +579,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— اختر علامة —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -581,6 +591,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— اختر منتج —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -592,7 +603,39 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">— بدون أب —</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
+        {hintEl}
       </label>
+    );
+  }
+  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref") {
+    const source =
+      field.type === "brand_multi_ref" ? refs.brands
+        : field.type === "product_multi_ref" ? refs.products
+          : refs.articles;
+    const current = asStringArray(value);
+    const remaining = Object.entries(source).filter(([id]) => !current.includes(id));
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className={`${base} min-h-[42px] flex flex-wrap gap-1.5 items-center`}>
+          {current.map((id) => (
+            <span key={id} className="inline-flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 rounded px-2 py-0.5 text-xs">
+              {source[id] ?? id}
+              <button type="button" onClick={() => onChange(current.filter((x) => x !== id))} className="hover:text-white">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          {current.length === 0 && <span className="text-slate-600 text-xs">لا يوجد اختيار</span>}
+        </div>
+        {remaining.length > 0 && (
+          <select value="" onChange={(e) => e.target.value && onChange([...current, e.target.value])}
+            className={`${base} mt-1`}>
+            <option value="">＋ أضف عنصر…</option>
+            {remaining.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+          </select>
+        )}
+        {hintEl}
+      </div>
     );
   }
   if (field.type === "select") {
@@ -603,6 +646,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
           <option value="">—</option>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        {hintEl}
       </label>
     );
   }
@@ -631,7 +675,59 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
             </div>
           </div>
         </div>
+        {hintEl}
       </div>
+    );
+  }
+
+  if (field.type === "tags") {
+    const current = asStringArray(value);
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className={`${base} min-h-[42px] flex flex-wrap gap-1.5 items-center`}>
+          {current.map((tag, i) => (
+            <span key={`${tag}-${i}`} className="inline-flex items-center gap-1 bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-0.5 text-xs">
+              {tag}
+              <button type="button" onClick={() => onChange(current.filter((_, j) => j !== i))} className="hover:text-white">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            placeholder={current.length === 0 ? "اكتب ثم اضغط Enter…" : ""}
+            onKeyDown={(e) => {
+              const v = (e.target as HTMLInputElement).value.trim();
+              if ((e.key === "Enter" || e.key === ",") && v) {
+                e.preventDefault();
+                if (!current.includes(v)) onChange([...current, v]);
+                (e.target as HTMLInputElement).value = "";
+              } else if (e.key === "Backspace" && !(e.target as HTMLInputElement).value && current.length) {
+                onChange(current.slice(0, -1));
+              }
+            }}
+            onBlur={(e) => {
+              const v = e.target.value.trim();
+              if (v && !current.includes(v)) { onChange([...current, v]); e.target.value = ""; }
+            }}
+            className="flex-1 min-w-[100px] bg-transparent outline-none text-sm"
+          />
+        </div>
+        {hintEl}
+      </div>
+    );
+  }
+
+  if (field.type === "slug") {
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <div className="flex gap-2">
+          <input type="text" value={value ?? ""} onChange={(e) => onChange(e.target.value)}
+            onBlur={(e) => onChange(slugify(e.target.value))}
+            className={base + " font-mono"} dir="ltr" placeholder="my-slug" />
+        </div>
+        {hintEl}
+      </label>
     );
   }
 
@@ -640,22 +736,34 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <textarea rows={4} value={str} onChange={(e) => onChange(e.target.value)} className={base + " font-mono text-xs"} dir="ltr" placeholder='{}' />
-        {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+        {hintEl}
       </label>
     );
   }
+
+  if (field.type === "date") {
+    return (
+      <label className="block text-sm space-y-1">{labelEl}
+        <input type="datetime-local" value={toDatetimeLocal(value)} onChange={(e) => onChange(e.target.value)}
+          className={base} dir="ltr" />
+        {hintEl}
+      </label>
+    );
+  }
+
   return (
     <label className="block text-sm space-y-1">{labelEl}
       <input
-        type={field.type === "number" ? "number" : field.type === "date" ? "datetime-local" : "text"}
+        type={field.type === "number" ? "number" : "text"}
         value={value ?? ""} onChange={(e) => onChange(e.target.value)}
-        className={base} required={field.required}
+        className={base}
         dir={field.type === "number" ? "ltr" : "auto"}
       />
-      {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
+      {hintEl}
     </label>
   );
 }
+
 
 function AssetPicker({ onClose, onPick, accept }: {
   onClose: () => void;
