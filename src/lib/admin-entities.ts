@@ -235,8 +235,8 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["title_ar", "slug"],
     labelColumn: "title_ar",
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_ar", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref" },
