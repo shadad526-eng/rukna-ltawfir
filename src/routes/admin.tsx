@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ENTITIES } from "@/lib/admin-entities";
+import ruknLogo from "@/assets/brands/rukn.json";
 import {
   LayoutDashboard, Users, Image as ImageIcon, LogOut,
   Package, Layers, Tag, FileText, BookOpen, Globe, Award,
