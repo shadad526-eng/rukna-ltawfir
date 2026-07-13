@@ -393,7 +393,27 @@ function EntityPage() {
         </div>
       )}
 
-      {editing && (
+      {editing && (() => {
+        const isNew = !editing[pk];
+        const visibleFields = cfg.fields.filter((f) => !f.hidden && !f.advanced);
+        const advancedFields = cfg.fields.filter((f) => !f.hidden && f.advanced);
+        const setField = (key: string, v: any) => {
+          setEditing((prev) => {
+            if (!prev) return prev;
+            const next = { ...prev, [key]: v };
+            // Auto-fill slug from source on new records if slug is empty.
+            if (isNew) {
+              for (const f of cfg.fields) {
+                if (f.type === "slug" && f.slugFrom === key && !prev[f.key]) {
+                  next[f.key] = slugify(String(v ?? ""));
+                }
+              }
+            }
+            return next;
+          });
+          if (fieldErrors[key]) setFieldErrors((e) => { const c = { ...e }; delete c[key]; return c; });
+        };
+        return (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setEditing(null)}>
           <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
@@ -401,20 +421,44 @@ function EntityPage() {
               <button onClick={() => setEditing(null)} className="text-slate-400 hover:text-slate-200"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); save(editing); }} className="p-5 space-y-4">
-              {cfg.fields.map((f) => (
+              {visibleFields.map((f) => (
                 <FieldInput key={f.key} field={f} value={editing[f.key]}
-                  refs={refs}
+                  refs={refs} error={fieldErrors[f.key]}
                   onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
-                  onChange={(v) => setEditing({ ...editing, [f.key]: v })} />
+                  onChange={(v) => setField(f.key, v)} />
               ))}
+              {advancedFields.length > 0 && (
+                <div className="border-t border-slate-800 pt-3">
+                  <button type="button" onClick={() => setShowAdvanced((s) => !s)}
+                    className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200">
+                    <Settings2 className="w-3.5 h-3.5" />
+                    خيارات متقدمة
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+                  </button>
+                  {showAdvanced && (
+                    <div className="mt-3 space-y-4">
+                      {advancedFields.map((f) => (
+                        <FieldInput key={f.key} field={f} value={editing[f.key]}
+                          refs={refs} error={fieldErrors[f.key]}
+                          onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
+                          onChange={(v) => setField(f.key, v)} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
                 <button type="button" onClick={() => setEditing(null)} className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">إلغاء</button>
-                <button className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm">حفظ</button>
+                <button disabled={saving} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm disabled:opacity-50">
+                  {saving ? "جاري الحفظ…" : "حفظ"}
+                </button>
               </div>
             </form>
           </div>
         </div>
-      )}
+        );
+      })()}
+
 
       {assetPickerFor && editing && (
         <AssetPicker
