@@ -103,6 +103,7 @@ function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
           width={560}
           height={560}
           className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
+          style={{ mixBlendMode: "multiply" }}
           loading="eager"
           fetchPriority="high"
           decoding="async"
