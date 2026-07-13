@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { assetUrl, getPublicDataClient, paragraphs, signedUrl, staticInsights } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, paragraphs, signedUrl } from "./site-public-data.server";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -26,11 +26,10 @@ export type BrandSummary = {
   sort_order: number;
   brand_tokens: Record<string, string>;
   logo_url: string | null;
-};
-
-export type BrandDetail = BrandSummary & {
   hero_url: string | null;
 };
+
+export type BrandDetail = BrandSummary;
 
 export type ProductSummary = {
   id: string;
@@ -76,7 +75,7 @@ export type InsightSummary = {
   cover_url: string | null;
   published_at: string | null;
   tags: string[];
-  source: "db" | "static";
+  source: "db";
 };
 
 export type InsightDetail = InsightSummary & {
@@ -118,7 +117,7 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("brands")
       .select(
-        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, assets:logo_asset_id ( storage_bucket, storage_path )",
+        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
       )
       .eq("status", "active")
       .order("sort_order", { ascending: true });
@@ -126,8 +125,10 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
 
     const result: BrandSummary[] = [];
     for (const row of (data ?? []) as Array<Record<string, unknown>>) {
-      const asset = row.assets as { storage_bucket: string; storage_path: string } | null;
-      const logo_url = asset ? await signedUrl(asset.storage_bucket, asset.storage_path) : null;
+      const [logo_url, hero_url] = await Promise.all([
+        assetUrl(row.logo_asset_id as string | null),
+        assetUrl(row.hero_asset_id as string | null),
+      ]);
       result.push({
         id: row.id as string,
         slug: row.slug as string,
@@ -139,6 +140,7 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
         sort_order: row.sort_order as number,
         brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
         logo_url,
+        hero_url,
       });
     }
     return result;
@@ -457,31 +459,59 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
       });
     }
 
-    const seen = new Set(dbItems.map((i) => i.slug));
-    const staticItems = (await staticInsights())
-      .filter((s) => !seen.has(s.slug))
-      .map(({ body_ar: _a, body_en: _b, ...s }) => s);
-
-    const merged = [...dbItems, ...staticItems];
-    merged.sort((a, b) => {
+    dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
       const db = b.published_at ? Date.parse(b.published_at) : 0;
       return db - da;
     });
-    return merged;
+    return dbItems;
   },
 );
+
+export const listInsightsBySlugs = createServerFn({ method: "GET" })
+  .inputValidator((data: { slugs: string[] }) => ({
+    slugs: Array.from(new Set((data.slugs ?? []).filter(Boolean))).slice(0, 20),
+  }))
+  .handler(async ({ data }): Promise<InsightSummary[]> => {
+    if (data.slugs.length === 0) return [];
+    const supabase = getPublicDataClient();
+    const { data: rows, error } = await supabase
+      .from("insights")
+      .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
+      .eq("is_published", true)
+      .in("slug", data.slugs)
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    const items: InsightSummary[] = [];
+    for (const r of rows ?? []) {
+      items.push({
+        slug: r.slug,
+        title_ar: r.title_ar,
+        title_en: r.title_en,
+        excerpt_ar: r.excerpt_ar,
+        excerpt_en: r.excerpt_en,
+        cover_url: await assetUrl(r.cover_asset_id),
+        published_at: r.published_at ?? r.created_at,
+        tags: (r.tags as string[] | null) ?? [],
+        source: "db",
+      });
+    }
+    return items;
+  });
 
 export const getInsightBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => d)
   .handler(async ({ data }): Promise<InsightDetail | null> => {
     const supabase = getPublicDataClient();
-    const { data: row } = await supabase
+    const { data: row, error } = await supabase
       .from("insights")
       .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags, body_ar, body_en")
       .eq("slug", data.slug)
       .eq("is_published", true)
       .maybeSingle();
+    if (error) throw error;
     if (row) {
       return {
         slug: row.slug,
@@ -497,8 +527,7 @@ export const getInsightBySlug = createServerFn({ method: "GET" })
         body_en: paragraphs(row.body_en),
       };
     }
-    const staticItems = await staticInsights();
-    return staticItems.find((s) => s.slug === data.slug) ?? null;
+    return null;
   });
 
 export const listRelatedInsights = createServerFn({ method: "GET" })
@@ -507,7 +536,7 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
     const limit = data.limit ?? 4;
     // Reuse the same public data access rules as the listing.
     const supabase = getPublicDataClient();
-    const { data: rows } = await supabase
+    const { data: rows, error } = await supabase
       .from("insights")
       .select("slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_asset_id, published_at, created_at, tags")
       .eq("is_published", true)
@@ -515,6 +544,7 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
       .order("published_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
       .limit(limit + 4);
+    if (error) throw error;
 
     const dbItems: InsightSummary[] = [];
     for (const r of rows ?? []) {
@@ -530,15 +560,10 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
         source: "db",
       });
     }
-    const seen = new Set([data.slug, ...dbItems.map((i) => i.slug)]);
-    const staticItems = (await staticInsights())
-      .filter((s) => !seen.has(s.slug))
-      .map(({ body_ar: _a, body_en: _b, ...s }) => s);
-    const merged = [...dbItems, ...staticItems];
-    merged.sort((a, b) => {
+    dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
       const db = b.published_at ? Date.parse(b.published_at) : 0;
       return db - da;
     });
-    return merged.slice(0, limit);
+    return dbItems.slice(0, limit);
   });
