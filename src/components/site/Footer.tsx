@@ -30,8 +30,8 @@ export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, addr
           <div className="md:col-span-5">
             <div className="flex items-center gap-4">
               {footerLogoUrl ? (
-                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/95 p-1.5 shadow-sm">
-                  <img src={footerLogoUrl} alt={legalName} className="size-full object-contain" loading="lazy" />
+                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-full border border-white/20 bg-white p-2 shadow-[0_10px_24px_-8px_oklch(0_0_0/0.45)]">
+                  <img src={footerLogoUrl} alt={legalName} className="size-full object-contain" style={{ mixBlendMode: "multiply" }} loading="lazy" />
                 </div>
               ) : null}
               <div>

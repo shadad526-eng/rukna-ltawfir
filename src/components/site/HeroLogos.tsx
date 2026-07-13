@@ -102,7 +102,8 @@ function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
           alt={alt}
           width={560}
           height={560}
-          className="prem-float relative z-10 h-[60%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
+          className="prem-float relative z-10 h-[68%] w-auto object-contain drop-shadow-[0_18px_36px_oklch(0.32_0.13_245/0.30)]"
+          style={{ clipPath: "circle(46% at 50% 50%)" }}
           loading="eager"
           fetchPriority="high"
           decoding="async"
@@ -223,14 +224,22 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
             }`}
           >
             {b.logo_url ? (
-              <img
-                src={b.logo_url}
-                alt={`شعار العلامة التجارية ${name} — متوفرة عبر ركن التوفير في اليمن`}
-                className="max-h-[100px] w-auto object-contain transition-all duration-300 group-hover:scale-[1.10] group-hover:drop-shadow-[0_8px_18px_oklch(0.32_0.13_245/0.22)] md:max-h-[140px]"
-                loading="lazy"
-                decoding="async"
-                style={{ imageRendering: "auto" }}
-              />
+              <div
+                className="relative grid size-24 place-items-center overflow-hidden rounded-full bg-white transition-all duration-300 group-hover:scale-[1.06] md:size-32"
+                style={{
+                  boxShadow:
+                    "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.10), 0 12px 24px -12px oklch(0.32 0.13 245 / 0.35)",
+                }}
+              >
+                <img
+                  src={b.logo_url}
+                  alt={`شعار العلامة التجارية ${name} — متوفرة عبر ركن التوفير في اليمن`}
+                  className="max-h-[78%] max-w-[82%] object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ mixBlendMode: "multiply" }}
+                />
+              </div>
             ) : null}
           </LLink>
         );

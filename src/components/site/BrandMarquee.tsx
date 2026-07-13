@@ -24,6 +24,7 @@ export function BrandMarquee({ brands }: { brands: BrandLite[] }) {
                 src={b.logo_url}
                 alt={`شعار ${b.name_ar}`}
                 className="max-h-10 w-auto object-contain transition-opacity"
+                style={{ mixBlendMode: "multiply" }}
                 loading="lazy"
               />
             ) : (

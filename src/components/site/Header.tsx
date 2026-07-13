@@ -42,9 +42,9 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
       <div className="h-0.5 w-full hq-rule" />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
         <LLink to="/$lang/" className="flex min-w-0 items-center gap-3">
-          <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="relative grid size-12 place-items-center overflow-hidden rounded-full border border-border bg-white shadow-sm">
             {logoUrl ? (
-              <img src={logoUrl} alt={t("header.logoAlt", { name: legalName })} className="size-full object-contain p-1" />
+              <img src={logoUrl} alt={t("header.logoAlt", { name: legalName })} className="size-full object-contain p-1" style={{ mixBlendMode: "multiply" }} />
             ) : (
               <span className="text-xs font-bold text-trust-700">{t("header.ruknShort")}</span>
             )}
@@ -98,7 +98,7 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
                           >
                             <div className="grid h-14 w-full place-items-center overflow-hidden rounded-lg bg-sand-50 p-2">
                               {b.logo_url ? (
-                                <img src={b.logo_url} alt={t("header.brandLogoAlt", { name })} className="max-h-10 w-auto object-contain" loading="lazy" />
+                                <img src={b.logo_url} alt={t("header.brandLogoAlt", { name })} className="max-h-10 w-auto object-contain" style={{ mixBlendMode: "multiply" }} loading="lazy" />
                               ) : (
                                 <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                               )}
@@ -174,7 +174,7 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
                         className="grid h-14 place-items-center rounded-lg border border-border bg-sand-50 p-2"
                       >
                         {b.logo_url ? (
-                          <img src={b.logo_url} alt={name} className="max-h-9 w-auto object-contain" loading="lazy" />
+                          <img src={b.logo_url} alt={name} className="max-h-9 w-auto object-contain" style={{ mixBlendMode: "multiply" }} loading="lazy" />
                         ) : (
                           <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                         )}
