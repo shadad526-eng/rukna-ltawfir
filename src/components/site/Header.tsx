@@ -174,7 +174,7 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
                         className="grid h-14 place-items-center rounded-lg border border-border bg-sand-50 p-2"
                       >
                         {b.logo_url ? (
-                          <img src={b.logo_url} alt={name} className="max-h-9 w-auto object-contain" loading="lazy" />
+                          <img src={b.logo_url} alt={name} className="max-h-9 w-auto object-contain" style={{ mixBlendMode: "multiply" }} loading="lazy" />
                         ) : (
                           <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                         )}
