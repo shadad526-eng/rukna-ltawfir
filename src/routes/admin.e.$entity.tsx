@@ -79,6 +79,7 @@ function fmtDate(v: any) {
 type RefMaps = {
   brands: Record<string, string>;
   products: Record<string, string>;
+  articles: Record<string, string>;
   navItems: Record<string, string>;
   assetUrls: Record<string, string>;
   assetInfo: Record<string, { name: string; mime: string | null }>;
@@ -96,8 +97,11 @@ function EntityPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
+  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
   const [assetPickerFor, setAssetPickerFor] = useState<{ key: string; accept: "image" | "pdf" | "any" } | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const pk = cfg?.primaryKey ?? "id";
 
@@ -116,23 +120,27 @@ function EntityPage() {
 
   useEffect(() => { load(); setEditing(null); setPage(1); setQuery(""); }, [load, entity]);
 
-  // Load ref maps: brands, products, nav items
+  // Load ref maps: brands, products, articles, nav items
   useEffect(() => {
     (async () => {
-      const [{ data: bs }, { data: ps }, { data: ns }] = await Promise.all([
+      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }] = await Promise.all([
         supabase.from("brands").select("id,name_ar").order("name_ar"),
         supabase.from("products").select("id,name_ar").order("name_ar").limit(500),
+        supabase.from("insights").select("id,title_ar").order("title_ar").limit(500),
         supabase.from("navigation_items").select("id,label_ar,location").order("sort_order"),
       ]);
       const brands: Record<string, string> = {};
       (bs ?? []).forEach((b: any) => { brands[b.id] = b.name_ar; });
       const products: Record<string, string> = {};
       (ps ?? []).forEach((p: any) => { products[p.id] = p.name_ar; });
+      const articles: Record<string, string> = {};
+      (arts ?? []).forEach((a: any) => { articles[a.id] = a.title_ar; });
       const navItems: Record<string, string> = {};
       (ns ?? []).forEach((n: any) => { navItems[n.id] = `${n.label_ar} · ${n.location}`; });
-      setRefs((r) => ({ ...r, brands, products, navItems }));
+      setRefs((r) => ({ ...r, brands, products, articles, navItems }));
     })();
   }, []);
+
 
   // Which asset columns show images?
   const assetColumnKeys = useMemo(
