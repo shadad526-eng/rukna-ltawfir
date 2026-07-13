@@ -7,6 +7,7 @@ import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, ChevronDown, Image as ImageIcon, Upload, FileText, Settings2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { fileToBase64 } from "@/lib/file-to-base64";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
@@ -808,11 +809,7 @@ function AssetPicker({ onClose, onPick, accept }: {
     setBusy(true);
     try {
       for (const file of Array.from(files)) {
-        const buf = await file.arrayBuffer();
-        let bin = "";
-        const bytes = new Uint8Array(buf);
-        for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
-        const base64 = btoa(bin);
+        const base64 = await fileToBase64(file);
         const isPdf = (file.type || "") === "application/pdf";
         const bucket = isPdf ? "catalogs" : "brand-assets";
         const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
