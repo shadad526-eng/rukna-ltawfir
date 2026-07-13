@@ -100,15 +100,14 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف", type: "text", required: true },
       { key: "brand_id", label: "العلامة", type: "brand_ref", required: true },
-
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
+      { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true },
       { key: "short_description_ar", label: "وصف مختصر", type: "textarea" },
       { key: "long_description_ar", label: "وصف تفصيلي", type: "textarea" },
       { key: "usage_instructions_ar", label: "طريقة الاستخدام", type: "textarea" },
-      { key: "key_benefits_ar", label: "الفوائد الرئيسية (JSON)", type: "json" },
+      { key: "key_benefits_ar", label: "الفوائد الرئيسية", type: "tags", hint: "أدخل فائدة ثم اضغط Enter لإضافتها." },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "sort_order", label: "ترتيب العرض", type: "number" },
