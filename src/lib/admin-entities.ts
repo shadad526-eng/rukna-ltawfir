@@ -71,9 +71,9 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "slug", label: "المعرّف (Slug)", type: "text", required: true },
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
+      { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true, hint: "يُستخدم في رابط الصفحة. يُولَّد تلقائياً من الاسم الإنجليزي." },
       { key: "tagline_ar", label: "الشعار الفرعي (AR)", type: "text" },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "is_partner", label: "علامة شريكة", type: "boolean" },
@@ -83,7 +83,7 @@ export const ENTITIES: EntityConfig[] = [
       ] },
       { key: "logo_asset_id", label: "شعار العلامة", type: "asset" },
       { key: "hero_asset_id", label: "صورة الهيرو", type: "asset" },
-      { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json" },
+      { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json", advanced: true, hint: "إعدادات فنية متقدمة (ألوان مخصصة)." },
     ],
   },
   {
