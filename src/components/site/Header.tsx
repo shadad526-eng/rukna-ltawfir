@@ -98,7 +98,7 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
                           >
                             <div className="grid h-14 w-full place-items-center overflow-hidden rounded-lg bg-sand-50 p-2">
                               {b.logo_url ? (
-                                <img src={b.logo_url} alt={t("header.brandLogoAlt", { name })} className="max-h-10 w-auto object-contain" loading="lazy" />
+                                <img src={b.logo_url} alt={t("header.brandLogoAlt", { name })} className="max-h-10 w-auto object-contain" style={{ mixBlendMode: "multiply" }} loading="lazy" />
                               ) : (
                                 <span className="text-[10px] font-bold text-muted-foreground">{b.name_en}</span>
                               )}
