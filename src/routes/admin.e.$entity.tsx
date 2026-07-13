@@ -413,7 +413,6 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker }: {
             value={value ?? ""}
             onChange={onChange}
             dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
-            onPickImage={onOpenAssetPicker}
           />
           {field.hint && <span className="text-xs text-slate-500">{field.hint}</span>}
         </label>
