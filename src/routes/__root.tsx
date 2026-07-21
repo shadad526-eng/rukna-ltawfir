@@ -124,14 +124,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "@type": "Organization",
               "@id": "https://ruknaltawfer.com/#organization",
               name: "ركن التوفير كوزمتك للتجارة",
-              alternateName: "Rukn Al-Tawfir Cosmetic for Trade",
+              alternateName: [
+                "Rukn Al-Tawfir Cosmetic for Trade",
+                "ركن التوفير",
+                "ركن التوفير كوزمتك",
+                "Rukn Al-Tawfir",
+                "Rukn Altawfir",
+              ],
               url: "https://ruknaltawfer.com",
               logo: {
                 "@type": "ImageObject",
                 url: "https://ruknaltawfer.com/rukn-logo.webp",
               },
+              sameAs: [
+                "https://www.instagram.com/rkn.altwfyr/",
+                "https://www.facebook.com/share/198SE8GVYT/",
+                "https://www.tiktok.com/@ruknaltawfersochi",
+              ],
               description:
                 "الوكيل الحصري لمنظومة من العلامات التجارية الصحية والاستهلاكية العالمية في الجمهورية اليمنية: iSiS, SEKEM, Steviola, NO CAL, Monivo, Baby Tawfir, Bambo, Y-Kelin.",
+
               areaServed: { "@type": "Country", name: "Yemen" },
               contactPoint: [
                 {
@@ -196,8 +208,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "@id": "https://ruknaltawfer.com/#website",
               url: "https://ruknaltawfer.com",
               name: "ركن التوفير كوزمتك للتجارة",
+              alternateName: ["ركن التوفير", "ركن التوفير كوزمتك", "Rukn Al-Tawfir"],
               inLanguage: ["ar", "en"],
               publisher: { "@id": "https://ruknaltawfer.com/#organization" },
+
             },
           ],
         }),
