@@ -42,10 +42,33 @@ export const Route = createFileRoute("/sitemap.xml")({
           // ignore — fall back to static paths
         }
 
+        // Encode each URL so non-ASCII slugs (Arabic titles, spaces, "?", etc.)
+        // become valid absolute URLs; also drop any entry that somehow contains
+        // an embedded scheme after the origin (e.g. ".../https://...") so we
+        // never republish the invalid paths that once leaked into Search Console.
+        const encodeLoc = (u: string): string | null => {
+          try {
+            const parsed = new URL(u);
+            if (/\/https?:\//i.test(parsed.pathname)) return null;
+            const encodedPath = parsed.pathname
+              .split("/")
+              .map((seg) => encodeURIComponent(decodeURIComponent(seg)))
+              .join("/");
+            return `${parsed.origin}${encodedPath}`
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+          } catch {
+            return null;
+          }
+        };
+        const cleanUrls = urls
+          .map(encodeLoc)
+          .filter((u): u is string => !!u);
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...urls.map((u) => `  <url><loc>${u}</loc></url>`),
+          ...cleanUrls.map((u) => `  <url><loc>${u}</loc></url>`),
           `</urlset>`,
         ].join("\n");
 
