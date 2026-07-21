@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+# Defensive: these malformed paths never existed as real routes; block so
+# any historical Search Console discoveries stop being re-crawled.
+Disallow: /https://
+Disallow: /http://
+Disallow: /www.
 
 Sitemap: https://ruknaltawfer.com/sitemap.xml
