@@ -128,6 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 "Rukn Al-Tawfir Cosmetic for Trade",
                 "ركن التوفير",
                 "ركن التوفير كوزمتك",
+                "ركن التوفير كوزمتك للتجارة",
                 "Rukn Al-Tawfir",
                 "Rukn Altawfir",
               ],
@@ -208,7 +209,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "@id": "https://ruknaltawfer.com/#website",
               url: "https://ruknaltawfer.com",
               name: "ركن التوفير كوزمتك للتجارة",
-              alternateName: ["ركن التوفير", "ركن التوفير كوزمتك", "Rukn Al-Tawfir"],
+              alternateName: ["ركن التوفير", "ركن التوفير كوزمتك", "ركن التوفير كوزمتك للتجارة", "Rukn Al-Tawfir"],
               inLanguage: ["ar", "en"],
               publisher: { "@id": "https://ruknaltawfer.com/#organization" },
 

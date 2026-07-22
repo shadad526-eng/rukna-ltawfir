@@ -36,12 +36,14 @@ export const Route = createFileRoute("/$lang/")({
     const url = `https://ruknaltawfer.com/${params.lang}`;
     const isAr = params.lang === "ar";
     const title = isAr
-      ? "ركن التوفير كوزمتك | جمال وصحة وعناية بالأطفال في اليمن"
+      ? "ركن التوفير كوزمتك للتجارة | الموقع الرسمي"
       : "Rukn Al-Tawfir — Leading Health & Beauty Brands Distributor in Yemen";
     const desc = isAr
       ? "الوكيل الحصري في اليمن لعلامات صحية عالمية: مستحضرات تجميل، عناية شخصية، منتجات صحية، وعناية بالأطفال من علامات موثوقة."
       : "Exclusive agent in Yemen for global health brands: NO CAL, Steviola, Monivo, Baby Tawfir, Bambo, Y-Kelin, iSiS, SEKEM.";
-    const ogTitle = isAr ? "ركن التوفير كوزمتك للتجارة" : "Rukn Al-Tawfir Cosmetic for Trade";
+    const ogTitle = isAr
+      ? "ركن التوفير كوزمتك للتجارة | الموقع الرسمي"
+      : "Rukn Al-Tawfir Cosmetic for Trade";
     const ogDesc = isAr
       ? "منظومة علامات صحية عالمية برعاية ركن التوفير في اليمن."
       : "A system of global health brands managed by Rukn Al-Tawfir in Yemen.";
