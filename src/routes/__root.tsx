@@ -208,7 +208,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "@type": "WebSite",
               "@id": "https://ruknaltawfer.com/#website",
               url: "https://ruknaltawfer.com",
-              name: "ركن التوفير كوزمتك للتجارة",
+              name: "ركن التوفير كوزمتك",
               alternateName: ["ركن التوفير", "ركن التوفير كوزمتك", "ركن التوفير كوزمتك للتجارة", "Rukn Al-Tawfir"],
               inLanguage: ["ar", "en"],
               publisher: { "@id": "https://ruknaltawfer.com/#organization" },
