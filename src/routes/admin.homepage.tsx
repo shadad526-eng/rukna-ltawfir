@@ -576,7 +576,7 @@ function SlidesEditor({ title, group, slides, onChange, reload }: {
             onMoveUp={() => move(slide.id, -1)}
             onMoveDown={() => move(slide.id, 1)}
             onRemove={() => removeSlide(slide.id)}
-            onUpdate={(patch) => updateSlide(slide.id, patch)}
+            onUpdate={(patch: Partial<Slide>) => updateSlide(slide.id, patch)}
           />
         ))}
       </div>
