@@ -370,6 +370,8 @@ function Home() {
           </div>
         </div>
       </section>
+      )}
+      {showMainSliderAfter && <HomepageMainSlider config={homepage.main_slider} />}
 
       <div className="relative z-30 mx-auto -mt-16 max-w-6xl px-4 md:-mt-24 md:px-8">
         <HeroBrandStrip brands={brands} />
