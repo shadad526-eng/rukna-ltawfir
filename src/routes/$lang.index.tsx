@@ -161,6 +161,7 @@ export const Route = createFileRoute("/$lang/")({
       context.queryClient.ensureQueryData(featuredQO),
       context.queryClient.ensureQueryData(catalogsQO),
       context.queryClient.ensureQueryData(insightsQO),
+      context.queryClient.ensureQueryData(homepageQO),
     ]);
   },
   component: Home,
