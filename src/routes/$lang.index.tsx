@@ -225,6 +225,20 @@ function Home() {
     return () => window.clearInterval(id);
   }, [isPaused, NEWS_CARDS.length, isAr]);
 
+  const showMainSliderBefore =
+    homepage.main_slider.enabled &&
+    homepage.main_slider.position === "before_hero" &&
+    homepage.main_slider.slides.length > 0;
+  const showMainSliderAfter =
+    homepage.main_slider.enabled &&
+    homepage.main_slider.position === "after_hero" &&
+    homepage.main_slider.slides.length > 0;
+  const useManagedHero =
+    homepage.hero.enabled &&
+    (homepage.hero.type === "image" ||
+      homepage.hero.type === "custom" ||
+      (homepage.hero.type === "slider" && homepage.hero.slider.slides.length > 0));
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader
@@ -233,6 +247,10 @@ function Home() {
         whatsappNumber={id.whatsapp_number}
         logoUrl={id.logo_url}
       />
+
+      {showMainSliderBefore && <HomepageMainSlider config={homepage.main_slider} />}
+      {useManagedHero ? <HomepageManagerHero config={homepage.hero} /> : (
+
 
       <section
         className="relative overflow-hidden"
