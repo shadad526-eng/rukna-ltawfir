@@ -576,6 +576,123 @@ export type Database = {
           },
         ]
       }
+      homepage_settings: {
+        Row: {
+          created_at: string
+          hero_custom_config: Json
+          hero_enabled: boolean
+          hero_image_config: Json
+          hero_slider_config: Json
+          hero_type: string
+          id: number
+          main_slider_config: Json
+          main_slider_enabled: boolean
+          main_slider_position: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hero_custom_config?: Json
+          hero_enabled?: boolean
+          hero_image_config?: Json
+          hero_slider_config?: Json
+          hero_type?: string
+          id?: number
+          main_slider_config?: Json
+          main_slider_enabled?: boolean
+          main_slider_position?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hero_custom_config?: Json
+          hero_enabled?: boolean
+          hero_image_config?: Json
+          hero_slider_config?: Json
+          hero_type?: string
+          id?: number
+          main_slider_config?: Json
+          main_slider_enabled?: boolean
+          main_slider_position?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      homepage_slides: {
+        Row: {
+          alt_ar: string | null
+          alt_en: string | null
+          created_at: string
+          cta1: Json
+          cta2: Json
+          description_ar: string | null
+          description_en: string | null
+          desktop_asset_id: string | null
+          id: string
+          is_published: boolean
+          is_visible: boolean
+          mobile_asset_id: string | null
+          slider_group: string
+          sort_order: number
+          title_ar: string | null
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          alt_ar?: string | null
+          alt_en?: string | null
+          created_at?: string
+          cta1?: Json
+          cta2?: Json
+          description_ar?: string | null
+          description_en?: string | null
+          desktop_asset_id?: string | null
+          id?: string
+          is_published?: boolean
+          is_visible?: boolean
+          mobile_asset_id?: string | null
+          slider_group: string
+          sort_order?: number
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alt_ar?: string | null
+          alt_en?: string | null
+          created_at?: string
+          cta1?: Json
+          cta2?: Json
+          description_ar?: string | null
+          description_en?: string | null
+          desktop_asset_id?: string | null
+          id?: string
+          is_published?: boolean
+          is_visible?: boolean
+          mobile_asset_id?: string | null
+          slider_group?: string
+          sort_order?: number
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homepage_slides_desktop_asset_id_fkey"
+            columns: ["desktop_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homepage_slides_mobile_asset_id_fkey"
+            columns: ["mobile_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inquiries: {
         Row: {
           assigned_to: string | null

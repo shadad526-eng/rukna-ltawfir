@@ -95,6 +95,7 @@ function AdminShell() {
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-1 text-sm">
           <SidebarLink to="/admin" exact icon={LayoutDashboard} label="الرئيسية" />
+          <SidebarLink to="/admin/homepage" icon={LayoutDashboard} label="مدير الصفحة الرئيسية" />
           <SidebarLink to="/admin/users" icon={Users} label="المدراء والصلاحيات" />
           <SidebarLink to="/admin/media" icon={ImageIcon} label="مكتبة الوسائط" />
 

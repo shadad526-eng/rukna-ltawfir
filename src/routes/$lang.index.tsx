@@ -8,6 +8,8 @@ import {
   listCatalogs,
   listInsights,
 } from "@/lib/site.functions";
+import { getHomepageConfig } from "@/lib/homepage.functions";
+import { HomepageMainSlider, HomepageManagerHero } from "@/components/site/HomepageManager";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
@@ -30,6 +32,7 @@ const featuredQO = queryOptions({
 });
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 const insightsQO = queryOptions({ queryKey: ["insights"], queryFn: () => listInsights() });
+const homepageQO = queryOptions({ queryKey: ["homepage-config"], queryFn: () => getHomepageConfig() });
 
 export const Route = createFileRoute("/$lang/")({
   head: ({ params }) => {
@@ -158,6 +161,7 @@ export const Route = createFileRoute("/$lang/")({
       context.queryClient.ensureQueryData(featuredQO),
       context.queryClient.ensureQueryData(catalogsQO),
       context.queryClient.ensureQueryData(insightsQO),
+      context.queryClient.ensureQueryData(homepageQO),
     ]);
   },
   component: Home,
@@ -171,6 +175,7 @@ function Home() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const { data: insights } = useSuspenseQuery(insightsQO);
+  const { data: homepage } = useSuspenseQuery(homepageQO);
   const ident = useLocalizedIdentity(id);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -220,6 +225,20 @@ function Home() {
     return () => window.clearInterval(id);
   }, [isPaused, NEWS_CARDS.length, isAr]);
 
+  const showMainSliderBefore =
+    homepage.main_slider.enabled &&
+    homepage.main_slider.position === "before_hero" &&
+    homepage.main_slider.slides.length > 0;
+  const showMainSliderAfter =
+    homepage.main_slider.enabled &&
+    homepage.main_slider.position === "after_hero" &&
+    homepage.main_slider.slides.length > 0;
+  const useManagedHero =
+    homepage.hero.enabled &&
+    (homepage.hero.type === "image" ||
+      homepage.hero.type === "custom" ||
+      (homepage.hero.type === "slider" && homepage.hero.slider.slides.length > 0));
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader
@@ -228,6 +247,10 @@ function Home() {
         whatsappNumber={id.whatsapp_number}
         logoUrl={id.logo_url}
       />
+
+      {showMainSliderBefore && <HomepageMainSlider config={homepage.main_slider} />}
+      {useManagedHero ? <HomepageManagerHero config={homepage.hero} /> : (
+
 
       <section
         className="relative overflow-hidden"
@@ -347,6 +370,8 @@ function Home() {
           </div>
         </div>
       </section>
+      )}
+      {showMainSliderAfter && <HomepageMainSlider config={homepage.main_slider} />}
 
       <div className="relative z-30 mx-auto -mt-16 max-w-6xl px-4 md:-mt-24 md:px-8">
         <HeroBrandStrip brands={brands} />

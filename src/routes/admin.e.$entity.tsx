@@ -766,7 +766,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: 
 }
 
 
-function AssetPicker({ onClose, onPick, accept }: {
+export function AssetPicker({ onClose, onPick, accept }: {
   onClose: () => void;
   onPick: (id: string, url: string, info: { name: string; mime: string | null }) => void;
   accept: "image" | "pdf" | "any";
