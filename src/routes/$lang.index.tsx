@@ -175,6 +175,7 @@ function Home() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const { data: insights } = useSuspenseQuery(insightsQO);
+  const { data: homepage } = useSuspenseQuery(homepageQO);
   const ident = useLocalizedIdentity(id);
   const carouselRef = useRef<HTMLDivElement>(null);
 
