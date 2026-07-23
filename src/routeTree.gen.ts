@@ -19,6 +19,7 @@ import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminMediaRouteImport } from './routes/admin.media'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
 import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
 import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
@@ -85,6 +86,11 @@ const AdminMediaRoute = AdminMediaRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminHomepageRoute = AdminHomepageRouteImport.update({
+  id: '/homepage',
+  path: '/homepage',
   getParentRoute: () => AdminRoute,
 } as any)
 const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/homepage': typeof AdminHomepageRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/users': typeof AdminUsersRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/homepage': typeof AdminHomepageRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/users': typeof AdminUsersRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/$lang/oral-care': typeof LangOralCareRoute
   '/$lang/partners': typeof LangPartnersRoute
   '/$lang/sugar-alternatives': typeof LangSugarAlternativesRoute
+  '/admin/homepage': typeof AdminHomepageRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/users': typeof AdminUsersRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/homepage'
     | '/admin/login'
     | '/admin/media'
     | '/admin/users'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/homepage'
     | '/admin/login'
     | '/admin/media'
     | '/admin/users'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/$lang/oral-care'
     | '/$lang/partners'
     | '/$lang/sugar-alternatives'
+    | '/admin/homepage'
     | '/admin/login'
     | '/admin/media'
     | '/admin/users'
@@ -422,6 +434,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/homepage': {
+      id: '/admin/homepage'
+      path: '/homepage'
+      fullPath: '/admin/homepage'
+      preLoaderRoute: typeof AdminHomepageRouteImport
       parentRoute: typeof AdminRoute
     }
     '/$lang/sugar-alternatives': {
@@ -609,6 +628,7 @@ const LangRouteChildren: LangRouteChildren = {
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 
 interface AdminRouteChildren {
+  AdminHomepageRoute: typeof AdminHomepageRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMediaRoute: typeof AdminMediaRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -617,6 +637,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminHomepageRoute: AdminHomepageRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMediaRoute: AdminMediaRoute,
   AdminUsersRoute: AdminUsersRoute,

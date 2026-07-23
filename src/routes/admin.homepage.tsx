@@ -696,7 +696,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-function TextField({ label, value, onChange, placeholder, ltr }: any) {
+function TextField({ label, value, onChange, placeholder, ltr }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; ltr?: boolean }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
@@ -710,7 +710,7 @@ function TextField({ label, value, onChange, placeholder, ltr }: any) {
     </label>
   );
 }
-function TextArea({ label, value, onChange, ltr }: any) {
+function TextArea({ label, value, onChange, ltr }: { label: string; value: string; onChange: (v: string) => void; ltr?: boolean }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
@@ -724,7 +724,7 @@ function TextArea({ label, value, onChange, ltr }: any) {
     </label>
   );
 }
-function NumberField({ label, value, onChange, min, step }: any) {
+function NumberField({ label, value, onChange, min, step }: { label: string; value: number; onChange: (v: number) => void; min?: number; step?: number }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
@@ -733,18 +733,18 @@ function NumberField({ label, value, onChange, min, step }: any) {
     </label>
   );
 }
-function SelectField({ label, value, onChange, options }: any) {
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
       <select value={value ?? ""} onChange={(e) => onChange(e.target.value)}
         className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm">
-        {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </label>
   );
 }
-function ColorField({ label, value, onChange }: any) {
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
@@ -758,7 +758,7 @@ function ColorField({ label, value, onChange }: any) {
     </label>
   );
 }
-function RangeField({ label, value, onChange, min, max, step }: any) {
+function RangeField({ label, value, onChange, min, max, step }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number }) {
   return (
     <label className="block">
       <span className="text-xs text-slate-400 block mb-1">{label}</span>
