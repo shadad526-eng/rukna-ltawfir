@@ -579,41 +579,50 @@ export type Database = {
       homepage_settings: {
         Row: {
           created_at: string
+          draft_settings: Json | null
           hero_custom_config: Json
           hero_enabled: boolean
           hero_image_config: Json
           hero_slider_config: Json
           hero_type: string
           id: number
+          last_published_at: string | null
           main_slider_config: Json
           main_slider_enabled: boolean
           main_slider_position: string
+          published_snapshot: Json | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          draft_settings?: Json | null
           hero_custom_config?: Json
           hero_enabled?: boolean
           hero_image_config?: Json
           hero_slider_config?: Json
           hero_type?: string
           id?: number
+          last_published_at?: string | null
           main_slider_config?: Json
           main_slider_enabled?: boolean
           main_slider_position?: string
+          published_snapshot?: Json | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          draft_settings?: Json | null
           hero_custom_config?: Json
           hero_enabled?: boolean
           hero_image_config?: Json
           hero_slider_config?: Json
           hero_type?: string
           id?: number
+          last_published_at?: string | null
           main_slider_config?: Json
           main_slider_enabled?: boolean
           main_slider_position?: string
+          published_snapshot?: Json | null
           updated_at?: string
         }
         Relationships: []
