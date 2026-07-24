@@ -180,7 +180,29 @@ function Home() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const { data: insights } = useSuspenseQuery(insightsQO);
-  const { data: homepage } = useSuspenseQuery(homepageQO);
+  const { data: publishedHomepage } = useSuspenseQuery(homepageQO);
+  const search = Route.useSearch();
+  const previewMode = search.hp_preview === 1;
+  const draftQ = useQuery({
+    queryKey: ["homepage-draft-preview"],
+    queryFn: () => getHomepageDraftConfig(),
+    enabled: previewMode,
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+  });
+  const homepage = previewMode && draftQ.data ? draftQ.data : publishedHomepage;
+
+  // Allow admin preview iframe to force a refresh when a new draft is saved.
+  useEffect(() => {
+    if (!previewMode) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && e.data.type === "hp-preview-refresh") draftQ.refetch();
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [previewMode, draftQ]);
+
   const ident = useLocalizedIdentity(id);
   const carouselRef = useRef<HTMLDivElement>(null);
 
