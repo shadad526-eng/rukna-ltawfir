@@ -1,13 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSignedUrls } from "@/lib/admin.functions";
 import { AssetPicker } from "@/routes/admin.e.$entity";
+import {
+  saveHomepageDraft,
+  publishHomepageDraft,
+  restoreLastPublishedHomepage,
+  discardHomepageDraft,
+  getHomepagePublishStatus,
+  type HomepageSettingsSnapshot,
+} from "@/lib/homepage.functions";
+import { CURRENT_HERO_PRESET } from "@/lib/current-hero-preset";
 import { toast } from "sonner";
 import {
   Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff, ChevronUp, ChevronDown,
-  Save, Upload, Layers,
+  Save, Upload, Layers, Monitor, Tablet, Smartphone, Maximize2, Minimize2,
+  Rocket, Undo2, RotateCcw, Sparkles, RefreshCcw, FileEdit,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/homepage")({
