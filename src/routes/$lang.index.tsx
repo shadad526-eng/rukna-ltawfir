@@ -36,6 +36,10 @@ const insightsQO = queryOptions({ queryKey: ["insights"], queryFn: () => listIns
 const homepageQO = queryOptions({ queryKey: ["homepage-config"], queryFn: () => getHomepageConfig() });
 
 export const Route = createFileRoute("/$lang/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    hp_preview: s.hp_preview === "1" || s.hp_preview === 1 ? 1 : undefined,
+    hp_lang: s.hp_lang === "ar" || s.hp_lang === "en" ? (s.hp_lang as "ar" | "en") : undefined,
+  }),
   head: ({ params }) => {
     const url = `https://ruknaltawfer.com/${params.lang}`;
     const isAr = params.lang === "ar";
