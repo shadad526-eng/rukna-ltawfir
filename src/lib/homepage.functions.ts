@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assetUrl, getPublicDataClient } from "./site-public-data.server";
 
 export type HomepageCTA = {
