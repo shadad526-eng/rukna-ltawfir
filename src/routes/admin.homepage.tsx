@@ -145,8 +145,8 @@ function HomepageManagerPage() {
       hero_type: s.hero_type,
       hero_image_config: s.hero_image_config,
       hero_slider_config: s.hero_slider_config,
-      hero_custom_config: s.hero_custom_config,
-    };
+      hero_custom_config: s.hero_custom_config as any,
+    } as HomepageSettingsSnapshot;
   }
 
   async function saveDraft(showToast = true) {
