@@ -8,8 +8,9 @@ import {
   listCatalogs,
   listInsights,
 } from "@/lib/site.functions";
-import { getHomepageConfig } from "@/lib/homepage.functions";
+import { getHomepageConfig, getHomepageDraftConfig } from "@/lib/homepage.functions";
 import { HomepageMainSlider, HomepageManagerHero } from "@/components/site/HomepageManager";
+import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
@@ -35,6 +36,10 @@ const insightsQO = queryOptions({ queryKey: ["insights"], queryFn: () => listIns
 const homepageQO = queryOptions({ queryKey: ["homepage-config"], queryFn: () => getHomepageConfig() });
 
 export const Route = createFileRoute("/$lang/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    hp_preview: s.hp_preview === "1" || s.hp_preview === 1 ? 1 : undefined,
+    hp_lang: s.hp_lang === "ar" || s.hp_lang === "en" ? (s.hp_lang as "ar" | "en") : undefined,
+  }),
   head: ({ params }) => {
     const url = `https://ruknaltawfer.com/${params.lang}`;
     const isAr = params.lang === "ar";
@@ -175,7 +180,29 @@ function Home() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const { data: insights } = useSuspenseQuery(insightsQO);
-  const { data: homepage } = useSuspenseQuery(homepageQO);
+  const { data: publishedHomepage } = useSuspenseQuery(homepageQO);
+  const search = Route.useSearch();
+  const previewMode = search.hp_preview === 1;
+  const draftQ = useQuery({
+    queryKey: ["homepage-draft-preview"],
+    queryFn: () => getHomepageDraftConfig(),
+    enabled: previewMode,
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+  });
+  const homepage = previewMode && draftQ.data ? draftQ.data : publishedHomepage;
+
+  // Allow admin preview iframe to force a refresh when a new draft is saved.
+  useEffect(() => {
+    if (!previewMode) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && e.data.type === "hp-preview-refresh") draftQ.refetch();
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [previewMode, draftQ]);
+
   const ident = useLocalizedIdentity(id);
   const carouselRef = useRef<HTMLDivElement>(null);
 

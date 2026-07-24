@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assetUrl, getPublicDataClient } from "./site-public-data.server";
 
 export type HomepageCTA = {
@@ -160,60 +161,211 @@ const DEFAULT_SLIDER: SliderConfig = {
   pause_on_interaction: true,
 };
 
+export type HomepageSettingsSnapshot = {
+  main_slider_enabled?: boolean;
+  main_slider_position?: "before_hero" | "after_hero";
+  main_slider_config?: SliderConfig;
+  hero_enabled?: boolean;
+  hero_type?: "image" | "slider" | "custom";
+  hero_image_config?: HeroImageConfig;
+  hero_slider_config?: SliderConfig;
+  hero_custom_config?: HeroCustomConfig;
+};
+
+function pickSettings(row: any, snapshot?: any): any {
+  const src = snapshot && typeof snapshot === "object" ? { ...row, ...snapshot } : row;
+  return src ?? {};
+}
+
+async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
+  const imageCfg = (row.hero_image_config ?? {}) as HeroImageConfig;
+  const customCfg = (row.hero_custom_config ?? {}) as HeroCustomConfig;
+
+  const [mainSlides, heroSlides] = await Promise.all([
+    slidesFor("main"),
+    slidesFor("hero"),
+  ]);
+
+  const [imgDesktop, imgMobile, bgImg, mainImg, logoImg] = await Promise.all([
+    assetUrl(imageCfg.desktop_asset_id ?? null),
+    assetUrl(imageCfg.mobile_asset_id ?? null),
+    assetUrl(customCfg.bg_image_asset_id ?? null),
+    assetUrl(customCfg.main_image_asset_id ?? null),
+    assetUrl(customCfg.logo_asset_id ?? null),
+  ]);
+
+  return {
+    main_slider: {
+      enabled: !!row.main_slider_enabled,
+      position: (row.main_slider_position ?? "before_hero") as
+        | "before_hero"
+        | "after_hero",
+      config: { ...DEFAULT_SLIDER, ...(row.main_slider_config ?? {}) },
+      slides: mainSlides,
+    },
+    hero: {
+      enabled: !!row.hero_enabled,
+      type: (row.hero_type ?? "image") as "image" | "slider" | "custom",
+      image: { ...imageCfg, desktop_url: imgDesktop, mobile_url: imgMobile },
+      slider: {
+        config: { ...DEFAULT_SLIDER, ...(row.hero_slider_config ?? {}) },
+        slides: heroSlides,
+      },
+      custom: {
+        ...customCfg,
+        bg_image_url: bgImg,
+        main_image_url: mainImg,
+        logo_url: logoImg,
+      },
+    },
+  };
+}
+
 export const getHomepageConfig = createServerFn({ method: "GET" }).handler(
   async (): Promise<HomepageConfig> => {
     const client = getPublicDataClient() as any;
-    const { data: s } = await client
+    const { data } = await client
       .from("homepage_settings")
       .select("*")
       .eq("id", 1)
       .maybeSingle();
-    const row = (s ?? {}) as any;
-
-    const imageCfg = (row.hero_image_config ?? {}) as HeroImageConfig;
-    const customCfg = (row.hero_custom_config ?? {}) as HeroCustomConfig;
-
-    const [mainSlides, heroSlides] = await Promise.all([
-      slidesFor("main"),
-      slidesFor("hero"),
-    ]);
-
-    const [imgDesktop, imgMobile, bgImg, mainImg, logoImg] = await Promise.all([
-      assetUrl(imageCfg.desktop_asset_id ?? null),
-      assetUrl(imageCfg.mobile_asset_id ?? null),
-      assetUrl(customCfg.bg_image_asset_id ?? null),
-      assetUrl(customCfg.main_image_asset_id ?? null),
-      assetUrl(customCfg.logo_asset_id ?? null),
-    ]);
-
-    return {
-      main_slider: {
-        enabled: !!row.main_slider_enabled,
-        position: (row.main_slider_position ?? "before_hero") as
-          | "before_hero"
-          | "after_hero",
-        config: { ...DEFAULT_SLIDER, ...(row.main_slider_config ?? {}) },
-        slides: mainSlides,
-      },
-      hero: {
-        enabled: !!row.hero_enabled,
-        type: (row.hero_type ?? "image") as "image" | "slider" | "custom",
-        image: {
-          ...imageCfg,
-          desktop_url: imgDesktop,
-          mobile_url: imgMobile,
-        },
-        slider: {
-          config: { ...DEFAULT_SLIDER, ...(row.hero_slider_config ?? {}) },
-          slides: heroSlides,
-        },
-        custom: {
-          ...customCfg,
-          bg_image_url: bgImg,
-          main_image_url: mainImg,
-          logo_url: logoImg,
-        },
-      },
-    };
+    return buildHomepageConfig(data ?? {});
   },
 );
+
+async function assertSuperAdmin(supabase: any, userId: string) {
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: "super_admin",
+  });
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Forbidden");
+}
+
+export const getHomepageDraftConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<HomepageConfig> => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { data } = await supabase
+      .from("homepage_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
+    const row = pickSettings(data ?? {}, (data as any)?.draft_settings);
+    return buildHomepageConfig(row);
+  });
+
+export type HomepagePublishStatus = {
+  has_draft: boolean;
+  has_published_snapshot: boolean;
+  last_published_at: string | null;
+};
+
+export const getHomepagePublishStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<HomepagePublishStatus> => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { data } = await supabase
+      .from("homepage_settings")
+      .select("draft_settings, published_snapshot, last_published_at")
+      .eq("id", 1)
+      .maybeSingle();
+    const row = (data ?? {}) as any;
+    return {
+      has_draft: !!row.draft_settings,
+      has_published_snapshot: !!row.published_snapshot,
+      last_published_at: row.last_published_at ?? null,
+    };
+  });
+
+export const saveHomepageDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { snapshot: HomepageSettingsSnapshot }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { error } = await supabase
+      .from("homepage_settings")
+      .update({ draft_settings: data.snapshot })
+      .eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const publishHomepageDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { data: cur } = await supabase
+      .from("homepage_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
+    const row = (cur ?? {}) as any;
+    const draft = (row.draft_settings ?? {}) as any;
+    // Snapshot of what's currently live BEFORE overwriting = the new
+    // "published snapshot" used by Restore Last Published.
+    const merged = {
+      main_slider_enabled:
+        draft.main_slider_enabled ?? row.main_slider_enabled ?? false,
+      main_slider_position:
+        draft.main_slider_position ?? row.main_slider_position ?? "before_hero",
+      main_slider_config: draft.main_slider_config ?? row.main_slider_config ?? {},
+      hero_enabled: draft.hero_enabled ?? row.hero_enabled ?? false,
+      hero_type: draft.hero_type ?? row.hero_type ?? "image",
+      hero_image_config: draft.hero_image_config ?? row.hero_image_config ?? {},
+      hero_slider_config:
+        draft.hero_slider_config ?? row.hero_slider_config ?? {},
+      hero_custom_config:
+        draft.hero_custom_config ?? row.hero_custom_config ?? {},
+    };
+    const snapshot: HomepageSettingsSnapshot = { ...merged } as any;
+    const { error } = await supabase
+      .from("homepage_settings")
+      .update({
+        ...merged,
+        draft_settings: null,
+        published_snapshot: snapshot,
+        last_published_at: new Date().toISOString(),
+      })
+      .eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true, published_at: new Date().toISOString() };
+  });
+
+export const restoreLastPublishedHomepage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { data } = await supabase
+      .from("homepage_settings")
+      .select("published_snapshot")
+      .eq("id", 1)
+      .maybeSingle();
+    const snap = (data as any)?.published_snapshot;
+    if (!snap) throw new Error("لا يوجد نسخة منشورة سابقة");
+    const { error } = await supabase
+      .from("homepage_settings")
+      .update({ draft_settings: snap })
+      .eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const discardHomepageDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context as any;
+    await assertSuperAdmin(supabase, userId);
+    const { error } = await supabase
+      .from("homepage_settings")
+      .update({ draft_settings: null })
+      .eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

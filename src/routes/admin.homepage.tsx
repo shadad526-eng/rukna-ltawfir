@@ -1,13 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSignedUrls } from "@/lib/admin.functions";
 import { AssetPicker } from "@/routes/admin.e.$entity";
+import {
+  saveHomepageDraft,
+  publishHomepageDraft,
+  restoreLastPublishedHomepage,
+  discardHomepageDraft,
+  getHomepagePublishStatus,
+  type HomepageSettingsSnapshot,
+} from "@/lib/homepage.functions";
+import { CURRENT_HERO_PRESET } from "@/lib/current-hero-preset";
 import { toast } from "sonner";
 import {
   Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff, ChevronUp, ChevronDown,
-  Save, Upload, Layers,
+  Save, Upload, Layers, Monitor, Tablet, Smartphone, Maximize2, Minimize2,
+  Rocket, Undo2, RotateCcw, Sparkles, RefreshCcw, FileEdit,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/homepage")({
@@ -73,13 +83,26 @@ const DEFAULT_SLIDER_CFG: SliderCfg = {
 
 /* ============================== ROOT PAGE ============================== */
 function HomepageManagerPage() {
-  const [tab, setTab] = useState<"main" | "hero">("main");
+  const [tab, setTab] = useState<"main" | "hero">("hero");
   const [settings, setSettings] = useState<Settings | null>(null);
   const [mainSlides, setMainSlides] = useState<Slide[]>([]);
   const [heroSlides, setHeroSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<"" | "draft" | "publish" | "restore" | "discard">("");
   const [dirty, setDirty] = useState(false);
+  const [status, setStatus] = useState<{ has_draft: boolean; has_published_snapshot: boolean; last_published_at: string | null } | null>(null);
+
+  const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [previewLang, setPreviewLang] = useState<"ar" | "en">("ar");
+  const [fullscreen, setFullscreen] = useState(false);
+  const [previewNonce, setPreviewNonce] = useState(() => Date.now());
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const saveDraftFn = useServerFn(saveHomepageDraft);
+  const publishFn = useServerFn(publishHomepageDraft);
+  const restoreFn = useServerFn(restoreLastPublishedHomepage);
+  const discardFn = useServerFn(discardHomepageDraft);
+  const statusFn = useServerFn(getHomepagePublishStatus);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -89,47 +112,112 @@ function HomepageManagerPage() {
       supabase.from("homepage_slides" as any).select("*").eq("slider_group", "hero").order("sort_order"),
     ]);
     if (s) {
+      const row: any = s;
+      const draft = (row.draft_settings ?? {}) as any;
+      // Editor works against draft-overlay on live columns. Save writes back to draft only.
       setSettings({
-        ...(s as any),
-        main_slider_config: { ...DEFAULT_SLIDER_CFG, ...((s as any).main_slider_config ?? {}) },
-        hero_slider_config: { ...DEFAULT_SLIDER_CFG, ...((s as any).hero_slider_config ?? {}) },
-        hero_image_config: (s as any).hero_image_config ?? {},
-        hero_custom_config: (s as any).hero_custom_config ?? {},
+        id: row.id,
+        main_slider_enabled: draft.main_slider_enabled ?? row.main_slider_enabled,
+        main_slider_position: draft.main_slider_position ?? row.main_slider_position,
+        main_slider_config: { ...DEFAULT_SLIDER_CFG, ...(row.main_slider_config ?? {}), ...(draft.main_slider_config ?? {}) },
+        hero_enabled: draft.hero_enabled ?? row.hero_enabled,
+        hero_type: draft.hero_type ?? row.hero_type,
+        hero_image_config: draft.hero_image_config ?? row.hero_image_config ?? {},
+        hero_slider_config: { ...DEFAULT_SLIDER_CFG, ...(row.hero_slider_config ?? {}), ...(draft.hero_slider_config ?? {}) },
+        hero_custom_config: draft.hero_custom_config ?? row.hero_custom_config ?? {},
       });
     }
     setMainSlides((mSlides ?? []) as any);
     setHeroSlides((hSlides ?? []) as any);
     setDirty(false);
     setLoading(false);
-  }, []);
+    try { setStatus(await statusFn()); } catch { /* ignore */ }
+  }, [statusFn]);
 
   useEffect(() => { load(); }, [load]);
 
-  async function saveSettings() {
+  function snapshotFromSettings(s: Settings): HomepageSettingsSnapshot {
+    return {
+      main_slider_enabled: s.main_slider_enabled,
+      main_slider_position: s.main_slider_position,
+      main_slider_config: s.main_slider_config,
+      hero_enabled: s.hero_enabled,
+      hero_type: s.hero_type,
+      hero_image_config: s.hero_image_config,
+      hero_slider_config: s.hero_slider_config,
+      hero_custom_config: s.hero_custom_config as any,
+    } as HomepageSettingsSnapshot;
+  }
+
+  async function saveDraft(showToast = true) {
     if (!settings) return;
-    setSaving(true);
+    setBusy("draft");
     try {
-      const { error } = await supabase
-        .from("homepage_settings" as any)
-        .update({
-          main_slider_enabled: settings.main_slider_enabled,
-          main_slider_position: settings.main_slider_position,
-          main_slider_config: settings.main_slider_config,
-          hero_enabled: settings.hero_enabled,
-          hero_type: settings.hero_type,
-          hero_image_config: settings.hero_image_config,
-          hero_slider_config: settings.hero_slider_config,
-          hero_custom_config: settings.hero_custom_config,
-        })
-        .eq("id", 1);
-      if (error) throw error;
-      toast.success("تم حفظ الإعدادات");
+      await saveDraftFn({ data: { snapshot: snapshotFromSettings(settings) } });
       setDirty(false);
-    } catch (e: any) {
-      toast.error(e.message ?? "فشل الحفظ");
-    } finally {
-      setSaving(false);
-    }
+      setStatus((s) => (s ? { ...s, has_draft: true } : s));
+      if (showToast) toast.success("تم حفظ المسودة");
+      refreshPreview();
+    } catch (e: any) { toast.error(e.message ?? "فشل حفظ المسودة"); }
+    finally { setBusy(""); }
+  }
+
+  async function publish() {
+    if (!settings) return;
+    if (dirty) await saveDraft(false);
+    if (!confirm("نشر التغييرات على الصفحة الرئيسية العامة؟")) return;
+    setBusy("publish");
+    try {
+      await publishFn();
+      toast.success("تم النشر بنجاح");
+      await load();
+      refreshPreview();
+    } catch (e: any) { toast.error(e.message ?? "فشل النشر"); }
+    finally { setBusy(""); }
+  }
+
+  async function restoreLastPublished() {
+    if (!confirm("استعادة آخر نسخة منشورة كمسودة حالية؟ سيتم استبدال المسودة الحالية.")) return;
+    setBusy("restore");
+    try {
+      await restoreFn();
+      toast.success("تمت الاستعادة");
+      await load();
+      refreshPreview();
+    } catch (e: any) { toast.error(e.message ?? "فشل الاستعادة"); }
+    finally { setBusy(""); }
+  }
+
+  async function discardDraft() {
+    if (!confirm("تجاهل التغييرات غير المنشورة والعودة للنسخة الحية؟")) return;
+    setBusy("discard");
+    try {
+      await discardFn();
+      toast.success("تم تجاهل المسودة");
+      await load();
+      refreshPreview();
+    } catch (e: any) { toast.error(e.message ?? "فشل التجاهل"); }
+    finally { setBusy(""); }
+  }
+
+  function applyCurrentHeroPreset() {
+    if (!settings) return;
+    if (!confirm("تحميل قالب الهيرو الحالي كنقطة بداية للتحرير؟")) return;
+    setSettings({
+      ...settings,
+      hero_enabled: true,
+      hero_type: "custom",
+      hero_custom_config: { ...CURRENT_HERO_PRESET },
+    });
+    setDirty(true);
+    toast.info("تم تحميل القالب. اضغط حفظ مسودة للحفظ.");
+  }
+
+  function resetToOriginalHero() {
+    if (!settings) return;
+    if (!confirm("العودة للهيرو الأصلي المبني في الكود؟ (يعطّل الهيرو المُدار)")) return;
+    setSettings({ ...settings, hero_enabled: false });
+    setDirty(true);
   }
 
   function updateSettings(patch: Partial<Settings>) {
@@ -137,50 +225,132 @@ function HomepageManagerPage() {
     setDirty(true);
   }
 
-  if (loading || !settings) {
-    return <div className="text-slate-400 text-sm">جارٍ التحميل…</div>;
+  function refreshPreview() {
+    setPreviewNonce(Date.now());
+    try { iframeRef.current?.contentWindow?.postMessage({ type: "hp-preview-refresh" }, window.location.origin); } catch {}
   }
 
+  const deviceWidth = device === "desktop" ? "100%" : device === "tablet" ? "820px" : "390px";
+  const previewSrc = useMemo(
+    () => `/${previewLang}?hp_preview=1&t=${previewNonce}`,
+    [previewLang, previewNonce],
+  );
+
+  if (loading || !settings) return <div className="text-slate-400 text-sm">جارٍ التحميل…</div>;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">مدير الصفحة الرئيسية</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            إدارة السلايدر الرئيسي وبانر الهيرو بكل تفاصيلهما.
-          </p>
+    <div className={fullscreen ? "fixed inset-0 z-50 bg-slate-950 p-4 overflow-auto" : "space-y-6"}>
+      {/* Toolbar */}
+      <div className="sticky top-0 z-10 -mx-4 md:-mx-8 px-4 md:px-8 py-3 bg-slate-950/95 backdrop-blur border-b border-slate-800 flex flex-wrap items-center gap-2">
+        <div className="flex-1 min-w-[200px]">
+          <h1 className="text-lg font-bold">مدير الصفحة الرئيسية</h1>
+          <div className="text-xs text-slate-400 mt-0.5 flex flex-wrap gap-2 items-center">
+            {status?.has_draft && <span className="text-amber-300">● مسودة غير منشورة</span>}
+            {dirty && <span className="text-rose-300">● تغييرات غير محفوظة</span>}
+            {status?.last_published_at && (
+              <span>آخر نشر: {new Date(status.last_published_at).toLocaleString("ar")}</span>
+            )}
+          </div>
         </div>
-        <button
-          onClick={saveSettings}
-          disabled={!dirty || saving}
-          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
-        >
-          <Save className="w-4 h-4" /> {saving ? "جارٍ الحفظ…" : "حفظ الإعدادات"}
+        <button onClick={() => saveDraft()} disabled={busy !== "" || !dirty}
+          className="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 rounded-lg px-3 py-2 text-sm font-semibold flex items-center gap-1.5">
+          <FileEdit className="w-4 h-4" /> {busy === "draft" ? "جارٍ…" : "حفظ مسودة"}
+        </button>
+        <button onClick={publish} disabled={busy !== ""}
+          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 rounded-lg px-3 py-2 text-sm font-semibold flex items-center gap-1.5">
+          <Rocket className="w-4 h-4" /> {busy === "publish" ? "جارٍ النشر…" : "نشر"}
+        </button>
+        <button onClick={discardDraft} disabled={busy !== "" || !status?.has_draft}
+          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 rounded-lg px-3 py-2 text-sm flex items-center gap-1.5" title="تجاهل المسودة">
+          <Undo2 className="w-4 h-4" /> تجاهل
+        </button>
+        <button onClick={restoreLastPublished} disabled={busy !== "" || !status?.has_published_snapshot}
+          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 rounded-lg px-3 py-2 text-sm flex items-center gap-1.5" title="استعادة آخر نسخة منشورة">
+          <RotateCcw className="w-4 h-4" /> استعادة
         </button>
       </div>
 
-      <div className="flex gap-2 border-b border-slate-800">
-        <TabBtn active={tab === "main"} onClick={() => setTab("main")} icon={<Layers className="w-4 h-4" />} label="السلايدر الرئيسي" />
-        <TabBtn active={tab === "hero"} onClick={() => setTab("hero")} icon={<ImageIcon className="w-4 h-4" />} label="بناء الهيرو" />
-      </div>
+      <div className={fullscreen ? "grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_1fr] gap-4 mt-4" : "grid grid-cols-1 xl:grid-cols-[minmax(0,520px)_1fr] gap-6"}>
+        {/* Editor column */}
+        <div className="space-y-6 min-w-0">
+          <div className="flex gap-2 border-b border-slate-800">
+            <TabBtn active={tab === "hero"} onClick={() => setTab("hero")} icon={<ImageIcon className="w-4 h-4" />} label="بناء الهيرو" />
+            <TabBtn active={tab === "main"} onClick={() => setTab("main")} icon={<Layers className="w-4 h-4" />} label="السلايدر الرئيسي" />
+          </div>
 
-      {tab === "main" ? (
-        <MainSliderPanel
-          settings={settings}
-          slides={mainSlides}
-          onSettingsChange={updateSettings}
-          onSlidesChange={setMainSlides}
-          reload={load}
-        />
-      ) : (
-        <HeroPanel
-          settings={settings}
-          slides={heroSlides}
-          onSettingsChange={updateSettings}
-          onSlidesChange={setHeroSlides}
-          reload={load}
-        />
-      )}
+          {tab === "hero" && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 flex flex-wrap gap-2">
+              <button onClick={applyCurrentHeroPreset}
+                className="bg-trust-700 hover:bg-trust-600 rounded-lg px-3 py-2 text-sm flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" /> تحميل قالب الهيرو الحالي
+              </button>
+              <button onClick={resetToOriginalHero}
+                className="bg-slate-800 hover:bg-slate-700 rounded-lg px-3 py-2 text-sm flex items-center gap-1.5">
+                <RotateCcw className="w-4 h-4" /> إعادة تعيين للهيرو الأصلي
+              </button>
+              <span className="text-xs text-slate-400 self-center">
+                القالب نقطة بداية قابلة للتعديل بالكامل. الإعادة تعطّل الهيرو المُدار وتُعيد التصميم الأصلي المبني في الكود.
+              </span>
+            </div>
+          )}
+
+          {tab === "main" ? (
+            <MainSliderPanel settings={settings} slides={mainSlides} onSettingsChange={updateSettings} onSlidesChange={setMainSlides} reload={load} />
+          ) : (
+            <HeroPanel settings={settings} slides={heroSlides} onSettingsChange={updateSettings} onSlidesChange={setHeroSlides} reload={load} />
+          )}
+        </div>
+
+        {/* Live Preview column */}
+        <div className="min-w-0">
+          <div className="sticky top-20">
+            <div className="bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden">
+              <div className="flex flex-wrap items-center gap-2 p-2 border-b border-slate-800 bg-slate-950/60">
+                <span className="text-xs text-slate-400 mr-1">معاينة مباشرة</span>
+                <div className="flex bg-slate-800 rounded-md overflow-hidden">
+                  {(["desktop", "tablet", "mobile"] as const).map((d) => (
+                    <button key={d} onClick={() => setDevice(d)}
+                      className={`px-2 py-1.5 text-xs flex items-center gap-1 ${device === d ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>
+                      {d === "desktop" ? <Monitor className="w-3.5 h-3.5" /> : d === "tablet" ? <Tablet className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex bg-slate-800 rounded-md overflow-hidden">
+                  {(["ar", "en"] as const).map((l) => (
+                    <button key={l} onClick={() => setPreviewLang(l)}
+                      className={`px-2 py-1.5 text-xs ${previewLang === l ? "bg-emerald-600 text-white" : "text-slate-300 hover:bg-slate-700"}`}>
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={refreshPreview} className="px-2 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded-md flex items-center gap-1">
+                  <RefreshCcw className="w-3.5 h-3.5" /> تحديث
+                </button>
+                <button onClick={() => setFullscreen((v) => !v)} className="px-2 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded-md flex items-center gap-1 ms-auto">
+                  {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <div className="bg-slate-950 p-3 flex justify-center">
+                <div style={{ width: deviceWidth, maxWidth: "100%" }} className="transition-all">
+                  <iframe
+                    ref={iframeRef}
+                    key={previewSrc}
+                    src={previewSrc}
+                    title="معاينة"
+                    className="w-full bg-white rounded-lg border border-slate-800"
+                    style={{ height: fullscreen ? "80vh" : "70vh" }}
+                  />
+                </div>
+              </div>
+              {!status?.has_draft && !dirty && (
+                <div className="p-3 text-xs text-slate-400 border-t border-slate-800 bg-slate-950/60">
+                  المعاينة تعرض المسودة الحالية. لا توجد مسودة → المعاينة تطابق النسخة المنشورة.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
