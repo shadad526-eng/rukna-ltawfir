@@ -8,8 +8,9 @@ import {
   listCatalogs,
   listInsights,
 } from "@/lib/site.functions";
-import { getHomepageConfig } from "@/lib/homepage.functions";
+import { getHomepageConfig, getHomepageDraftConfig } from "@/lib/homepage.functions";
 import { HomepageMainSlider, HomepageManagerHero } from "@/components/site/HomepageManager";
+import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
