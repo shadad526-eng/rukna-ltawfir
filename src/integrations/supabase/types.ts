@@ -27,6 +27,7 @@ export type Database = {
           is_official: boolean
           mime_type: string | null
           original_filename: string | null
+          public_url: string | null
           storage_bucket: string
           storage_path: string
           uploaded_by: string | null
@@ -44,6 +45,7 @@ export type Database = {
           is_official?: boolean
           mime_type?: string | null
           original_filename?: string | null
+          public_url?: string | null
           storage_bucket: string
           storage_path: string
           uploaded_by?: string | null
@@ -61,6 +63,7 @@ export type Database = {
           is_official?: boolean
           mime_type?: string | null
           original_filename?: string | null
+          public_url?: string | null
           storage_bucket?: string
           storage_path?: string
           uploaded_by?: string | null
