@@ -38,20 +38,36 @@ export function getPublicDataClient() {
 
 export async function signedUrl(bucket: string, path: string | null | undefined, ttl = 3600) {
   if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
   const { data } = await getPublicDataClient().storage.from(bucket).createSignedUrl(path, ttl);
   return data?.signedUrl ?? null;
 }
 
-export async function assetUrl(assetId: string | null | undefined) {
+/**
+ * Central media URL resolver. Supports both legacy records (storage_bucket +
+ * storage_path only) and new records that carry a permanent public_url.
+ * Never persists the resolved URL — signed URLs are created at read time.
+ */
+export async function resolveMediaUrl(assetId: string | null | undefined) {
   if (!assetId) return null;
   const { data } = await getPublicDataClient()
     .from("assets")
-    .select("storage_bucket, storage_path")
+    .select("storage_bucket, storage_path, public_url")
     .eq("id", assetId)
     .maybeSingle();
   if (!data) return null;
-  return signedUrl(data.storage_bucket, data.storage_path);
+  const row = data as {
+    storage_bucket: string;
+    storage_path: string;
+    public_url?: string | null;
+  };
+  if (row.public_url && /^https?:\/\//i.test(row.public_url)) return row.public_url;
+  return signedUrl(row.storage_bucket, row.storage_path);
 }
+
+// Back-compat alias used across the site data layer.
+export const assetUrl = resolveMediaUrl;
+
 
 export function paragraphs(input: unknown): string[] {
   if (Array.isArray(input)) {

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { LLink } from "@/i18n/LLink";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Award, Truck, Headphones } from "lucide-react";
@@ -159,95 +160,84 @@ function RuknHeroLogo({ logoUrl }: { logoUrl: string | null }) {
   );
 }
 
-/* ─────────────── Colored brand strip (white pill below hero) ─────────────── */
+/* ─────────────── Brands carousel (below hero) ─────────────── */
 export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
-  const { lang } = useLocale();
+  const { lang, dir } = useLocale();
   const isAr = lang === "ar";
+  const [failed, setFailed] = useState<Record<string, true>>({});
+
+  // A card without a usable image is never rendered on the public site.
+  const items = brands.filter((b) => b.logo_url && !failed[b.slug]);
+  if (!items.length) return null;
+
   return (
-    <div
-      className="relative overflow-hidden rounded-[40px] border border-white/90"
-      style={{
-        background:
-          "linear-gradient(180deg, oklch(1 0 0 / 0.96) 0%, oklch(0.99 0.005 245 / 0.90) 100%)",
-        backdropFilter: "saturate(220%) blur(36px)",
-        WebkitBackdropFilter: "saturate(220%) blur(36px)",
-        boxShadow:
-          "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.07), 0 8px 18px oklch(0.32 0.13 245 / 0.08), 0 40px 80px -30px oklch(0.32 0.13 245 / 0.40), 0 80px 160px -60px oklch(0.32 0.13 245 / 0.34)",
-      }}
-    >
-      {/* Top hairline gradient */}
+    <section className="w-full" dir={dir} aria-labelledby="brands-strip-title">
+      <h2
+        id="brands-strip-title"
+        className="font-arabic text-2xl font-black tracking-tight text-foreground md:text-4xl"
+      >
+        {isAr ? "علاماتنا التجارية" : "Our Brands"}
+      </h2>
+      <div className="mt-2 h-1 w-16 rounded-full bg-leaf-500/80" aria-hidden />
+
       <div
-        className="pointer-events-none absolute inset-x-12 top-0 h-px"
+        className="mt-6 rounded-[32px] border border-white/90 px-3 py-5 md:px-5 md:py-6"
         style={{
           background:
-            "linear-gradient(90deg, transparent, oklch(0.46 0.16 245 / 0.50) 30%, oklch(0.68 0.17 138 / 0.50) 70%, transparent)",
+            "linear-gradient(180deg, oklch(1 0 0 / 0.96) 0%, oklch(0.99 0.005 245 / 0.90) 100%)",
+          boxShadow:
+            "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.07), 0 24px 48px -28px oklch(0.32 0.13 245 / 0.35)",
         }}
-        aria-hidden
-      />
-      {/* Soft inner top sheen */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-20"
-        style={{
-          background:
-            "linear-gradient(180deg, oklch(1 0 0 / 0.65), transparent)",
-        }}
-        aria-hidden
-      />
-      {/* Premium corner glow */}
-      <div
-        className="pointer-events-none absolute -right-20 -top-20 size-60 rounded-full opacity-50"
-        style={{
-          background:
-            "radial-gradient(closest-side, oklch(0.46 0.16 245 / 0.20), transparent 70%)",
-        }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full opacity-50"
-        style={{
-          background:
-            "radial-gradient(closest-side, oklch(0.68 0.17 138 / 0.18), transparent 70%)",
-        }}
-        aria-hidden
-      />
-      <div className="relative grid grid-cols-4 gap-x-2 gap-y-8 px-5 py-10 md:grid-cols-8 md:gap-x-4 md:px-14 md:py-14">
-        {brands.map((b, i) => {
-          const name = isAr ? b.name_ar : b.name_en;
-          return (
-          <LLink
-            key={b.slug}
-            to="/$lang/brands/$slug"
-            params={{ slug: b.slug }}
-            title={name}
-            className={`group relative grid h-28 place-items-center transition-all duration-300 hover:-translate-y-1.5 md:h-36 ${
-              i > 0 && i % 4 !== 0 ? "md:before:absolute md:before:right-[calc(100%+8px)] md:before:top-1/2 md:before:h-12 md:before:w-px md:before:-translate-y-1/2 md:before:bg-gradient-to-b md:before:from-transparent md:before:via-trust-300/50 md:before:to-transparent" : ""
-            }`}
-          >
-            {b.logo_url ? (
-              <div
-                className="relative grid size-24 place-items-center overflow-hidden rounded-full bg-white transition-all duration-300 group-hover:scale-[1.06] md:size-32"
-                style={{
-                  boxShadow:
-                    "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.10), 0 12px 24px -12px oklch(0.32 0.13 245 / 0.35)",
-                }}
-              >
-                <img
-                  src={b.logo_url}
-                  alt={`شعار العلامة التجارية ${name} — متوفرة عبر ركن التوفير في اليمن`}
-                  className="max-h-[78%] max-w-[82%] object-contain"
-                  loading="lazy"
-                  decoding="async"
-                  style={{ mixBlendMode: "multiply" }}
-                />
-              </div>
-            ) : null}
-          </LLink>
-        );
-        })}
+      >
+        {/* Only the carousel viewport clips — shadows of the panel stay visible. */}
+        <div className="brand-strip-viewport overflow-x-auto overflow-y-hidden">
+          <ul className="flex list-none flex-nowrap items-stretch gap-4 p-1">
+            {items.map((b) => {
+              const name = isAr ? b.name_ar : b.name_en;
+              return (
+                <li key={b.slug} className="w-[132px] shrink-0 md:w-[164px]">
+                  <LLink
+                    to="/$lang/brands/$slug"
+                    params={{ slug: b.slug }}
+                    title={name}
+                    className="group flex h-full flex-col items-center gap-2 rounded-2xl border border-trust-300/25 bg-white p-3 transition-transform duration-300 hover:-translate-y-1 md:p-4"
+                    style={{
+                      boxShadow:
+                        "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 10px 22px -14px oklch(0.32 0.13 245 / 0.35)",
+                    }}
+                  >
+                    <div className="grid aspect-square w-full place-items-center">
+                      <img
+                        src={b.logo_url as string}
+                        alt={
+                          isAr
+                            ? `شعار العلامة التجارية ${name} — متوفرة عبر ركن التوفير في اليمن`
+                            : `${name} brand logo — available through Rukn Al-Tawfir in Yemen`
+                        }
+                        className="h-full w-full"
+                        style={{ objectFit: "contain", objectPosition: "center" }}
+                        loading="lazy"
+                        decoding="async"
+                        onError={() => {
+                          console.error("[brand-strip] image failed to load:", b.logo_url);
+                          setFailed((f) => ({ ...f, [b.slug]: true }));
+                        }}
+                      />
+                    </div>
+                    <span className="line-clamp-1 text-center text-[11px] font-semibold text-ink-600 md:text-xs">
+                      {name}
+                    </span>
+                  </LLink>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
+
 
 
 /* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
