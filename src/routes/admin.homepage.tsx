@@ -33,6 +33,12 @@ type SliderCfg = {
   transition?: "fade" | "slide"; loop?: boolean;
   show_arrows?: boolean; show_dots?: boolean;
   pause_on_hover?: boolean; pause_on_interaction?: boolean;
+  aspect_desktop?: string; aspect_tablet?: string; aspect_mobile?: string;
+  fit?: "contain" | "cover";
+  image_position?: "center" | "top" | "bottom" | "start" | "end";
+  bg_color?: string;
+  heading_enabled?: boolean; heading_ar?: string; heading_en?: string;
+  heading_align?: "start" | "center" | "end";
 };
 type ImageCfg = {
   desktop_asset_id?: string | null; mobile_asset_id?: string | null;
@@ -79,6 +85,9 @@ type Slide = {
 const DEFAULT_SLIDER_CFG: SliderCfg = {
   autoplay: true, interval_ms: 5000, transition_ms: 500, transition: "slide",
   loop: true, show_arrows: true, show_dots: true, pause_on_hover: true, pause_on_interaction: true,
+  aspect_desktop: "21/9", aspect_tablet: "16/9", aspect_mobile: "4/3",
+  fit: "contain", image_position: "center", bg_color: "#0f172a",
+  heading_enabled: false, heading_align: "start",
 };
 
 /* ============================== ROOT PAGE ============================== */
@@ -398,6 +407,7 @@ function MainSliderPanel({ settings, slides, onSettingsChange, onSlidesChange, r
 
       <SliderConfigCard
         title="إعدادات العرض"
+        withHeading
         config={settings.main_slider_config}
         onChange={(cfg) => onSettingsChange({ main_slider_config: cfg })}
       />
@@ -819,30 +829,90 @@ function SlideRow({ slide, first, last, expanded, onToggle, onMoveUp, onMoveDown
 }
 
 /* ============================== SLIDER CONFIG CARD ============================== */
-function SliderConfigCard({ title, config, onChange }: { title: string; config: SliderCfg; onChange: (c: SliderCfg) => void }) {
+const ASPECT_OPTIONS = [
+  { value: "21/9", label: "عريض جدًا 21:9" },
+  { value: "16/9", label: "عريض 16:9" },
+  { value: "16/6", label: "بانر 16:6" },
+  { value: "3/2", label: "3:2" },
+  { value: "4/3", label: "4:3" },
+  { value: "1/1", label: "مربع 1:1" },
+  { value: "4/5", label: "طولي 4:5" },
+];
+
+function SliderConfigCard({ title, config, onChange, withHeading }: { title: string; config: SliderCfg; onChange: (c: SliderCfg) => void; withHeading?: boolean }) {
   const c = config ?? {};
   const set = (patch: Partial<SliderCfg>) => onChange({ ...c, ...patch });
   return (
-    <Card title={title}>
-      <div className="grid md:grid-cols-4 gap-4">
-        <Toggle label="تشغيل تلقائي" checked={c.autoplay !== false} onChange={(v) => set({ autoplay: v })} />
-        <NumberField label="الفاصل (مللي ثانية)" value={c.interval_ms ?? 5000} onChange={(v) => set({ interval_ms: v })} min={1500} step={500} />
-        <NumberField label="مدة الانتقال" value={c.transition_ms ?? 500} onChange={(v) => set({ transition_ms: v })} min={150} step={50} />
-        <SelectField
-          label="نمط الانتقال"
-          value={c.transition ?? "slide"}
-          onChange={(v) => set({ transition: v as any })}
-          options={[{ value: "slide", label: "انزلاق" }, { value: "fade", label: "تلاشي" }]}
-        />
-        <Toggle label="تكرار (Loop)" checked={c.loop !== false} onChange={(v) => set({ loop: v })} />
-        <Toggle label="أسهم" checked={c.show_arrows !== false} onChange={(v) => set({ show_arrows: v })} />
-        <Toggle label="نقاط" checked={c.show_dots !== false} onChange={(v) => set({ show_dots: v })} />
-        <Toggle label="إيقاف عند التمرير" checked={c.pause_on_hover !== false} onChange={(v) => set({ pause_on_hover: v })} />
-        <Toggle label="إيقاف بعد تفاعل" checked={c.pause_on_interaction !== false} onChange={(v) => set({ pause_on_interaction: v })} />
-      </div>
-    </Card>
+    <>
+      <Card title={title}>
+        <div className="grid md:grid-cols-4 gap-4">
+          <Toggle label="تشغيل تلقائي" checked={c.autoplay !== false} onChange={(v) => set({ autoplay: v })} />
+          <NumberField label="الفاصل (مللي ثانية)" value={c.interval_ms ?? 5000} onChange={(v) => set({ interval_ms: v })} min={1500} step={500} />
+          <NumberField label="مدة الانتقال" value={c.transition_ms ?? 500} onChange={(v) => set({ transition_ms: v })} min={150} step={50} />
+          <SelectField
+            label="نمط الانتقال"
+            value={c.transition ?? "slide"}
+            onChange={(v) => set({ transition: v as any })}
+            options={[{ value: "slide", label: "انزلاق" }, { value: "fade", label: "تلاشي" }]}
+          />
+          <Toggle label="تكرار (Loop)" checked={c.loop !== false} onChange={(v) => set({ loop: v })} />
+          <Toggle label="أسهم" checked={c.show_arrows !== false} onChange={(v) => set({ show_arrows: v })} />
+          <Toggle label="نقاط" checked={c.show_dots !== false} onChange={(v) => set({ show_dots: v })} />
+          <Toggle label="إيقاف عند التمرير" checked={c.pause_on_hover !== false} onChange={(v) => set({ pause_on_hover: v })} />
+          <Toggle label="إيقاف بعد تفاعل" checked={c.pause_on_interaction !== false} onChange={(v) => set({ pause_on_interaction: v })} />
+        </div>
+      </Card>
+
+      <Card title="الأبعاد وطريقة عرض الصورة">
+        <div className="grid md:grid-cols-3 gap-4">
+          <SelectField label="نسبة سطح المكتب" value={c.aspect_desktop ?? "21/9"} onChange={(v) => set({ aspect_desktop: v })} options={ASPECT_OPTIONS} />
+          <SelectField label="نسبة الجهاز اللوحي" value={c.aspect_tablet ?? "16/9"} onChange={(v) => set({ aspect_tablet: v })} options={ASPECT_OPTIONS} />
+          <SelectField label="نسبة الهاتف" value={c.aspect_mobile ?? "4/3"} onChange={(v) => set({ aspect_mobile: v })} options={ASPECT_OPTIONS} />
+          <SelectField
+            label="طريقة عرض الصورة"
+            value={c.fit ?? "contain"}
+            onChange={(v) => set({ fit: v as any })}
+            options={[{ value: "contain", label: "احتواء كامل (Contain)" }, { value: "cover", label: "ملء الإطار (Cover)" }]}
+          />
+          <SelectField
+            label="محاذاة الصورة"
+            value={c.image_position ?? "center"}
+            onChange={(v) => set({ image_position: v as any })}
+            options={[
+              { value: "center", label: "وسط" },
+              { value: "top", label: "أعلى" },
+              { value: "bottom", label: "أسفل" },
+              { value: "start", label: "بداية السطر" },
+              { value: "end", label: "نهاية السطر" },
+            ]}
+          />
+          <TextField label="لون الخلفية" value={c.bg_color ?? "#0f172a"} onChange={(v) => set({ bg_color: v })} ltr placeholder="#0f172a" />
+        </div>
+      </Card>
+
+      {withHeading && (
+        <Card title="عنوان فوق السلايدر (اختياري)">
+          <div className="grid md:grid-cols-2 gap-4">
+            <Toggle label="إظهار العنوان" checked={c.heading_enabled === true} onChange={(v) => set({ heading_enabled: v })} />
+            <SelectField
+              label="محاذاة العنوان"
+              value={c.heading_align ?? "start"}
+              onChange={(v) => set({ heading_align: v as any })}
+              options={[
+                { value: "start", label: "بداية السطر (يمين في العربية)" },
+                { value: "center", label: "وسط" },
+                { value: "end", label: "نهاية السطر" },
+              ]}
+            />
+            <TextField label="العنوان (عربي)" value={c.heading_ar ?? ""} onChange={(v) => set({ heading_ar: v })} />
+            <TextField label="العنوان (إنجليزي)" value={c.heading_en ?? ""} onChange={(v) => set({ heading_en: v })} ltr />
+          </div>
+        </Card>
+      )}
+    </>
   );
 }
+
 
 /* ============================== SHARED FIELDS ============================== */
 function Card({ title, children }: { title: string; children: React.ReactNode }) {

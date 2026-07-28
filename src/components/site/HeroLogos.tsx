@@ -189,13 +189,14 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
             "0 1px 0 oklch(1 0 0 / 0.95) inset, 0 0 0 1px oklch(0.46 0.16 245 / 0.07), 0 24px 48px -28px oklch(0.32 0.13 245 / 0.35)",
         }}
       >
-        {/* Only the carousel viewport clips — shadows of the panel stay visible. */}
-        <div className="brand-strip-viewport overflow-x-auto overflow-y-hidden">
-          <ul className="flex list-none flex-nowrap items-stretch gap-4 p-1">
+        {/* Static responsive grid — no carousel, no overlapping cards. */}
+        <div>
+          <ul className="grid list-none grid-cols-2 items-stretch gap-4 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {items.map((b) => {
               const name = isAr ? b.name_ar : b.name_en;
               return (
-                <li key={b.slug} className="w-[132px] shrink-0 md:w-[164px]">
+                <li key={b.slug} className="w-full">
+
                   <LLink
                     to="/$lang/brands/$slug"
                     params={{ slug: b.slug }}

@@ -74,20 +74,42 @@ function useSlideshow(count: number, cfg: SliderConfig, paused: boolean) {
   return [index, setIndex] as const;
 }
 
+const ASPECT_RE = /^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/;
+function safeAspect(value: string | undefined, fallback: string) {
+  const v = (value ?? "").trim();
+  return ASPECT_RE.test(v) ? v : fallback;
+}
+
+function objectPositionOf(pos: SliderConfig["image_position"], isAr: boolean) {
+  switch (pos) {
+    case "top":
+      return "center top";
+    case "bottom":
+      return "center bottom";
+    case "start":
+      return isAr ? "right center" : "left center";
+    case "end":
+      return isAr ? "left center" : "right center";
+    default:
+      return "center center";
+  }
+}
+
 export function HomepageSlider({
   slides,
   config,
   variant = "banner",
 }: {
   slides: PublicSlide[];
-  config: SliderConfig;
+  config?: SliderConfig | null;
   variant?: "banner" | "hero";
 }) {
   const { lang, dir } = useLocale();
   const isAr = lang === "ar";
+  const cfg: SliderConfig = config ?? {};
   const [paused, setPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [index, setIndex] = useSlideshow(slides.length, config, paused);
+  const [failed, setFailed] = useState<Record<string, true>>({});
   const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
@@ -97,36 +119,53 @@ export function HomepageSlider({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  if (!slides.length) return null;
+  const usable = (slides ?? []).filter(
+    (s) => s && s.id && (s.desktop_url || s.mobile_url) && !failed[s.id],
+  );
+
+  const [index, setIndex] = useSlideshow(usable.length, cfg, paused);
+
+  useEffect(() => {
+    if (index >= usable.length) setIndex(0);
+  }, [usable.length, index, setIndex]);
+
+  if (!usable.length) return null;
+
+  const safeIndex = Math.min(index, usable.length - 1);
 
   const goTo = (i: number) => {
-    if (config.pause_on_interaction) setPaused(true);
-    setIndex(((i % slides.length) + slides.length) % slides.length);
+    if (cfg.pause_on_interaction !== false) setPaused(true);
+    setIndex(((i % usable.length) + usable.length) % usable.length);
   };
-  const prev = () => goTo(index - 1);
-  const next = () => goTo(index + 1);
+  const prev = () => goTo(safeIndex - 1);
+  const next = () => goTo(safeIndex + 1);
 
-  const isFade = config.transition === "fade";
-  const transMs = Math.max(150, config.transition_ms ?? 500);
-  const aspectClass =
-    variant === "hero"
-      ? "aspect-[16/9] md:aspect-[21/9] min-h-[380px] md:min-h-[520px]"
-      : "aspect-[16/6] md:aspect-[21/6] min-h-[220px] md:min-h-[300px]";
+  const isFade = cfg.transition === "fade";
+  const transMs = Math.max(150, cfg.transition_ms ?? 500);
+  const fit = cfg.fit === "cover" ? "cover" : "contain";
+  const objectPosition = objectPositionOf(cfg.image_position, isAr);
+  const bg = cfg.bg_color || "#0f172a";
+
+  const aspectVars = {
+    "--hp-ar-mobile": safeAspect(cfg.aspect_mobile, variant === "hero" ? "4/3" : "4/3"),
+    "--hp-ar-tablet": safeAspect(cfg.aspect_tablet, "16/9"),
+    "--hp-ar-desktop": safeAspect(cfg.aspect_desktop, variant === "hero" ? "16/9" : "21/9"),
+    background: bg,
+  } as React.CSSProperties;
 
   return (
     <div
-      className={`relative w-full overflow-hidden bg-slate-900 ${aspectClass}`}
+      className="hp-slider relative w-full max-w-full overflow-hidden"
       dir={dir}
-      onMouseEnter={() => config.pause_on_hover && setPaused(true)}
-      onMouseLeave={() => config.pause_on_hover && setPaused(false)}
+      style={aspectVars}
+      onMouseEnter={() => cfg.pause_on_hover !== false && setPaused(true)}
+      onMouseLeave={() => cfg.pause_on_hover !== false && setPaused(false)}
       onTouchStart={(e) => {
         touchStart.current = e.touches[0].clientX;
-        if (config.pause_on_hover) setPaused(true);
       }}
       onTouchEnd={(e) => {
         const start = touchStart.current;
         touchStart.current = null;
-        if (config.pause_on_hover) setPaused(false);
         if (start == null) return;
         const delta = e.changedTouches[0].clientX - start;
         if (Math.abs(delta) < 40) return;
@@ -136,8 +175,8 @@ export function HomepageSlider({
     >
       {/* Slides */}
       <div className="absolute inset-0">
-        {slides.map((s, i) => {
-          const active = i === index;
+        {usable.map((s, i) => {
+          const active = i === safeIndex;
           const src = (isMobile && s.mobile_url) || s.desktop_url || s.mobile_url;
           const alt = (isAr ? s.alt_ar : s.alt_en) || (isAr ? s.title_ar : s.title_en) || "";
           const title = (isAr ? s.title_ar : s.title_en) || "";
@@ -150,36 +189,35 @@ export function HomepageSlider({
                 pointerEvents: active ? "auto" : "none",
               }
             : {
-                transform: `translateX(${(i - index) * 100 * (isAr ? -1 : 1)}%)`,
+                transform: `translateX(${(i - safeIndex) * 100 * (isAr ? -1 : 1)}%)`,
                 transition: `transform ${transMs}ms ease-out`,
                 opacity: 1,
               };
+          const hasOverlayContent = !!(title || desc || ctaHref(s.cta1) || ctaHref(s.cta2));
           return (
             <div key={s.id} className={base} style={style} aria-hidden={!active}>
               {src ? (
                 <img
                   src={src}
                   alt={alt}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full"
+                  style={{ objectFit: fit, objectPosition }}
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"
+                  onError={() => setFailed((f) => ({ ...f, [s.id]: true }))}
                 />
-              ) : (
-                <div className="h-full w-full bg-gradient-to-br from-trust-700 to-trust-900" />
-              )}
-              {(title || desc || ctaHref(s.cta1) || ctaHref(s.cta2)) && (
-                <div className="absolute inset-0 bg-black/30" />
-              )}
-              {(title || desc || ctaHref(s.cta1) || ctaHref(s.cta2)) && (
+              ) : null}
+              {hasOverlayContent && <div className="absolute inset-0 bg-black/30" />}
+              {hasOverlayContent && (
                 <div className="relative z-10 mx-auto flex h-full max-w-6xl items-center px-4 md:px-8">
                   <div className="max-w-xl text-white">
                     {title && (
-                      <h2 className="text-2xl font-black leading-tight drop-shadow-md md:text-4xl">
+                      <h2 className="text-xl font-black leading-tight drop-shadow-md md:text-4xl">
                         {title}
                       </h2>
                     )}
                     {desc && (
-                      <p className="mt-3 text-sm leading-relaxed text-white/90 md:text-base">
+                      <p className="mt-3 hidden text-sm leading-relaxed text-white/90 sm:block md:text-base">
                         {desc}
                       </p>
                     )}
@@ -197,7 +235,7 @@ export function HomepageSlider({
         })}
       </div>
 
-      {config.show_arrows && slides.length > 1 && (
+      {cfg.show_arrows !== false && usable.length > 1 && (
         <>
           <button
             onClick={prev}
@@ -218,15 +256,15 @@ export function HomepageSlider({
         </>
       )}
 
-      {config.show_dots && slides.length > 1 && (
+      {cfg.show_dots !== false && usable.length > 1 && (
         <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {slides.map((_, i) => (
+          {usable.map((_, i) => (
             <button
               key={i}
               aria-label={`Go to slide ${i + 1}`}
               onClick={() => goTo(i)}
               className={`h-2 rounded-full transition-all ${
-                i === index ? "w-8 bg-white" : "w-2 bg-white/60 hover:bg-white/80"
+                i === safeIndex ? "w-8 bg-white" : "w-2 bg-white/60 hover:bg-white/80"
               }`}
             />
           ))}
@@ -425,8 +463,37 @@ export function HomepageManagerHero({ config }: { config: HomepageConfig["hero"]
 export function HomepageMainSlider({
   config,
 }: {
-  config: HomepageConfig["main_slider"];
+  config?: HomepageConfig["main_slider"] | null;
 }) {
-  if (!config.enabled || !config.slides.length) return null;
-  return <HomepageSlider slides={config.slides} config={config.config} variant="banner" />;
+  const { lang, dir } = useLocale();
+  if (!config || !config.enabled) return null;
+  const cfg = config.config ?? {};
+  const slides = (config.slides ?? []).filter((s) => s && (s.desktop_url || s.mobile_url));
+  if (!slides.length) return null;
+
+  const isAr = lang === "ar";
+  const heading = ((isAr ? cfg.heading_ar : cfg.heading_en) || "").trim();
+  const showHeading = cfg.heading_enabled === true && !!heading;
+  const align = cfg.heading_align ?? "start";
+  const alignCls =
+    align === "center" ? "text-center" : align === "end" ? "text-end" : "text-start";
+
+  return (
+    <section className="w-full" dir={dir}>
+      {showHeading && (
+        <div className={`mx-auto max-w-6xl px-4 pt-10 pb-5 md:px-8 md:pt-14 ${alignCls}`}>
+          <h2 className="font-arabic text-2xl font-black tracking-tight text-foreground md:text-4xl">
+            {heading}
+          </h2>
+          <div
+            className={`mt-2 h-1 w-16 rounded-full bg-leaf-500/80 ${
+              align === "center" ? "mx-auto" : align === "end" ? "ms-auto" : ""
+            }`}
+            aria-hidden
+          />
+        </div>
+      )}
+      <HomepageSlider slides={slides} config={cfg} variant="banner" />
+    </section>
+  );
 }
