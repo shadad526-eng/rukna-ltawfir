@@ -463,8 +463,37 @@ export function HomepageManagerHero({ config }: { config: HomepageConfig["hero"]
 export function HomepageMainSlider({
   config,
 }: {
-  config: HomepageConfig["main_slider"];
+  config?: HomepageConfig["main_slider"] | null;
 }) {
-  if (!config.enabled || !config.slides.length) return null;
-  return <HomepageSlider slides={config.slides} config={config.config} variant="banner" />;
+  const { lang, dir } = useLocale();
+  if (!config || !config.enabled) return null;
+  const cfg = config.config ?? {};
+  const slides = (config.slides ?? []).filter((s) => s && (s.desktop_url || s.mobile_url));
+  if (!slides.length) return null;
+
+  const isAr = lang === "ar";
+  const heading = ((isAr ? cfg.heading_ar : cfg.heading_en) || "").trim();
+  const showHeading = cfg.heading_enabled === true && !!heading;
+  const align = cfg.heading_align ?? "start";
+  const alignCls =
+    align === "center" ? "text-center" : align === "end" ? "text-end" : "text-start";
+
+  return (
+    <section className="w-full" dir={dir}>
+      {showHeading && (
+        <div className={`mx-auto max-w-6xl px-4 pt-10 pb-5 md:px-8 md:pt-14 ${alignCls}`}>
+          <h2 className="font-arabic text-2xl font-black tracking-tight text-foreground md:text-4xl">
+            {heading}
+          </h2>
+          <div
+            className={`mt-2 h-1 w-16 rounded-full bg-leaf-500/80 ${
+              align === "center" ? "mx-auto" : align === "end" ? "ms-auto" : ""
+            }`}
+            aria-hidden
+          />
+        </div>
+      )}
+      <HomepageSlider slides={slides} config={cfg} variant="banner" />
+    </section>
+  );
 }
