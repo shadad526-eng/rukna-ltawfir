@@ -192,10 +192,11 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
         {/* Static responsive grid — no carousel, no overlapping cards. */}
         <div>
           <ul className="grid list-none grid-cols-2 items-stretch gap-4 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-
+            {items.map((b) => {
               const name = isAr ? b.name_ar : b.name_en;
               return (
-                <li key={b.slug} className="w-[132px] shrink-0 md:w-[164px]">
+                <li key={b.slug} className="w-full">
+
                   <LLink
                     to="/$lang/brands/$slug"
                     params={{ slug: b.slug }}
