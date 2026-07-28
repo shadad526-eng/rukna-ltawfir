@@ -21,6 +21,18 @@ export type SliderConfig = {
   show_dots?: boolean;
   pause_on_hover?: boolean;
   pause_on_interaction?: boolean;
+  /* Presentation (safe defaults are applied when missing) */
+  aspect_desktop?: string;
+  aspect_tablet?: string;
+  aspect_mobile?: string;
+  fit?: "contain" | "cover";
+  image_position?: "center" | "top" | "bottom" | "start" | "end";
+  bg_color?: string;
+  /* Optional heading rendered above the slider */
+  heading_enabled?: boolean;
+  heading_ar?: string;
+  heading_en?: string;
+  heading_align?: "start" | "center" | "end";
 };
 
 export type HeroImageConfig = {
