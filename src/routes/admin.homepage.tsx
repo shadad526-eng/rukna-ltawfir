@@ -85,6 +85,9 @@ type Slide = {
 const DEFAULT_SLIDER_CFG: SliderCfg = {
   autoplay: true, interval_ms: 5000, transition_ms: 500, transition: "slide",
   loop: true, show_arrows: true, show_dots: true, pause_on_hover: true, pause_on_interaction: true,
+  aspect_desktop: "21/9", aspect_tablet: "16/9", aspect_mobile: "4/3",
+  fit: "contain", image_position: "center", bg_color: "#0f172a",
+  heading_enabled: false, heading_align: "start",
 };
 
 /* ============================== ROOT PAGE ============================== */
@@ -404,6 +407,7 @@ function MainSliderPanel({ settings, slides, onSettingsChange, onSlidesChange, r
 
       <SliderConfigCard
         title="إعدادات العرض"
+        withHeading
         config={settings.main_slider_config}
         onChange={(cfg) => onSettingsChange({ main_slider_config: cfg })}
       />
