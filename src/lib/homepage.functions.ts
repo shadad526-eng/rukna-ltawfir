@@ -171,6 +171,14 @@ const DEFAULT_SLIDER: SliderConfig = {
   show_dots: true,
   pause_on_hover: true,
   pause_on_interaction: true,
+  aspect_desktop: "21/9",
+  aspect_tablet: "16/9",
+  aspect_mobile: "4/3",
+  fit: "contain",
+  image_position: "center",
+  bg_color: "#0f172a",
+  heading_enabled: false,
+  heading_align: "start",
 };
 
 export type HomepageSettingsSnapshot = {
