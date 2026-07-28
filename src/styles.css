@@ -594,3 +594,15 @@
 .brand-strip-viewport > ul > li { scroll-snap-align: start; }
 .brand-strip-viewport::-webkit-scrollbar { height: 6px; }
 .brand-strip-viewport::-webkit-scrollbar-thumb { background: oklch(0.46 0.16 245 / 0.25); border-radius: 999px; }
+
+/* Homepage main/hero slider — fixed responsive aspect ratios */
+.hp-slider {
+  aspect-ratio: var(--hp-ar-mobile, 4 / 3);
+  max-height: 78vh;
+}
+@media (min-width: 768px) {
+  .hp-slider { aspect-ratio: var(--hp-ar-tablet, 16 / 9); }
+}
+@media (min-width: 1280px) {
+  .hp-slider { aspect-ratio: var(--hp-ar-desktop, 21 / 9); }
+}
