@@ -244,9 +244,8 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
       picked.push(r);
       if (picked.length >= 8) break;
     }
-    const out: ProductSummary[] = [];
-    for (const r of picked) {
-      out.push({
+    const out: ProductSummary[] = await Promise.all(
+      picked.map(async (r) => ({
         id: r.id,
         slug: r.slug,
         brand_slug: r.brand!.slug,
@@ -254,8 +253,9 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
         name_en: r.name_en,
         short_description_ar: r.short_description_ar,
         cover_url: await assetUrl(r.cover_asset_id),
-      });
-    }
+      })),
+    );
+
     return out;
   },
 );
