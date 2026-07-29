@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assetUrl, getPublicDataClient } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, resolveMediaUrls } from "./site-public-data.server";
 
 export type HomepageCTA = {
   enabled?: boolean;
@@ -132,11 +132,11 @@ async function slidesFor(group: "main" | "hero"): Promise<PublicSlide[]> {
     .eq("is_visible", true)
     .order("sort_order", { ascending: true });
   const rows = (data ?? []) as any[];
-  return await Promise.all(
-    rows.map(async (r) => ({
+  const media = await resolveMediaUrls(rows.flatMap((r) => [r.desktop_asset_id, r.mobile_asset_id]));
+  return rows.map((r) => ({
       id: r.id,
-      desktop_url: await assetUrl(r.desktop_asset_id),
-      mobile_url: await assetUrl(r.mobile_asset_id),
+      desktop_url: media.get(r.desktop_asset_id) ?? null,
+      mobile_url: media.get(r.mobile_asset_id) ?? null,
       title_ar: r.title_ar,
       title_en: r.title_en,
       description_ar: r.description_ar,
@@ -145,8 +145,7 @@ async function slidesFor(group: "main" | "hero"): Promise<PublicSlide[]> {
       alt_en: r.alt_en,
       cta1: (r.cta1 ?? {}) as HomepageCTA,
       cta2: (r.cta2 ?? {}) as HomepageCTA,
-    })),
-  );
+    }));
 }
 
 const DEFAULT_SLIDER: SliderConfig = {
@@ -186,12 +185,12 @@ async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
     slidesFor("hero"),
   ]);
 
-  const [imgDesktop, imgMobile, bgImg, mainImg, logoImg] = await Promise.all([
-    assetUrl(imageCfg.desktop_asset_id ?? null),
-    assetUrl(imageCfg.mobile_asset_id ?? null),
-    assetUrl(customCfg.bg_image_asset_id ?? null),
-    assetUrl(customCfg.main_image_asset_id ?? null),
-    assetUrl(customCfg.logo_asset_id ?? null),
+  const heroMedia = await resolveMediaUrls([
+    imageCfg.desktop_asset_id,
+    imageCfg.mobile_asset_id,
+    customCfg.bg_image_asset_id,
+    customCfg.main_image_asset_id,
+    customCfg.logo_asset_id,
   ]);
 
   return {
@@ -206,16 +205,20 @@ async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
     hero: {
       enabled: !!row.hero_enabled,
       type: (row.hero_type ?? "image") as "image" | "slider" | "custom",
-      image: { ...imageCfg, desktop_url: imgDesktop, mobile_url: imgMobile },
+      image: {
+        ...imageCfg,
+        desktop_url: heroMedia.get(imageCfg.desktop_asset_id ?? "") ?? null,
+        mobile_url: heroMedia.get(imageCfg.mobile_asset_id ?? "") ?? null,
+      },
       slider: {
         config: { ...DEFAULT_SLIDER, ...(row.hero_slider_config ?? {}) },
         slides: heroSlides,
       },
       custom: {
         ...customCfg,
-        bg_image_url: bgImg,
-        main_image_url: mainImg,
-        logo_url: logoImg,
+        bg_image_url: heroMedia.get(customCfg.bg_image_asset_id ?? "") ?? null,
+        main_image_url: heroMedia.get(customCfg.main_image_asset_id ?? "") ?? null,
+        logo_url: heroMedia.get(customCfg.logo_asset_id ?? "") ?? null,
       },
     },
   };
