@@ -486,9 +486,8 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const items: InsightSummary[] = [];
-    for (const r of rows ?? []) {
-      items.push({
+    const items: InsightSummary[] = await Promise.all(
+      (rows ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -497,9 +496,10 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
     return items;
   });
 
