@@ -36,21 +36,201 @@ export function getPublicDataClient() {
   return publicDataClient;
 }
 
-export async function signedUrl(bucket: string, path: string | null | undefined, ttl = 3600) {
-  if (!path) return null;
-  const { data } = await getPublicDataClient().storage.from(bucket).createSignedUrl(path, ttl);
-  return data?.signedUrl ?? null;
+/* ------------------------------------------------------------------ *
+ * Resilience helpers
+ *
+ * Pages resolve dozens of media URLs per render. Issuing one asset row
+ * lookup + one storage signed-URL call per media item (N+1) saturates the
+ * backend and makes SSR hang, which surfaces as a 500. The helpers below
+ * keep the exact same public API (`assetUrl` / `signedUrl`) while:
+ *   - coalescing calls made in the same tick into ONE batched request,
+ *   - caching results in-process with a TTL,
+ *   - de-duplicating concurrent identical lookups,
+ *   - enforcing a hard timeout so a slow backend degrades to a missing
+ *     image instead of a hanging request.
+ * ------------------------------------------------------------------ */
+
+const LOOKUP_TIMEOUT_MS = 8_000;
+const SIGNED_URL_TTL_SECONDS = 3600;
+// Re-sign well before expiry so cached URLs are never handed out stale.
+const SIGNED_URL_CACHE_MS = (SIGNED_URL_TTL_SECONDS - 600) * 1000;
+const ASSET_META_CACHE_MS = 5 * 60 * 1000;
+const NEGATIVE_CACHE_MS = 30 * 1000;
+
+type AssetMeta = { storage_bucket: string; storage_path: string } | null;
+
+type CacheEntry<T> = { value: T; expiresAt: number };
+
+const assetMetaCache = new Map<string, CacheEntry<AssetMeta>>();
+const signedUrlCache = new Map<string, CacheEntry<string | null>>();
+
+function readCache<T>(cache: Map<string, CacheEntry<T>>, key: string): { hit: boolean; value?: T } {
+  const entry = cache.get(key);
+  if (!entry) return { hit: false };
+  if (Date.now() > entry.expiresAt) {
+    cache.delete(key);
+    return { hit: false };
+  }
+  return { hit: true, value: entry.value };
 }
 
-export async function assetUrl(assetId: string | null | undefined) {
+function writeCache<T>(cache: Map<string, CacheEntry<T>>, key: string, value: T, ttlMs: number) {
+  cache.set(key, { value, expiresAt: Date.now() + ttlMs });
+}
+
+async function withTimeout<T>(work: Promise<T>, fallback: T, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const guard = new Promise<T>((resolve) => {
+    timer = setTimeout(() => {
+      console.error(`[site-public-data] timeout after ${LOOKUP_TIMEOUT_MS}ms: ${label}`);
+      resolve(fallback);
+    }, LOOKUP_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([
+      work.catch((error) => {
+        console.error(`[site-public-data] failed: ${label}`, error);
+        return fallback;
+      }),
+      guard,
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+/* ---------------- batched asset metadata resolution ---------------- */
+
+type PendingAsset = {
+  resolve: (meta: AssetMeta) => void;
+};
+
+let assetBatch: Map<string, PendingAsset[]> | undefined;
+
+function flushAssetBatch(batch: Map<string, PendingAsset[]>) {
+  const ids = [...batch.keys()];
+  const work = (async (): Promise<Map<string, AssetMeta>> => {
+    const { data, error } = await getPublicDataClient()
+      .from("assets")
+      .select("id, storage_bucket, storage_path")
+      .in("id", ids);
+    if (error) throw error;
+    const map = new Map<string, AssetMeta>();
+    for (const row of (data ?? []) as Array<{
+      id: string;
+      storage_bucket: string;
+      storage_path: string;
+    }>) {
+      map.set(row.id, { storage_bucket: row.storage_bucket, storage_path: row.storage_path });
+    }
+    return map;
+  })();
+
+  void withTimeout(work, new Map<string, AssetMeta>(), `assets lookup (${ids.length})`).then(
+    (map) => {
+      for (const [id, waiters] of batch) {
+        const meta = map.get(id) ?? null;
+        writeCache(assetMetaCache, id, meta, meta ? ASSET_META_CACHE_MS : NEGATIVE_CACHE_MS);
+        for (const waiter of waiters) waiter.resolve(meta);
+      }
+    },
+  );
+}
+
+function loadAssetMeta(assetId: string): Promise<AssetMeta> {
+  const cached = readCache(assetMetaCache, assetId);
+  if (cached.hit) return Promise.resolve(cached.value as AssetMeta);
+
+  return new Promise<AssetMeta>((resolve) => {
+    if (!assetBatch) {
+      assetBatch = new Map();
+      const batch = assetBatch;
+      queueMicrotask(() => {
+        assetBatch = undefined;
+        flushAssetBatch(batch);
+      });
+    }
+    const waiters = assetBatch.get(assetId);
+    if (waiters) waiters.push({ resolve });
+    else assetBatch.set(assetId, [{ resolve }]);
+  });
+}
+
+/* ---------------- batched signed URL resolution ---------------- */
+
+type PendingSigned = { resolve: (url: string | null) => void };
+
+let signedBatch: Map<string, Map<string, PendingSigned[]>> | undefined;
+
+function flushSignedBatch(batch: Map<string, Map<string, PendingSigned[]>>) {
+  for (const [bucket, byPath] of batch) {
+    const paths = [...byPath.keys()];
+    const work = (async (): Promise<Map<string, string | null>> => {
+      const map = new Map<string, string | null>();
+      const { data, error } = await getPublicDataClient()
+        .storage.from(bucket)
+        .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+      if (error) throw error;
+      for (const item of data ?? []) {
+        if (item.path) map.set(item.path, item.signedUrl ?? null);
+      }
+      return map;
+    })();
+
+    void withTimeout(
+      work,
+      new Map<string, string | null>(),
+      `signed urls ${bucket} (${paths.length})`,
+    ).then((map) => {
+      for (const [path, waiters] of byPath) {
+        const url = map.get(path) ?? null;
+        writeCache(
+          signedUrlCache,
+          `${bucket}::${path}`,
+          url,
+          url ? SIGNED_URL_CACHE_MS : NEGATIVE_CACHE_MS,
+        );
+        for (const waiter of waiters) waiter.resolve(url);
+      }
+    });
+  }
+}
+
+export async function signedUrl(
+  bucket: string,
+  path: string | null | undefined,
+  _ttl = SIGNED_URL_TTL_SECONDS,
+): Promise<string | null> {
+  if (!path) return null;
+  const key = `${bucket}::${path}`;
+  const cached = readCache(signedUrlCache, key);
+  if (cached.hit) return cached.value ?? null;
+
+  return new Promise<string | null>((resolve) => {
+    if (!signedBatch) {
+      signedBatch = new Map();
+      const batch = signedBatch;
+      queueMicrotask(() => {
+        signedBatch = undefined;
+        flushSignedBatch(batch);
+      });
+    }
+    let byPath = signedBatch.get(bucket);
+    if (!byPath) {
+      byPath = new Map();
+      signedBatch.set(bucket, byPath);
+    }
+    const waiters = byPath.get(path);
+    if (waiters) waiters.push({ resolve });
+    else byPath.set(path, [{ resolve }]);
+  });
+}
+
+export async function assetUrl(assetId: string | null | undefined): Promise<string | null> {
   if (!assetId) return null;
-  const { data } = await getPublicDataClient()
-    .from("assets")
-    .select("storage_bucket, storage_path")
-    .eq("id", assetId)
-    .maybeSingle();
-  if (!data) return null;
-  return signedUrl(data.storage_bucket, data.storage_path);
+  const meta = await loadAssetMeta(assetId);
+  if (!meta) return null;
+  return signedUrl(meta.storage_bucket, meta.storage_path);
 }
 
 export function paragraphs(input: unknown): string[] {
