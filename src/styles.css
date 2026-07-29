@@ -588,9 +588,3 @@
 .rte-content th, .rte-content td { border: 1px solid #334155; padding: 0.5rem 0.75rem; text-align: start; }
 .rte-content th { background: #1e293b; font-weight: 600; }
 .rte-content:empty::before { content: attr(data-placeholder); color: #64748b; }
-
-/* Brands carousel viewport */
-.brand-strip-viewport { scroll-snap-type: x proximity; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
-.brand-strip-viewport > ul > li { scroll-snap-align: start; }
-.brand-strip-viewport::-webkit-scrollbar { height: 6px; }
-.brand-strip-viewport::-webkit-scrollbar-thumb { background: oklch(0.46 0.16 245 / 0.25); border-radius: 999px; }

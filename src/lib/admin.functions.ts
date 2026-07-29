@@ -223,50 +223,29 @@ export const adminUploadStorage = createServerFn({ method: "POST" })
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
-
-    // Unique, collision-free object name — never upsert over an existing file.
-    const requested = data.path.replace(/^\/+/, "");
-    const dir = requested.includes("/") ? requested.slice(0, requested.lastIndexOf("/") + 1) : "";
-    const base = requested.split("/").pop() || "file";
-    const ext = base.includes(".") ? base.slice(base.lastIndexOf(".")).toLowerCase() : "";
-    const safeName = base.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const storagePath = `${dir}${crypto.randomUUID()}${ext || ""}`;
-
-    // Wait for the storage upload to succeed BEFORE registering the media row.
-    const { error } = await supabaseAdmin.storage.from(data.bucket).upload(storagePath, bytes, {
+    const { error } = await supabaseAdmin.storage.from(data.bucket).upload(data.path, bytes, {
       contentType: data.contentType,
-      upsert: false,
+      upsert: true,
     });
     if (error) throw error;
-
     let asset_id: string | null = null;
-    let public_url: string | null = null;
     if (data.registerAsset) {
       const channel = data.kind
         ?? (data.contentType === "application/pdf" ? "catalog_pdf"
           : data.contentType.startsWith("image/") ? "marketing_generated"
           : "document");
-      // Only persist a permanent public URL when the bucket is actually public.
-      const { data: bucketInfo } = await supabaseAdmin.storage.getBucket(data.bucket);
-      if (bucketInfo?.public) {
-        public_url = supabaseAdmin.storage.from(data.bucket).getPublicUrl(storagePath).data.publicUrl;
-      }
-      const { data: a, error: insErr } = await supabaseAdmin.from("assets").insert({
+      const { data: a } = await supabaseAdmin.from("assets").upsert({
         storage_bucket: data.bucket,
-        storage_path: storagePath,
-        public_url,
+        storage_path: data.path,
         channel,
         mime_type: data.contentType,
-        file_size_bytes: bytes.byteLength,
-        original_filename: safeName,
+        original_filename: data.path.split("/").pop() ?? data.path,
         uploaded_by: context.userId,
-      } as any).select("id").maybeSingle();
-      if (insErr) throw insErr;
+      } as any, { onConflict: "storage_bucket,storage_path" }).select("id").maybeSingle();
       asset_id = (a as any)?.id ?? null;
     }
-    return { ok: true, asset_id, path: storagePath, public_url };
+    return { ok: true, asset_id };
   });
-
 
 export const adminDeleteStorage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

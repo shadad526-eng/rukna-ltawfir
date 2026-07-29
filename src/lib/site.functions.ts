@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { assetUrl, getPublicDataClient, paragraphs, resolveMediaUrls, signedUrl } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, paragraphs, signedUrl } from "./site-public-data.server";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -123,9 +123,13 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
       .order("sort_order", { ascending: true });
     if (error) throw error;
 
-    const rows = (data ?? []) as Array<Record<string, unknown>>;
-    const media = await resolveMediaUrls(rows.flatMap((row) => [row.logo_asset_id as string | null, row.hero_asset_id as string | null]));
-    return rows.map((row) => ({
+    const result: BrandSummary[] = [];
+    for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+      const [logo_url, hero_url] = await Promise.all([
+        assetUrl(row.logo_asset_id as string | null),
+        assetUrl(row.hero_asset_id as string | null),
+      ]);
+      result.push({
         id: row.id as string,
         slug: row.slug as string,
         name_ar: row.name_ar as string,
@@ -135,9 +139,11 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
         is_partner: row.is_partner as boolean,
         sort_order: row.sort_order as number,
         brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
-        logo_url: media.get(row.logo_asset_id as string) ?? null,
-        hero_url: media.get(row.hero_asset_id as string) ?? null,
-      }));
+        logo_url,
+        hero_url,
+      });
+    }
+    return result;
   },
 );
 
@@ -236,16 +242,19 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
       picked.push(r);
       if (picked.length >= 8) break;
     }
-    const media = await resolveMediaUrls(picked.map((r) => r.cover_asset_id));
-    return picked.map((r) => ({
+    const out: ProductSummary[] = [];
+    for (const r of picked) {
+      out.push({
         id: r.id,
         slug: r.slug,
         brand_slug: r.brand!.slug,
         name_ar: r.name_ar,
         name_en: r.name_en,
         short_description_ar: r.short_description_ar,
-        cover_url: media.get(r.cover_asset_id ?? "") ?? null,
-      }));
+        cover_url: await assetUrl(r.cover_asset_id),
+      });
+    }
+    return out;
   },
 );
 
@@ -435,19 +444,20 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const rows = data ?? [];
-    const media = await resolveMediaUrls(rows.map((r) => r.cover_asset_id));
-    const dbItems: InsightSummary[] = rows.map((r) => ({
+    const dbItems: InsightSummary[] = [];
+    for (const r of data ?? []) {
+      dbItems.push({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
         excerpt_ar: r.excerpt_ar,
         excerpt_en: r.excerpt_en,
-        cover_url: media.get(r.cover_asset_id ?? "") ?? null,
+        cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
         source: "db",
-      }));
+      });
+    }
 
     dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
