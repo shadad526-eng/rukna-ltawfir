@@ -199,9 +199,8 @@ export const listBrandProducts = createServerFn({ method: "GET" })
       .eq("is_published", true)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    const out: ProductSummary[] = [];
-    for (const p of rows ?? []) {
-      out.push({
+    const out: ProductSummary[] = await Promise.all(
+      (rows ?? []).map(async (p) => ({
         id: p.id,
         slug: p.slug,
         brand_slug: brand.slug,
@@ -209,8 +208,9 @@ export const listBrandProducts = createServerFn({ method: "GET" })
         name_en: p.name_en,
         short_description_ar: p.short_description_ar,
         cover_url: await assetUrl(p.cover_asset_id),
-      });
-    }
+      })),
+    );
+
     return out;
   });
 
