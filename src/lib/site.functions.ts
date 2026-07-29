@@ -371,29 +371,32 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
     .eq("is_published", true)
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  const out: CatalogSummary[] = [];
-  for (const c of (data ?? []) as Array<Record<string, unknown>>) {
-    const brand = c.brand as { slug: string; name_ar: string } | null;
-    const cover_url = await assetUrl(c.cover_asset_id as string | null);
-    // Only generate downloadable signed PDF URLs for fully public catalogs.
-    // Restricted / b2b_only catalogs go through the request pipeline.
-    let pdf_url: string | null = null;
-    if ((c.visibility as string) === "public" && c.pdf_asset_id) {
-      pdf_url = await assetUrl(c.pdf_asset_id as string);
-    }
-    out.push({
-      id: c.id as string,
-      slug: c.slug as string,
-      title_ar: c.title_ar as string,
-      description_ar: (c.description_ar as string | null) ?? null,
-      year: (c.year as number | null) ?? null,
-      visibility: c.visibility as CatalogSummary["visibility"],
-      brand_slug: brand?.slug ?? null,
-      brand_name_ar: brand?.name_ar ?? null,
-      cover_url,
-      pdf_url,
-    });
-  }
+  const out: CatalogSummary[] = await Promise.all(
+    ((data ?? []) as Array<Record<string, unknown>>).map(async (c) => {
+      const brand = c.brand as { slug: string; name_ar: string } | null;
+      // Only generate downloadable signed PDF URLs for fully public catalogs.
+      // Restricted / b2b_only catalogs go through the request pipeline.
+      const [cover_url, pdf_url] = await Promise.all([
+        assetUrl(c.cover_asset_id as string | null),
+        (c.visibility as string) === "public" && c.pdf_asset_id
+          ? assetUrl(c.pdf_asset_id as string)
+          : Promise.resolve(null),
+      ]);
+      return {
+        id: c.id as string,
+        slug: c.slug as string,
+        title_ar: c.title_ar as string,
+        description_ar: (c.description_ar as string | null) ?? null,
+        year: (c.year as number | null) ?? null,
+        visibility: c.visibility as CatalogSummary["visibility"],
+        brand_slug: brand?.slug ?? null,
+        brand_name_ar: brand?.name_ar ?? null,
+        cover_url,
+        pdf_url,
+      };
+    }),
+  );
+
   return out;
 });
 
