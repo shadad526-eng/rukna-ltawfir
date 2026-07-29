@@ -548,9 +548,8 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
       .limit(limit + 4);
     if (error) throw error;
 
-    const dbItems: InsightSummary[] = [];
-    for (const r of rows ?? []) {
-      dbItems.push({
+    const dbItems: InsightSummary[] = await Promise.all(
+      (rows ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -559,9 +558,10 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
     dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
       const db = b.published_at ? Date.parse(b.published_at) : 0;
