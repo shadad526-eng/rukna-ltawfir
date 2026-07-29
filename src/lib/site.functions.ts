@@ -123,26 +123,28 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
       .order("sort_order", { ascending: true });
     if (error) throw error;
 
-    const result: BrandSummary[] = [];
-    for (const row of (data ?? []) as Array<Record<string, unknown>>) {
-      const [logo_url, hero_url] = await Promise.all([
-        assetUrl(row.logo_asset_id as string | null),
-        assetUrl(row.hero_asset_id as string | null),
-      ]);
-      result.push({
-        id: row.id as string,
-        slug: row.slug as string,
-        name_ar: row.name_ar as string,
-        name_en: row.name_en as string,
-        tagline_ar: (row.tagline_ar as string | null) ?? null,
-        description_ar: (row.description_ar as string | null) ?? null,
-        is_partner: row.is_partner as boolean,
-        sort_order: row.sort_order as number,
-        brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
-        logo_url,
-        hero_url,
-      });
-    }
+    const result: BrandSummary[] = await Promise.all(
+      ((data ?? []) as Array<Record<string, unknown>>).map(async (row) => {
+        const [logo_url, hero_url] = await Promise.all([
+          assetUrl(row.logo_asset_id as string | null),
+          assetUrl(row.hero_asset_id as string | null),
+        ]);
+        return {
+          id: row.id as string,
+          slug: row.slug as string,
+          name_ar: row.name_ar as string,
+          name_en: row.name_en as string,
+          tagline_ar: (row.tagline_ar as string | null) ?? null,
+          description_ar: (row.description_ar as string | null) ?? null,
+          is_partner: row.is_partner as boolean,
+          sort_order: row.sort_order as number,
+          brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
+          logo_url,
+          hero_url,
+        };
+      }),
+    );
+
     return result;
   },
 );
@@ -197,9 +199,8 @@ export const listBrandProducts = createServerFn({ method: "GET" })
       .eq("is_published", true)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    const out: ProductSummary[] = [];
-    for (const p of rows ?? []) {
-      out.push({
+    const out: ProductSummary[] = await Promise.all(
+      (rows ?? []).map(async (p) => ({
         id: p.id,
         slug: p.slug,
         brand_slug: brand.slug,
@@ -207,8 +208,9 @@ export const listBrandProducts = createServerFn({ method: "GET" })
         name_en: p.name_en,
         short_description_ar: p.short_description_ar,
         cover_url: await assetUrl(p.cover_asset_id),
-      });
-    }
+      })),
+    );
+
     return out;
   });
 
@@ -242,9 +244,8 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
       picked.push(r);
       if (picked.length >= 8) break;
     }
-    const out: ProductSummary[] = [];
-    for (const r of picked) {
-      out.push({
+    const out: ProductSummary[] = await Promise.all(
+      picked.map(async (r) => ({
         id: r.id,
         slug: r.slug,
         brand_slug: r.brand!.slug,
@@ -252,8 +253,9 @@ export const listFeaturedProducts = createServerFn({ method: "GET" }).handler(
         name_en: r.name_en,
         short_description_ar: r.short_description_ar,
         cover_url: await assetUrl(r.cover_asset_id),
-      });
-    }
+      })),
+    );
+
     return out;
   },
 );
@@ -369,29 +371,32 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
     .eq("is_published", true)
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  const out: CatalogSummary[] = [];
-  for (const c of (data ?? []) as Array<Record<string, unknown>>) {
-    const brand = c.brand as { slug: string; name_ar: string } | null;
-    const cover_url = await assetUrl(c.cover_asset_id as string | null);
-    // Only generate downloadable signed PDF URLs for fully public catalogs.
-    // Restricted / b2b_only catalogs go through the request pipeline.
-    let pdf_url: string | null = null;
-    if ((c.visibility as string) === "public" && c.pdf_asset_id) {
-      pdf_url = await assetUrl(c.pdf_asset_id as string);
-    }
-    out.push({
-      id: c.id as string,
-      slug: c.slug as string,
-      title_ar: c.title_ar as string,
-      description_ar: (c.description_ar as string | null) ?? null,
-      year: (c.year as number | null) ?? null,
-      visibility: c.visibility as CatalogSummary["visibility"],
-      brand_slug: brand?.slug ?? null,
-      brand_name_ar: brand?.name_ar ?? null,
-      cover_url,
-      pdf_url,
-    });
-  }
+  const out: CatalogSummary[] = await Promise.all(
+    ((data ?? []) as Array<Record<string, unknown>>).map(async (c) => {
+      const brand = c.brand as { slug: string; name_ar: string } | null;
+      // Only generate downloadable signed PDF URLs for fully public catalogs.
+      // Restricted / b2b_only catalogs go through the request pipeline.
+      const [cover_url, pdf_url] = await Promise.all([
+        assetUrl(c.cover_asset_id as string | null),
+        (c.visibility as string) === "public" && c.pdf_asset_id
+          ? assetUrl(c.pdf_asset_id as string)
+          : Promise.resolve(null),
+      ]);
+      return {
+        id: c.id as string,
+        slug: c.slug as string,
+        title_ar: c.title_ar as string,
+        description_ar: (c.description_ar as string | null) ?? null,
+        year: (c.year as number | null) ?? null,
+        visibility: c.visibility as CatalogSummary["visibility"],
+        brand_slug: brand?.slug ?? null,
+        brand_name_ar: brand?.name_ar ?? null,
+        cover_url,
+        pdf_url,
+      };
+    }),
+  );
+
   return out;
 });
 
@@ -444,9 +449,8 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const dbItems: InsightSummary[] = [];
-    for (const r of data ?? []) {
-      dbItems.push({
+    const dbItems: InsightSummary[] = await Promise.all(
+      (data ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -455,9 +459,10 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
 
     dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
@@ -484,9 +489,8 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const items: InsightSummary[] = [];
-    for (const r of rows ?? []) {
-      items.push({
+    const items: InsightSummary[] = await Promise.all(
+      (rows ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -495,9 +499,10 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
     return items;
   });
 
@@ -546,9 +551,8 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
       .limit(limit + 4);
     if (error) throw error;
 
-    const dbItems: InsightSummary[] = [];
-    for (const r of rows ?? []) {
-      dbItems.push({
+    const dbItems: InsightSummary[] = await Promise.all(
+      (rows ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -557,9 +561,10 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
     dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
       const db = b.published_at ? Date.parse(b.published_at) : 0;
