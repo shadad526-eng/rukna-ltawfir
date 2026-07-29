@@ -123,26 +123,28 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
       .order("sort_order", { ascending: true });
     if (error) throw error;
 
-    const result: BrandSummary[] = [];
-    for (const row of (data ?? []) as Array<Record<string, unknown>>) {
-      const [logo_url, hero_url] = await Promise.all([
-        assetUrl(row.logo_asset_id as string | null),
-        assetUrl(row.hero_asset_id as string | null),
-      ]);
-      result.push({
-        id: row.id as string,
-        slug: row.slug as string,
-        name_ar: row.name_ar as string,
-        name_en: row.name_en as string,
-        tagline_ar: (row.tagline_ar as string | null) ?? null,
-        description_ar: (row.description_ar as string | null) ?? null,
-        is_partner: row.is_partner as boolean,
-        sort_order: row.sort_order as number,
-        brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
-        logo_url,
-        hero_url,
-      });
-    }
+    const result: BrandSummary[] = await Promise.all(
+      ((data ?? []) as Array<Record<string, unknown>>).map(async (row) => {
+        const [logo_url, hero_url] = await Promise.all([
+          assetUrl(row.logo_asset_id as string | null),
+          assetUrl(row.hero_asset_id as string | null),
+        ]);
+        return {
+          id: row.id as string,
+          slug: row.slug as string,
+          name_ar: row.name_ar as string,
+          name_en: row.name_en as string,
+          tagline_ar: (row.tagline_ar as string | null) ?? null,
+          description_ar: (row.description_ar as string | null) ?? null,
+          is_partner: row.is_partner as boolean,
+          sort_order: row.sort_order as number,
+          brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
+          logo_url,
+          hero_url,
+        };
+      }),
+    );
+
     return result;
   },
 );
