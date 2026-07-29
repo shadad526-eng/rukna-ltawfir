@@ -446,9 +446,8 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const dbItems: InsightSummary[] = [];
-    for (const r of data ?? []) {
-      dbItems.push({
+    const dbItems: InsightSummary[] = await Promise.all(
+      (data ?? []).map(async (r) => ({
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
@@ -457,9 +456,10 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
-        source: "db",
-      });
-    }
+        source: "db" as const,
+      })),
+    );
+
 
     dbItems.sort((a, b) => {
       const da = a.published_at ? Date.parse(a.published_at) : 0;
