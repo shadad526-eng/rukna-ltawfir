@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { assetUrl, getPublicDataClient, paragraphs, signedUrl } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, paragraphs, refreshInlineAssetUrls, signedUrl } from "./site-public-data.server";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -507,28 +507,6 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
 
     return items;
   });
-
-/**
- * Inline article images are stored with `data-asset-id` so their (expiring)
- * signed URLs can be refreshed on every render.
- */
-async function refreshInlineAssetUrls(html: string): Promise<string> {
-  if (!html.includes("data-asset-id")) return html;
-  const ids = Array.from(new Set(
-    Array.from(html.matchAll(/data-asset-id="([^"]+)"/g)).map((m) => m[1]),
-  ));
-  const urls = await Promise.all(ids.map((id) => assetUrl(id)));
-  const map = new Map(ids.map((id, i) => [id, urls[i]]));
-  return html.replace(/<img\b[^>]*>/gi, (tag) => {
-    const idMatch = tag.match(/data-asset-id="([^"]+)"/);
-    if (!idMatch) return tag;
-    const url = map.get(idMatch[1]);
-    if (!url) return tag;
-    return tag.match(/\bsrc="[^"]*"/)
-      ? tag.replace(/\bsrc="[^"]*"/, `src="${url.replace(/"/g, "&quot;")}"`)
-      : tag.replace(/^<img\b/i, `<img src="${url.replace(/"/g, "&quot;")}"`);
-  });
-}
 
 export const getInsightBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => d)
