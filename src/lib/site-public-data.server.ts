@@ -1,5 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { toRichHtml } from "./rich-html";
+
 import type { Database } from "@/integrations/supabase/types";
 
 let publicDataClient: SupabaseClient<Database> | undefined;
@@ -245,13 +247,12 @@ export function paragraphs(input: unknown): string[] {
   return [];
 }
 
-import { toRichHtml } from "./rich-html";
-
 /**
  * Inline article images are stored with `data-asset-id` so their (expiring)
  * signed URLs can be refreshed on every render.
  */
-export async function refreshInlineAssetUrls(html: string): Promise<string> {
+export async function richBodyHtml(input: unknown): Promise<string> {
+  const html = toRichHtml(input);
   if (!html.includes("data-asset-id")) return html;
   const ids = Array.from(new Set(
     Array.from(html.matchAll(/data-asset-id="([^"]+)"/g)).map((m) => m[1]),

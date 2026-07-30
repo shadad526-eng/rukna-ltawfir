@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { assetUrl, getPublicDataClient, paragraphs, refreshInlineAssetUrls, signedUrl } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, paragraphs, richBodyHtml, signedUrl } from "./site-public-data.server";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -522,8 +522,8 @@ export const getInsightBySlug = createServerFn({ method: "GET" })
     if (row) {
       const [coverUrl, htmlAr, htmlEn] = await Promise.all([
         assetUrl(row.cover_asset_id),
-        refreshInlineAssetUrls(toRichHtml(row.body_ar)),
-        refreshInlineAssetUrls(toRichHtml(row.body_en)),
+        richBodyHtml(row.body_ar),
+        richBodyHtml(row.body_en),
       ]);
       return {
         slug: row.slug,
