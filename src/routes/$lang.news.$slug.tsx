@@ -106,6 +106,7 @@ function NewsArticle() {
   const title = (isAr ? article.title_ar : article.title_en || article.title_ar) || "";
   const eyebrow = (article.tags && article.tags[0]) || t("home.knowledgeEyebrow");
   const paragraphs = (isAr ? article.body_ar : article.body_en.length ? article.body_en : article.body_ar) || [];
+  const bodyHtml = (isAr ? article.body_html_ar : article.body_html_en || article.body_html_ar) || "";
   const dateLabel = article.published_at
     ? new Date(article.published_at).toLocaleDateString(isAr ? "ar-EG" : "en-US", {
         year: "numeric",
@@ -154,11 +155,19 @@ function NewsArticle() {
           </div>
         ) : null}
 
-        <div className="mt-10 space-y-5 text-base leading-loose text-ink-700">
-          {paragraphs.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-        </div>
+        {bodyHtml ? (
+          <div
+            className="article-prose mt-10 text-base leading-loose text-ink-700"
+            dir={isAr ? "rtl" : "ltr"}
+            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          />
+        ) : (
+          <div className="mt-10 space-y-5 text-base leading-loose text-ink-700">
+            {paragraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        )}
 
         <div className="mt-12 rounded-2xl border border-border bg-card p-6 md:p-8">
           <h2 className="font-arabic text-lg font-bold text-foreground">
