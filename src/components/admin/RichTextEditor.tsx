@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
+import { fileToBase64 } from "@/lib/file-to-base64";
 import {
   Bold, Italic, Underline, Strikethrough, List, ListOrdered,
   Heading1, Heading2, Heading3, Quote, Link as LinkIcon,
@@ -20,6 +24,11 @@ function exec(cmd: string, arg?: string) {
 export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", minHeight = 240 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [source, setSource] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const savedRange = useRef<Range | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const uploadFn = useServerFn(adminUploadStorage);
+  const signUrls = useServerFn(adminSignedUrls);
   const [raw, setRaw] = useState(value ?? "");
 
   // Only inject initial value; don't clobber cursor on every keystroke.
@@ -36,6 +45,61 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
     if (ref.current) onChange(ref.current.innerHTML);
   }
 
+  function saveSelection() {
+    const sel = typeof window !== "undefined" ? window.getSelection() : null;
+    if (sel && sel.rangeCount && ref.current?.contains(sel.anchorNode)) {
+      savedRange.current = sel.getRangeAt(0).cloneRange();
+    }
+  }
+
+  function restoreSelection() {
+    const el = ref.current;
+    if (!el) return;
+    el.focus();
+    const sel = window.getSelection();
+    if (!sel) return;
+    sel.removeAllRanges();
+    if (savedRange.current) {
+      sel.addRange(savedRange.current);
+    } else {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      r.collapse(false);
+      sel.addRange(r);
+    }
+  }
+
+  async function uploadAndInsert(files: FileList | null) {
+    if (!files || !files.length) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (!(file.type || "").startsWith("image/")) continue;
+        const base64 = await fileToBase64(file);
+        const bucket = "brand-assets";
+        const path = `articles/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        const res: any = await uploadFn({
+          data: { bucket, path, base64, contentType: file.type || "image/jpeg", registerAsset: true },
+        });
+        const signed: any = await signUrls({ data: { items: [{ bucket, path }] } });
+        const url = signed?.[`${bucket}::${path}`] ?? "";
+        const assetId = res?.asset_id ?? "";
+        restoreSelection();
+        const alt = file.name.replace(/\.[a-zA-Z0-9]+$/, "").replace(/[<>"]/g, "");
+        exec(
+          "insertHTML",
+          `<img src="${url}"${assetId ? ` data-asset-id="${assetId}"` : ""} alt="${alt}" style="max-width:100%;height:auto" /><p><br /></p>`,
+        );
+        emit();
+      }
+      toast.success("تم إدراج الصورة");
+    } catch (e: any) {
+      toast.error(e?.message ?? "فشل رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   function insertLink() {
     const url = prompt("رابط:", "https://");
     if (url) exec("createLink", url);
@@ -49,10 +113,9 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
     emit();
   }
   function insertImage() {
+    saveSelection();
     if (onPickImage) return onPickImage();
-    const url = prompt("رابط الصورة:", "https://");
-    if (url) exec("insertImage", url);
-    emit();
+    fileRef.current?.click();
   }
 
   const Btn = ({ onClick, title, children }: any) => (
@@ -80,7 +143,9 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
         <Btn onClick={() => { exec("formatBlock", "PRE"); emit(); }} title="كود"><Code className="w-4 h-4" /></Btn>
         <div className="w-px h-5 bg-slate-800 mx-1" />
         <Btn onClick={insertLink} title="رابط"><LinkIcon className="w-4 h-4" /></Btn>
-        <Btn onClick={insertImage} title="صورة"><ImageIcon className="w-4 h-4" /></Btn>
+        <Btn onClick={insertImage} title={uploading ? "جارٍ رفع الصورة…" : "صورة من الجهاز"}>
+          <ImageIcon className={`w-4 h-4 ${uploading ? "animate-pulse text-emerald-400" : ""}`} />
+        </Btn>
         <Btn onClick={insertTable} title="جدول"><TableIcon className="w-4 h-4" /></Btn>
         <div className="w-px h-5 bg-slate-800 mx-1" />
         <Btn onClick={() => { exec("undo"); emit(); }} title="تراجع"><Undo className="w-4 h-4" /></Btn>
@@ -94,6 +159,18 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           {source ? "معاينة" : "HTML"}
         </button>
       </div>
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        hidden
+        multiple
+        onChange={(e) => {
+          uploadAndInsert(e.target.files);
+          if (fileRef.current) fileRef.current.value = "";
+        }}
+      />
 
       {source ? (
         <textarea
@@ -110,7 +187,9 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           contentEditable
           suppressContentEditableWarning
           onInput={emit}
-          onBlur={emit}
+          onBlur={() => { saveSelection(); emit(); }}
+          onKeyUp={saveSelection}
+          onMouseUp={saveSelection}
           onPaste={(e) => {
             const text = e.clipboardData.getData("text/plain");
             if (text && !e.clipboardData.getData("text/html")) {

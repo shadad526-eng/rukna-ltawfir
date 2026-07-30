@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { assetUrl, getPublicDataClient, paragraphs, signedUrl } from "./site-public-data.server";
+import { assetUrl, getPublicDataClient, paragraphs, richBodyHtml, signedUrl } from "./site-public-data.server";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -81,6 +81,8 @@ export type InsightSummary = {
 export type InsightDetail = InsightSummary & {
   body_ar: string[];
   body_en: string[];
+  body_html_ar: string;
+  body_html_en: string;
 };
 
 // ---------- Public server functions ----------
@@ -518,18 +520,25 @@ export const getInsightBySlug = createServerFn({ method: "GET" })
       .maybeSingle();
     if (error) throw error;
     if (row) {
+      const [coverUrl, htmlAr, htmlEn] = await Promise.all([
+        assetUrl(row.cover_asset_id),
+        richBodyHtml(row.body_ar),
+        richBodyHtml(row.body_en),
+      ]);
       return {
         slug: row.slug,
         title_ar: row.title_ar,
         title_en: row.title_en,
         excerpt_ar: row.excerpt_ar,
         excerpt_en: row.excerpt_en,
-        cover_url: await assetUrl(row.cover_asset_id),
+        cover_url: coverUrl,
         published_at: row.published_at ?? row.created_at,
         tags: (row.tags as string[] | null) ?? [],
         source: "db",
         body_ar: paragraphs(row.body_ar),
         body_en: paragraphs(row.body_en),
+        body_html_ar: htmlAr,
+        body_html_en: htmlEn,
       };
     }
     return null;
