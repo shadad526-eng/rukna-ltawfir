@@ -81,6 +81,8 @@ export type InsightSummary = {
 export type InsightDetail = InsightSummary & {
   body_ar: string[];
   body_en: string[];
+  body_html_ar: string;
+  body_html_en: string;
 };
 
 // ---------- Public server functions ----------
