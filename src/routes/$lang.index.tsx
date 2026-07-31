@@ -483,7 +483,7 @@ function Home() {
                   >
                     <div className="podium relative grid aspect-square place-items-center p-5">
                       {p.cover_url ? (
-                        <img src={p.cover_url} alt={productAlt(p.brand_slug, p.brand_slug, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                        <img data-content-image="" src={p.cover_url} alt={productAlt(p.brand_slug, p.brand_slug, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
                       ) : (
                         <span className="text-[11px] text-muted-foreground">{t("common.officialImage")}</span>
                       )}
@@ -569,7 +569,7 @@ function Home() {
                   <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
                   {k.date ? (
                     <div className="mt-2 text-[11px] text-ink-600">
-                      {new Date(k.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      {new Date(k.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
                     </div>
                   ) : null}
                   <p className="mt-3 text-sm leading-loose text-ink-600 line-clamp-3">{k.body}</p>

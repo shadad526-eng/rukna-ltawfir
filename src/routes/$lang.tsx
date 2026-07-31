@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { LOCALES, type Locale, isLocale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { MediaLightbox } from "@/components/site/MediaLightbox";
 
 export const Route = createFileRoute("/$lang")({
   beforeLoad: ({ params }) => {
@@ -30,6 +31,7 @@ function LangLayout() {
       <main>
         <Outlet />
       </main>
+      <MediaLightbox />
     </LocaleProvider>
   );
 }
