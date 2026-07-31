@@ -9,48 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SiteDotwebmanifestRouteImport } from './routes/site[.]webmanifest'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as LangRouteImport } from './routes/$lang'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as LangRouteImport } from './routes/$lang'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as SiteDotwebmanifestRouteImport } from './routes/site[.]webmanifest'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminMediaRouteImport } from './routes/admin.media'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
-import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
-import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
-import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
-import { Route as LangImmunityVitaminCRouteImport } from './routes/$lang.immunity-vitamin-c'
-import { Route as LangContactRouteImport } from './routes/$lang.contact'
-import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
-import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
-import { Route as LangBabyCareRouteImport } from './routes/$lang.baby-care'
 import { Route as LangAboutRouteImport } from './routes/$lang.about'
-import { Route as LangNewsIndexRouteImport } from './routes/$lang.news.index'
-import { Route as LangBrandsIndexRouteImport } from './routes/$lang.brands.index'
-import { Route as AdminEEntityRouteImport } from './routes/admin.e.$entity'
-import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
-import { Route as LangBrandsSlugRouteImport } from './routes/$lang.brands.$slug'
+import { Route as LangBabyCareRouteImport } from './routes/$lang.baby-care'
+import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
+import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
+import { Route as LangContactRouteImport } from './routes/$lang.contact'
+import { Route as LangImmunityVitaminCRouteImport } from './routes/$lang.immunity-vitamin-c'
+import { Route as LangOralCareRouteImport } from './routes/$lang.oral-care'
+import { Route as LangPartnersRouteImport } from './routes/$lang.partners'
+import { Route as LangSugarAlternativesRouteImport } from './routes/$lang.sugar-alternatives'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminMediaRouteImport } from './routes/admin.media'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as LangAdminSeoRouteImport } from './routes/$lang.admin.seo'
+import { Route as LangBrandsIndexRouteImport } from './routes/$lang.brands.index'
+import { Route as LangBrandsSlugRouteImport } from './routes/$lang.brands.$slug'
+import { Route as LangNewsIndexRouteImport } from './routes/$lang.news.index'
+import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
+import { Route as AdminEEntityRouteImport } from './routes/admin.e.$entity'
 import { Route as LangBrandsSlugIndexRouteImport } from './routes/$lang.brands.$slug.index'
 import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.brands.$slug.$productSlug'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SiteDotwebmanifestRoute = SiteDotwebmanifestRouteImport.update({
-  id: '/site.webmanifest',
-  path: '/site.webmanifest',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LangRoute = LangRouteImport.update({
@@ -58,79 +48,24 @@ const LangRoute = LangRouteImport.update({
   path: '/$lang',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
+const SiteDotwebmanifestRoute = SiteDotwebmanifestRouteImport.update({
+  id: '/site.webmanifest',
+  path: '/site.webmanifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LangIndexRoute = LangIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LangRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMediaRoute = AdminMediaRouteImport.update({
-  id: '/media',
-  path: '/media',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminHomepageRoute = AdminHomepageRouteImport.update({
-  id: '/homepage',
-  path: '/homepage',
-  getParentRoute: () => AdminRoute,
-} as any)
-const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
-  id: '/sugar-alternatives',
-  path: '/sugar-alternatives',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangPartnersRoute = LangPartnersRouteImport.update({
-  id: '/partners',
-  path: '/partners',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangOralCareRoute = LangOralCareRouteImport.update({
-  id: '/oral-care',
-  path: '/oral-care',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangImmunityVitaminCRoute = LangImmunityVitaminCRouteImport.update({
-  id: '/immunity-vitamin-c',
-  path: '/immunity-vitamin-c',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangContactRoute = LangContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangCatalogsRoute = LangCatalogsRouteImport.update({
-  id: '/catalogs',
-  path: '/catalogs',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangBrandsRoute = LangBrandsRouteImport.update({
-  id: '/brands',
-  path: '/brands',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangBabyCareRoute = LangBabyCareRouteImport.update({
-  id: '/baby-care',
-  path: '/baby-care',
   getParentRoute: () => LangRoute,
 } as any)
 const LangAboutRoute = LangAboutRouteImport.update({
@@ -138,9 +73,74 @@ const LangAboutRoute = LangAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => LangRoute,
 } as any)
-const LangNewsIndexRoute = LangNewsIndexRouteImport.update({
-  id: '/news/',
-  path: '/news/',
+const LangBabyCareRoute = LangBabyCareRouteImport.update({
+  id: '/baby-care',
+  path: '/baby-care',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangBrandsRoute = LangBrandsRouteImport.update({
+  id: '/brands',
+  path: '/brands',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangCatalogsRoute = LangCatalogsRouteImport.update({
+  id: '/catalogs',
+  path: '/catalogs',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangContactRoute = LangContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangImmunityVitaminCRoute = LangImmunityVitaminCRouteImport.update({
+  id: '/immunity-vitamin-c',
+  path: '/immunity-vitamin-c',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangOralCareRoute = LangOralCareRouteImport.update({
+  id: '/oral-care',
+  path: '/oral-care',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangPartnersRoute = LangPartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangSugarAlternativesRoute = LangSugarAlternativesRouteImport.update({
+  id: '/sugar-alternatives',
+  path: '/sugar-alternatives',
+  getParentRoute: () => LangRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminHomepageRoute = AdminHomepageRouteImport.update({
+  id: '/homepage',
+  path: '/homepage',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMediaRoute = AdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const LangAdminSeoRoute = LangAdminSeoRouteImport.update({
+  id: '/admin/seo',
+  path: '/admin/seo',
   getParentRoute: () => LangRoute,
 } as any)
 const LangBrandsIndexRoute = LangBrandsIndexRouteImport.update({
@@ -148,25 +148,25 @@ const LangBrandsIndexRoute = LangBrandsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LangBrandsRoute,
 } as any)
-const AdminEEntityRoute = AdminEEntityRouteImport.update({
-  id: '/e/$entity',
-  path: '/e/$entity',
-  getParentRoute: () => AdminRoute,
+const LangBrandsSlugRoute = LangBrandsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LangBrandsRoute,
+} as any)
+const LangNewsIndexRoute = LangNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => LangRoute,
 } as any)
 const LangNewsSlugRoute = LangNewsSlugRouteImport.update({
   id: '/news/$slug',
   path: '/news/$slug',
   getParentRoute: () => LangRoute,
 } as any)
-const LangBrandsSlugRoute = LangBrandsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => LangBrandsRoute,
-} as any)
-const LangAdminSeoRoute = LangAdminSeoRouteImport.update({
-  id: '/admin/seo',
-  path: '/admin/seo',
-  getParentRoute: () => LangRoute,
+const AdminEEntityRoute = AdminEEntityRouteImport.update({
+  id: '/e/$entity',
+  path: '/e/$entity',
+  getParentRoute: () => AdminRoute,
 } as any)
 const LangBrandsSlugIndexRoute = LangBrandsSlugIndexRouteImport.update({
   id: '/',
@@ -366,25 +366,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/site.webmanifest': {
-      id: '/site.webmanifest'
-      path: '/site.webmanifest'
-      fullPath: '/site.webmanifest'
-      preLoaderRoute: typeof SiteDotwebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$lang': {
@@ -394,109 +380,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
+    '/site.webmanifest': {
+      id: '/site.webmanifest'
+      path: '/site.webmanifest'
+      fullPath: '/site.webmanifest'
+      preLoaderRoute: typeof SiteDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$lang/': {
       id: '/$lang/'
       path: '/'
       fullPath: '/$lang/'
       preLoaderRoute: typeof LangIndexRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/media': {
-      id: '/admin/media'
-      path: '/media'
-      fullPath: '/admin/media'
-      preLoaderRoute: typeof AdminMediaRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/homepage': {
-      id: '/admin/homepage'
-      path: '/homepage'
-      fullPath: '/admin/homepage'
-      preLoaderRoute: typeof AdminHomepageRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/$lang/sugar-alternatives': {
-      id: '/$lang/sugar-alternatives'
-      path: '/sugar-alternatives'
-      fullPath: '/$lang/sugar-alternatives'
-      preLoaderRoute: typeof LangSugarAlternativesRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/partners': {
-      id: '/$lang/partners'
-      path: '/partners'
-      fullPath: '/$lang/partners'
-      preLoaderRoute: typeof LangPartnersRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/oral-care': {
-      id: '/$lang/oral-care'
-      path: '/oral-care'
-      fullPath: '/$lang/oral-care'
-      preLoaderRoute: typeof LangOralCareRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/immunity-vitamin-c': {
-      id: '/$lang/immunity-vitamin-c'
-      path: '/immunity-vitamin-c'
-      fullPath: '/$lang/immunity-vitamin-c'
-      preLoaderRoute: typeof LangImmunityVitaminCRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/contact': {
-      id: '/$lang/contact'
-      path: '/contact'
-      fullPath: '/$lang/contact'
-      preLoaderRoute: typeof LangContactRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/catalogs': {
-      id: '/$lang/catalogs'
-      path: '/catalogs'
-      fullPath: '/$lang/catalogs'
-      preLoaderRoute: typeof LangCatalogsRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/brands': {
-      id: '/$lang/brands'
-      path: '/brands'
-      fullPath: '/$lang/brands'
-      preLoaderRoute: typeof LangBrandsRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/baby-care': {
-      id: '/$lang/baby-care'
-      path: '/baby-care'
-      fullPath: '/$lang/baby-care'
-      preLoaderRoute: typeof LangBabyCareRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/about': {
@@ -506,11 +415,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangAboutRouteImport
       parentRoute: typeof LangRoute
     }
-    '/$lang/news/': {
-      id: '/$lang/news/'
-      path: '/news'
-      fullPath: '/$lang/news/'
-      preLoaderRoute: typeof LangNewsIndexRouteImport
+    '/$lang/baby-care': {
+      id: '/$lang/baby-care'
+      path: '/baby-care'
+      fullPath: '/$lang/baby-care'
+      preLoaderRoute: typeof LangBabyCareRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/brands': {
+      id: '/$lang/brands'
+      path: '/brands'
+      fullPath: '/$lang/brands'
+      preLoaderRoute: typeof LangBrandsRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/catalogs': {
+      id: '/$lang/catalogs'
+      path: '/catalogs'
+      fullPath: '/$lang/catalogs'
+      preLoaderRoute: typeof LangCatalogsRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/contact': {
+      id: '/$lang/contact'
+      path: '/contact'
+      fullPath: '/$lang/contact'
+      preLoaderRoute: typeof LangContactRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/immunity-vitamin-c': {
+      id: '/$lang/immunity-vitamin-c'
+      path: '/immunity-vitamin-c'
+      fullPath: '/$lang/immunity-vitamin-c'
+      preLoaderRoute: typeof LangImmunityVitaminCRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/oral-care': {
+      id: '/$lang/oral-care'
+      path: '/oral-care'
+      fullPath: '/$lang/oral-care'
+      preLoaderRoute: typeof LangOralCareRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/partners': {
+      id: '/$lang/partners'
+      path: '/partners'
+      fullPath: '/$lang/partners'
+      preLoaderRoute: typeof LangPartnersRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/sugar-alternatives': {
+      id: '/$lang/sugar-alternatives'
+      path: '/sugar-alternatives'
+      fullPath: '/$lang/sugar-alternatives'
+      preLoaderRoute: typeof LangSugarAlternativesRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/homepage': {
+      id: '/admin/homepage'
+      path: '/homepage'
+      fullPath: '/admin/homepage'
+      preLoaderRoute: typeof AdminHomepageRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/media': {
+      id: '/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminMediaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/$lang/admin/seo': {
+      id: '/$lang/admin/seo'
+      path: '/admin/seo'
+      fullPath: '/$lang/admin/seo'
+      preLoaderRoute: typeof LangAdminSeoRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/brands/': {
@@ -520,12 +520,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangBrandsIndexRouteImport
       parentRoute: typeof LangBrandsRoute
     }
-    '/admin/e/$entity': {
-      id: '/admin/e/$entity'
-      path: '/e/$entity'
-      fullPath: '/admin/e/$entity'
-      preLoaderRoute: typeof AdminEEntityRouteImport
-      parentRoute: typeof AdminRoute
+    '/$lang/brands/$slug': {
+      id: '/$lang/brands/$slug'
+      path: '/$slug'
+      fullPath: '/$lang/brands/$slug'
+      preLoaderRoute: typeof LangBrandsSlugRouteImport
+      parentRoute: typeof LangBrandsRoute
+    }
+    '/$lang/news/': {
+      id: '/$lang/news/'
+      path: '/news'
+      fullPath: '/$lang/news/'
+      preLoaderRoute: typeof LangNewsIndexRouteImport
+      parentRoute: typeof LangRoute
     }
     '/$lang/news/$slug': {
       id: '/$lang/news/$slug'
@@ -534,19 +541,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangNewsSlugRouteImport
       parentRoute: typeof LangRoute
     }
-    '/$lang/brands/$slug': {
-      id: '/$lang/brands/$slug'
-      path: '/$slug'
-      fullPath: '/$lang/brands/$slug'
-      preLoaderRoute: typeof LangBrandsSlugRouteImport
-      parentRoute: typeof LangBrandsRoute
-    }
-    '/$lang/admin/seo': {
-      id: '/$lang/admin/seo'
-      path: '/admin/seo'
-      fullPath: '/$lang/admin/seo'
-      preLoaderRoute: typeof LangAdminSeoRouteImport
-      parentRoute: typeof LangRoute
+    '/admin/e/$entity': {
+      id: '/admin/e/$entity'
+      path: '/e/$entity'
+      fullPath: '/admin/e/$entity'
+      preLoaderRoute: typeof AdminEEntityRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/$lang/brands/$slug/': {
       id: '/$lang/brands/$slug/'
