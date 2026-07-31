@@ -569,7 +569,7 @@ function Home() {
                   <h3 className="font-arabic text-lg font-bold leading-snug text-foreground">{k.title}</h3>
                   {k.date ? (
                     <div className="mt-2 text-[11px] text-ink-600">
-                      {new Date(k.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      {new Date(k.date).toLocaleDateString(isAr ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
                     </div>
                   ) : null}
                   <p className="mt-3 text-sm leading-loose text-ink-600 line-clamp-3">{k.body}</p>

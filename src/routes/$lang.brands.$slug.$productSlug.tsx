@@ -157,7 +157,8 @@ function ProductDetailPage() {
                 <img
                   src={hero}
                   alt={productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
-                  className="size-full object-contain"
+                  data-content-image=""
+                  className="size-full cursor-zoom-in object-contain"
                 />
               ) : (
                 <div className="grid size-full place-items-center text-sm text-muted-foreground">{t("common.officialPackageImage")}</div>

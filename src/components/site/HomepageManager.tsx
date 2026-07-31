@@ -157,13 +157,24 @@ export function HomepageSlider({
           return (
             <div key={s.id} className={base} style={style} aria-hidden={!active}>
               {src ? (
-                <img
-                  src={src}
-                  alt={alt}
-                  className="h-full w-full object-cover"
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
+                <>
+                  {/* Blurred backdrop keeps the frame filled while the slide itself is never cropped. */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 scale-110 bg-cover bg-center opacity-40 blur-2xl"
+                    style={{ backgroundImage: `url("${src}")` }}
+                  />
+                  <img
+                    src={src}
+                    alt={alt}
+                    data-content-image=""
+                    className="relative h-full w-full object-contain object-center"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : "low"}
+                    decoding="async"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                </>
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-trust-700 to-trust-900" />
               )}
