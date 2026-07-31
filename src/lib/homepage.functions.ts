@@ -226,7 +226,9 @@ export const getHomepageConfig = createServerFn({ method: "GET" }).handler(
     const client = getPublicDataClient() as any;
     const { data } = await client
       .from("homepage_settings")
-      .select("*")
+      .select(
+        "id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config",
+      )
       .eq("id", 1)
       .maybeSingle();
     return buildHomepageConfig(data ?? {});
