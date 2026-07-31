@@ -1314,7 +1314,7 @@ export type Database = {
       }
       products: {
         Row: {
-          brand_id: string
+          brand_id: string | null
           category_id: string | null
           cover_asset_id: string | null
           created_at: string
@@ -1339,7 +1339,7 @@ export type Database = {
           usage_instructions_en: string | null
         }
         Insert: {
-          brand_id: string
+          brand_id?: string | null
           category_id?: string | null
           cover_asset_id?: string | null
           created_at?: string
@@ -1364,7 +1364,7 @@ export type Database = {
           usage_instructions_en?: string | null
         }
         Update: {
-          brand_id?: string
+          brand_id?: string | null
           category_id?: string | null
           cover_asset_id?: string | null
           created_at?: string
