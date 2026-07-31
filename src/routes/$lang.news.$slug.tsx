@@ -149,7 +149,8 @@ function NewsArticle() {
             <img
               src={article.cover_url}
               alt={title}
-              className="block w-full h-auto object-cover"
+              data-content-image=""
+              className="block w-full h-auto cursor-zoom-in object-cover"
               loading="eager"
             />
           </div>

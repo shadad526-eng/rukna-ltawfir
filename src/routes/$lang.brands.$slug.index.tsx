@@ -472,7 +472,7 @@ function BrandDetail() {
                     title={pname}
                   >
                     {p.cover_url ? (
-                      <img data-content-image="" src={p.cover_url} alt={productAlt(brand.slug, brandName, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain" loading="lazy" />
+                      <img src={p.cover_url} alt={productAlt(brand.slug, brandName, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain" loading="lazy" />
                     ) : null}
                   </LLink>
                 );

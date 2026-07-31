@@ -157,7 +157,8 @@ function ProductDetailPage() {
                 <img
                   src={hero}
                   alt={productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
-                  className="size-full object-contain"
+                  data-content-image=""
+                  className="size-full cursor-zoom-in object-contain"
                 />
               ) : (
                 <div className="grid size-full place-items-center text-sm text-muted-foreground">{t("common.officialPackageImage")}</div>
@@ -336,7 +337,7 @@ function ProductDetailPage() {
                   >
                     <div className="podium grid aspect-square place-items-center p-5">
                       {r.cover_url ? (
-                        <img data-content-image="" src={r.cover_url} alt={productAlt(p.brand.slug, bname, rname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                        <img src={r.cover_url} alt={productAlt(p.brand.slug, bname, rname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
                       ) : (
                         <span className="text-xs text-muted-foreground">{t("common.officialPackage")}</span>
                       )}

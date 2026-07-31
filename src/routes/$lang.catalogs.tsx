@@ -97,7 +97,7 @@ function CatalogsHub() {
                 <article key={c.id} className="prem-card group flex h-full flex-col overflow-hidden">
                   <div className="podium relative flex aspect-[3/4] items-center justify-center border-b border-border/70 p-6">
                     {c.cover_url ? (
-                      <img data-content-image="" src={c.cover_url} alt={c.title_ar} className="size-full object-contain transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
+                      <img src={c.cover_url} alt={c.title_ar} className="size-full object-contain transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
                     ) : (
                       <span className="text-xs text-muted-foreground">{t("catalogs.coverFallback")}</span>
                     )}
