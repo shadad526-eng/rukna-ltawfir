@@ -56,6 +56,7 @@ const PAGE_SIZE = 25;
 const STATUS_LABELS: Record<string, string> = {
   active: "منشور", draft: "مسودة", archived: "مؤرشف",
   new: "جديد", in_progress: "قيد المعالجة", closed: "مغلق",
+  in_review: "قيد المراجعة", contacted: "تم التواصل", converted: "تم التحويل",
   approved: "مقبول", rejected: "مرفوض",
   public: "عام", restricted: "مقيّد", b2b_only: "B2B",
 };
@@ -66,6 +67,9 @@ const STATUS_COLORS: Record<string, string> = {
   archived: "bg-slate-700/40 text-slate-400 border-slate-700",
   new: "bg-sky-500/15 text-sky-300 border-sky-500/30",
   in_progress: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  in_review: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  contacted: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+  converted: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
   approved: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
   rejected: "bg-rose-500/15 text-rose-300 border-rose-500/30",
   closed: "bg-slate-500/15 text-slate-300 border-slate-500/30",
@@ -195,6 +199,7 @@ function EntityPage() {
   if (!cfg) return <div className="text-rose-400">كيان غير معروف: {entity}</div>;
 
   async function save(row: Record<string, any>) {
+    if (saving) return; // prevent duplicate submissions
     setErr(null);
     const errors: Record<string, string> = {};
     const payload: Record<string, any> = {};
@@ -230,6 +235,12 @@ function EntityPage() {
         catch { errors[f.key] = "JSON غير صالح"; continue; }
       }
 
+      // NOT NULL columns that the editor leaves optional: mirror another field.
+      if ((v === null || v === "") && f.fallbackFrom) {
+        const fb = row[f.fallbackFrom];
+        if (typeof fb === "string" && fb.trim()) v = fb.trim();
+      }
+
       // Required check
       if (f.required && (v === null || v === undefined || v === "")) {
         errors[f.key] = "هذا الحقل مطلوب";
@@ -250,20 +261,35 @@ function EntityPage() {
 
     const isNew = !row[pk];
     setSaving(true);
-    const q = isNew
-      ? supabase.from(cfg!.table as any).insert(payload)
-      : supabase.from(cfg!.table as any).update(payload).eq(pk, row[pk]);
-    const { error } = await q;
-    setSaving(false);
-    if (error) {
-      const msg = /duplicate key|unique/i.test(error.message)
-        ? "قيمة مكرّرة (تحقّق من المعرّف / Slug)."
-        : error.message;
-      setErr(msg); toast.error(msg);
-    } else {
+    try {
+      const q = isNew
+        ? supabase.from(cfg!.table as any).insert(payload).select(pk)
+        : supabase.from(cfg!.table as any).update(payload).eq(pk, row[pk]).select(pk);
+      const { data, error } = await q;
+      if (error) {
+        const raw = [error.message, (error as any).details, (error as any).hint].filter(Boolean).join(" — ");
+        const msg = /duplicate key|unique/i.test(error.message)
+          ? "قيمة مكرّرة (تحقّق من المعرّف / Slug)."
+          : /row-level security|permission denied/i.test(raw)
+            ? "لا تملك صلاحية الحفظ لهذا العنصر."
+            : raw;
+        setErr(msg); toast.error(msg);
+        return;
+      }
+      if (!data || data.length === 0) {
+        // No error but nothing written → RLS silently filtered the write.
+        const msg = "لم يتم حفظ أي تغييرات — تحقّق من الصلاحيات ثم أعد المحاولة.";
+        setErr(msg); toast.error(msg);
+        return;
+      }
       toast.success(isNew ? "تم إنشاء العنصر بنجاح" : "تم حفظ التغييرات");
       setEditing(null);
       load();
+    } catch (e: any) {
+      const msg = e?.message ? String(e.message) : "تعذّر الحفظ. تحقّق من الاتصال ثم أعد المحاولة.";
+      setErr(msg); toast.error(msg);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -502,6 +528,9 @@ function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
     if (url && isImg) return <img src={url} alt="" className="w-12 h-12 rounded object-cover bg-slate-800" loading="lazy" />;
     return <div className="w-12 h-12 rounded bg-slate-800 flex items-center justify-center text-slate-600"><ImageIcon className="w-5 h-5" /></div>;
   }
+  if (col.type === "brand" && (v === null || v === undefined || v === "")) {
+    return <span className="text-slate-400">عام</span>;
+  }
   if (v === null || v === undefined || v === "") return <span className="text-slate-600">—</span>;
   if (col.type === "image") {
     const url = refs.assetUrls[v];
@@ -577,7 +606,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: 
     return (
       <label className="block text-sm space-y-1">{labelEl}
         <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={base}>
-          <option value="">— اختر علامة —</option>
+          <option value="">عام (بدون علامة)</option>
           {opts.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
         </select>
         {hintEl}
