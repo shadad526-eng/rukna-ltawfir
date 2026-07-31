@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, ChevronDown, Image as ImageIcon, Upload, FileText, Settings2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { fileToBase64 } from "@/lib/file-to-base64";
+import { optimizeImageForUpload } from "@/lib/optimize-image";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
@@ -838,11 +839,15 @@ export function AssetPicker({ onClose, onPick, accept }: {
     setBusy(true);
     try {
       for (const file of Array.from(files)) {
-        const base64 = await fileToBase64(file);
         const isPdf = (file.type || "") === "application/pdf";
+        // Compress/resize images (WebP when supported) before uploading.
+        const opt = isPdf
+          ? { blob: file as Blob, contentType: file.type, filename: file.name }
+          : await optimizeImageForUpload(file);
+        const base64 = await fileToBase64(opt.blob);
         const bucket = isPdf ? "catalogs" : "brand-assets";
-        const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        await uploadFn({ data: { bucket, path, base64, contentType: file.type || "application/octet-stream", registerAsset: true } });
+        const path = `${Date.now()}-${opt.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        await uploadFn({ data: { bucket, path, base64, contentType: opt.contentType || "application/octet-stream", registerAsset: true } });
         toast.success(`تم رفع ${file.name}`);
       }
       await load();

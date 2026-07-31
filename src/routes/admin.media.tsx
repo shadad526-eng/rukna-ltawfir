@@ -5,6 +5,7 @@ import { adminListStorage, adminUploadStorage, adminDeleteStorage } from "@/lib/
 import { toast } from "sonner";
 import { Upload, Trash2, Copy, Image as ImageIcon, FileText } from "lucide-react";
 import { fileToBase64 } from "@/lib/file-to-base64";
+import { optimizeImageForUpload } from "@/lib/optimize-image";
 
 export const Route = createFileRoute("/admin/media")({ ssr: false, component: MediaPage });
 
@@ -31,9 +32,10 @@ function MediaPage() {
     setBusy(true);
     for (const file of Array.from(files)) {
       try {
-        const base64 = await fileToBase64(file);
-        const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        await uploadFn({ data: { bucket, path, base64, contentType: file.type || "application/octet-stream", registerAsset: true } });
+        const opt = await optimizeImageForUpload(file);
+        const base64 = await fileToBase64(opt.blob);
+        const path = `${Date.now()}-${opt.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        await uploadFn({ data: { bucket, path, base64, contentType: opt.contentType || "application/octet-stream", registerAsset: true } });
         toast.success(`تم رفع ${file.name}`);
       } catch (e: any) { toast.error(`${file.name}: ${e.message}`); }
     }
