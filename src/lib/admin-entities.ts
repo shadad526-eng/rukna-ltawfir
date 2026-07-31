@@ -34,6 +34,8 @@ export type Field = {
   advanced?: boolean;
   /** For type="slug": key of the source field used to auto-generate. */
   slugFrom?: string;
+  /** If the value is empty on save, copy the value of this field (for NOT NULL columns). */
+  fallbackFrom?: string;
 };
 
 
@@ -100,7 +102,7 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "name_ar",
     orderBy: { column: "sort_order", ascending: true },
     fields: [
-      { key: "brand_id", label: "العلامة", type: "brand_ref", required: true },
+      { key: "brand_id", label: "العلامة", type: "brand_ref", hint: "اختر «عام» إذا لم يكن المحتوى تابعاً لعلامة محددة." },
       { key: "name_ar", label: "الاسم بالعربية", type: "text", required: true },
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true },
@@ -171,7 +173,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
-      { key: "brand_id", label: "العلامة", type: "brand_ref" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref", hint: "اختر «عام» إذا لم يكن المحتوى تابعاً لعلامة محددة." },
       { key: "tags", label: "الوسوم", type: "tags", hint: "أدخل وسمًا ثم اضغط Enter." },
       { key: "is_published", label: "منشور", type: "boolean" },
       { key: "published_at", label: "تاريخ النشر", type: "date" },
@@ -236,10 +238,11 @@ export const ENTITIES: EntityConfig[] = [
     labelColumn: "title_ar",
     fields: [
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
+      { key: "title_en", label: "Title (EN)", type: "text", fallbackFrom: "title_ar", hint: "اختياري — يُستخدم العنوان العربي تلقائياً إذا تُرك فارغاً." },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_ar", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
       { key: "year", label: "السنة", type: "number" },
-      { key: "brand_id", label: "العلامة", type: "brand_ref" },
+      { key: "brand_id", label: "العلامة", type: "brand_ref", hint: "اختر «عام» إذا لم يكن الكتالوج تابعاً لعلامة محددة." },
       { key: "cover_asset_id", label: "الغلاف", type: "asset", accept: "image" },
       { key: "pdf_asset_id", label: "ملف PDF", type: "asset", accept: "pdf" },
 
@@ -254,16 +257,15 @@ export const ENTITIES: EntityConfig[] = [
     key: "certifications", label: "الشهادات", table: "certifications", group: "الكتالوج",
     listColumns: [
       { key: "name_ar", label: "الاسم", type: "text" },
-      { key: "issuer", label: "الجهة المانحة", type: "text" },
+      { key: "name_en", label: "Name (EN)", type: "text" },
     ],
-    searchColumns: ["name_ar", "issuer"],
+    searchColumns: ["name_ar", "name_en"],
     labelColumn: "name_ar",
     fields: [
       { key: "name_ar", label: "الاسم (AR)", type: "text", required: true },
-      { key: "name_en", label: "Name (EN)", type: "text" },
+      { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "name_en", required: true },
-      { key: "issuer", label: "الجهة المانحة", type: "text" },
-      { key: "icon_asset_id", label: "الأيقونة", type: "asset" },
+      { key: "logo_asset_id", label: "الشعار", type: "asset" },
     ],
   },
   {
