@@ -17,6 +17,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as LangAboutRouteImport } from './routes/$lang.about'
 import { Route as LangBabyCareRouteImport } from './routes/$lang.baby-care'
+import { Route as LangBranchesRouteImport } from './routes/$lang.branches'
 import { Route as LangBrandsRouteImport } from './routes/$lang.brands'
 import { Route as LangCatalogsRouteImport } from './routes/$lang.catalogs'
 import { Route as LangContactRouteImport } from './routes/$lang.contact'
@@ -76,6 +77,11 @@ const LangAboutRoute = LangAboutRouteImport.update({
 const LangBabyCareRoute = LangBabyCareRouteImport.update({
   id: '/baby-care',
   path: '/baby-care',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangBranchesRoute = LangBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
   getParentRoute: () => LangRoute,
 } as any)
 const LangBrandsRoute = LangBrandsRouteImport.update({
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
   '/$lang/baby-care': typeof LangBabyCareRoute
+  '/$lang/branches': typeof LangBranchesRoute
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
@@ -216,6 +223,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
   '/$lang/baby-care': typeof LangBabyCareRoute
+  '/$lang/branches': typeof LangBranchesRoute
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
   '/$lang/immunity-vitamin-c': typeof LangImmunityVitaminCRoute
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/about': typeof LangAboutRoute
   '/$lang/baby-care': typeof LangBabyCareRoute
+  '/$lang/branches': typeof LangBranchesRoute
   '/$lang/brands': typeof LangBrandsRouteWithChildren
   '/$lang/catalogs': typeof LangCatalogsRoute
   '/$lang/contact': typeof LangContactRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$lang/about'
     | '/$lang/baby-care'
+    | '/$lang/branches'
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$lang/about'
     | '/$lang/baby-care'
+    | '/$lang/branches'
     | '/$lang/catalogs'
     | '/$lang/contact'
     | '/$lang/immunity-vitamin-c'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$lang/about'
     | '/$lang/baby-care'
+    | '/$lang/branches'
     | '/$lang/brands'
     | '/$lang/catalogs'
     | '/$lang/contact'
@@ -420,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/baby-care'
       fullPath: '/$lang/baby-care'
       preLoaderRoute: typeof LangBabyCareRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/branches': {
+      id: '/$lang/branches'
+      path: '/branches'
+      fullPath: '/$lang/branches'
+      preLoaderRoute: typeof LangBranchesRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/brands': {
@@ -596,6 +615,7 @@ const LangBrandsRouteWithChildren = LangBrandsRoute._addFileChildren(
 interface LangRouteChildren {
   LangAboutRoute: typeof LangAboutRoute
   LangBabyCareRoute: typeof LangBabyCareRoute
+  LangBranchesRoute: typeof LangBranchesRoute
   LangBrandsRoute: typeof LangBrandsRouteWithChildren
   LangCatalogsRoute: typeof LangCatalogsRoute
   LangContactRoute: typeof LangContactRoute
@@ -612,6 +632,7 @@ interface LangRouteChildren {
 const LangRouteChildren: LangRouteChildren = {
   LangAboutRoute: LangAboutRoute,
   LangBabyCareRoute: LangBabyCareRoute,
+  LangBranchesRoute: LangBranchesRoute,
   LangBrandsRoute: LangBrandsRouteWithChildren,
   LangCatalogsRoute: LangCatalogsRoute,
   LangContactRoute: LangContactRoute,
