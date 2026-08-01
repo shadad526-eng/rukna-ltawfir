@@ -434,6 +434,25 @@ export function HomepageMainSlider({
 }: {
   config: HomepageConfig["main_slider"];
 }) {
+  const { lang } = useLocale();
   if (!config.enabled || !config.slides.length) return null;
-  return <HomepageSlider slides={config.slides} config={config.config} variant="banner" />;
+  const cfg = config.config ?? {};
+  const title =
+    cfg.section_title_enabled !== false
+      ? ((lang === "ar" ? cfg.section_title_ar : cfg.section_title_en) || "").trim()
+      : "";
+  return (
+    <section className="relative z-0 isolate bg-background py-10 md:py-14">
+      {title ? (
+        <div className="mx-auto mb-6 max-w-7xl px-4 text-center md:mb-8 md:px-8">
+          <h2 className="font-arabic text-2xl font-bold leading-tight text-foreground md:text-4xl">
+            {title}
+          </h2>
+          <div className="mx-auto mt-4 h-px w-16 prem-divider" />
+        </div>
+      ) : null}
+      <HomepageSlider slides={config.slides} config={config.config} variant="banner" />
+    </section>
+  );
 }
+
