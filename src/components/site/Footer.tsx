@@ -61,7 +61,9 @@ export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, addr
               <li><LLink to="/$lang/sugar-alternatives" className="hover:text-leaf-300">بدائل السكر</LLink></li>
               <li><LLink to="/$lang/about" className="hover:text-leaf-300">{t("nav.about")}</LLink></li>
               <li><LLink to="/$lang/partners" className="hover:text-leaf-300">{t("nav.partners")}</LLink></li>
+              <li><LLink to="/$lang/branches" className="hover:text-leaf-300">{t("nav.branches")}</LLink></li>
               <li><LLink to="/$lang/contact" className="hover:text-leaf-300">{t("nav.contact")}</LLink></li>
+
             </ul>
           </div>
 
