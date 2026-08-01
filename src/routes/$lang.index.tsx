@@ -400,9 +400,14 @@ function Home() {
       )}
       {showMainSliderAfter && <HomepageMainSlider config={homepage.main_slider} />}
 
-      <div className="relative z-30 mx-auto -mt-16 max-w-6xl px-4 md:-mt-24 md:px-8">
+      <div
+        className={`relative z-30 mx-auto max-w-6xl px-4 md:px-8 ${
+          showMainSliderAfter ? "mt-4 md:mt-6" : "-mt-16 md:-mt-24"
+        }`}
+      >
         <HeroBrandStrip brands={brands} />
       </div>
+
 
       <section className="relative z-10 bg-card pt-14 md:pt-20">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
