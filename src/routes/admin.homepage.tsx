@@ -34,7 +34,9 @@ type SliderCfg = {
   transition?: "fade" | "slide"; loop?: boolean;
   show_arrows?: boolean; show_dots?: boolean;
   pause_on_hover?: boolean; pause_on_interaction?: boolean;
+  section_title_enabled?: boolean; section_title_ar?: string; section_title_en?: string;
 };
+
 type ImageCfg = {
   desktop_asset_id?: string | null; mobile_asset_id?: string | null;
   fallback_bg?: string; overlay_color?: string; overlay_opacity?: number;
