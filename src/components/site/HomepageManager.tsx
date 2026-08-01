@@ -108,14 +108,17 @@ export function HomepageSlider({
 
   const isFade = config.transition === "fade";
   const transMs = Math.max(150, config.transition_ms ?? 500);
+  // One consistent responsive frame per variant, matching the recommended
+  // upload dimensions (banner 8:3 desktop / 4:3 mobile, hero 16:7 / 4:3).
   const aspectClass =
     variant === "hero"
-      ? "aspect-[16/9] md:aspect-[21/9] min-h-[380px] md:min-h-[520px]"
-      : "aspect-[16/6] md:aspect-[21/6] min-h-[220px] md:min-h-[300px]";
+      ? "aspect-[4/3] md:aspect-[16/7]"
+      : "aspect-[4/3] md:aspect-[8/3]";
 
   return (
     <div
       className={`relative w-full overflow-hidden bg-slate-900 ${aspectClass}`}
+
       dir={dir}
       onMouseEnter={() => config.pause_on_hover && setPaused(true)}
       onMouseLeave={() => config.pause_on_hover && setPaused(false)}
