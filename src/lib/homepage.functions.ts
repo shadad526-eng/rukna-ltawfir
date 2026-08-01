@@ -21,7 +21,12 @@ export type SliderConfig = {
   show_dots?: boolean;
   pause_on_hover?: boolean;
   pause_on_interaction?: boolean;
+  /** Section heading rendered OUTSIDE and directly above the slider. */
+  section_title_enabled?: boolean;
+  section_title_ar?: string;
+  section_title_en?: string;
 };
+
 
 export type HeroImageConfig = {
   desktop_asset_id?: string | null;
