@@ -161,6 +161,54 @@ export type Database = {
         }
         Relationships: []
       }
+      branches: {
+        Row: {
+          address_ar: string
+          address_en: string | null
+          created_at: string
+          id: string
+          is_visible: boolean
+          map_url: string | null
+          name_ar: string
+          name_en: string | null
+          sort_order: number
+          updated_at: string
+          whatsapp_message_ar: string | null
+          whatsapp_message_en: string | null
+          whatsapp_number: string
+        }
+        Insert: {
+          address_ar: string
+          address_en?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          map_url?: string | null
+          name_ar: string
+          name_en?: string | null
+          sort_order?: number
+          updated_at?: string
+          whatsapp_message_ar?: string | null
+          whatsapp_message_en?: string | null
+          whatsapp_number?: string
+        }
+        Update: {
+          address_ar?: string
+          address_en?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          map_url?: string | null
+          name_ar?: string
+          name_en?: string | null
+          sort_order?: number
+          updated_at?: string
+          whatsapp_message_ar?: string | null
+          whatsapp_message_en?: string | null
+          whatsapp_number?: string
+        }
+        Relationships: []
+      }
       brand_certifications: {
         Row: {
           brand_id: string
@@ -941,8 +989,11 @@ export type Database = {
           body_en: Json | null
           brand_id: string | null
           cover_asset_id: string | null
+          extra: Json
           id: string
           identity_scope: Database["public"]["Enums"]["identity_scope"]
+          intro_ar: string | null
+          intro_en: string | null
           is_published: boolean
           published_at: string | null
           seo_description_ar: string | null
@@ -959,8 +1010,11 @@ export type Database = {
           body_en?: Json | null
           brand_id?: string | null
           cover_asset_id?: string | null
+          extra?: Json
           id?: string
           identity_scope?: Database["public"]["Enums"]["identity_scope"]
+          intro_ar?: string | null
+          intro_en?: string | null
           is_published?: boolean
           published_at?: string | null
           seo_description_ar?: string | null
@@ -977,8 +1031,11 @@ export type Database = {
           body_en?: Json | null
           brand_id?: string | null
           cover_asset_id?: string | null
+          extra?: Json
           id?: string
           identity_scope?: Database["public"]["Enums"]["identity_scope"]
+          intro_ar?: string | null
+          intro_en?: string | null
           is_published?: boolean
           published_at?: string | null
           seo_description_ar?: string | null
