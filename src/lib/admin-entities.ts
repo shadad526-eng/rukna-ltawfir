@@ -18,7 +18,9 @@ export type FieldType =
   | "tags"
   | "brand_multi_ref"
   | "product_multi_ref"
-  | "article_multi_ref";
+  | "article_multi_ref"
+  | "page_fields";
+
 
 export type Field = {
   key: string;
