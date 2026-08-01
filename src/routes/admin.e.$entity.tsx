@@ -235,6 +235,12 @@ function EntityPage() {
         try { v = v.trim() ? JSON.parse(v) : null; }
         catch { errors[f.key] = "JSON غير صالح"; continue; }
       }
+      // Repeatable extra-fields area is stored in a NOT NULL jsonb column.
+      if (f.type === "page_fields") {
+        const list = Array.isArray((v as any)?.fields) ? (v as any).fields : [];
+        v = { ...(typeof v === "object" && v ? v : {}), fields: list };
+      }
+
 
       // NOT NULL columns that the editor leaves optional: mirror another field.
       if ((v === null || v === "") && f.fallbackFrom) {
