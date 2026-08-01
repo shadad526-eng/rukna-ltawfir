@@ -14,6 +14,7 @@ import {
 } from "@/lib/homepage.functions";
 import { CURRENT_HERO_PRESET } from "@/lib/current-hero-preset";
 import { toast } from "sonner";
+import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
 import {
   Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff, ChevronUp, ChevronDown,
   Save, Upload, Layers, Monitor, Tablet, Smartphone, Maximize2, Minimize2,
@@ -33,7 +34,9 @@ type SliderCfg = {
   transition?: "fade" | "slide"; loop?: boolean;
   show_arrows?: boolean; show_dots?: boolean;
   pause_on_hover?: boolean; pause_on_interaction?: boolean;
+  section_title_enabled?: boolean; section_title_ar?: string; section_title_en?: string;
 };
+
 type ImageCfg = {
   desktop_asset_id?: string | null; mobile_asset_id?: string | null;
   fallback_bg?: string; overlay_color?: string; overlay_opacity?: number;
@@ -396,6 +399,30 @@ function MainSliderPanel({ settings, slides, onSettingsChange, onSlidesChange, r
         </div>
       </Card>
 
+      <Card title="عنوان القسم (يظهر أعلى السلايدر)">
+        <div className="grid md:grid-cols-3 gap-4">
+          <Toggle
+            label="إظهار العنوان"
+            checked={(settings.main_slider_config ?? {}).section_title_enabled !== false}
+            onChange={(v) => onSettingsChange({ main_slider_config: { ...(settings.main_slider_config ?? {}), section_title_enabled: v } })}
+          />
+          <TextField
+            label="العنوان بالعربية"
+            value={(settings.main_slider_config ?? {}).section_title_ar ?? ""}
+            onChange={(x) => onSettingsChange({ main_slider_config: { ...(settings.main_slider_config ?? {}), section_title_ar: x } })}
+          />
+          <TextField
+            label="Section title (English)"
+            value={(settings.main_slider_config ?? {}).section_title_en ?? ""}
+            onChange={(x) => onSettingsChange({ main_slider_config: { ...(settings.main_slider_config ?? {}), section_title_en: x } })}
+            ltr
+          />
+        </div>
+        <p className="mt-3 text-xs text-slate-400">
+          يظهر العنوان خارج السلايدر وفوقه مباشرة، في المنتصف أفقيًا، ولا يتحرك مع الشرائح.
+        </p>
+      </Card>
+
       <SliderConfigCard
         title="إعدادات العرض"
         config={settings.main_slider_config}
@@ -485,8 +512,8 @@ function HeroImageEditor({ value, onChange }: { value: ImageCfg; onChange: (v: I
     <div className="space-y-6">
       <Card title="الصور">
         <div className="grid md:grid-cols-2 gap-4">
-          <AssetField label="صورة سطح المكتب" value={v.desktop_asset_id ?? null} onChange={(id) => set({ desktop_asset_id: id })} accept="image" />
-          <AssetField label="صورة الجوال (اختياري)" value={v.mobile_asset_id ?? null} onChange={(id) => set({ mobile_asset_id: id })} accept="image" />
+          <AssetField label="صورة سطح المكتب" value={v.desktop_asset_id ?? null} onChange={(id) => set({ desktop_asset_id: id })} accept="image" specKey="hero.image.desktop" />
+          <AssetField label="صورة الجوال (اختياري)" value={v.mobile_asset_id ?? null} onChange={(id) => set({ mobile_asset_id: id })} accept="image" specKey="hero.image.mobile" />
         </div>
         <div className="grid md:grid-cols-3 gap-4 mt-4">
           <ColorField label="خلفية احتياطية" value={v.fallback_bg ?? "#0f172a"} onChange={(c) => set({ fallback_bg: c })} />
@@ -555,7 +582,7 @@ function HeroCustomEditor({ value, onChange }: { value: CustomCfg; onChange: (v:
             <TextField label="تدرّج CSS" placeholder="linear-gradient(...)" value={v.bg_gradient ?? ""} onChange={(s) => set({ bg_gradient: s })} ltr />
           )}
           {v.bg_type === "image" && (
-            <AssetField label="صورة الخلفية" value={v.bg_image_asset_id ?? null} onChange={(id) => set({ bg_image_asset_id: id })} accept="image" />
+            <AssetField label="صورة الخلفية" value={v.bg_image_asset_id ?? null} onChange={(id) => set({ bg_image_asset_id: id })} accept="image" specKey="hero.custom.bg" />
           )}
         </div>
         {v.bg_type === "image" && (
@@ -568,8 +595,8 @@ function HeroCustomEditor({ value, onChange }: { value: CustomCfg; onChange: (v:
 
       <Card title="الوسائط">
         <div className="grid md:grid-cols-2 gap-4">
-          <AssetField label="الشعار (اختياري)" value={v.logo_asset_id ?? null} onChange={(id) => set({ logo_asset_id: id })} accept="image" />
-          <AssetField label="الصورة الرئيسية" value={v.main_image_asset_id ?? null} onChange={(id) => set({ main_image_asset_id: id })} accept="image" />
+          <AssetField label="الشعار (اختياري)" value={v.logo_asset_id ?? null} onChange={(id) => set({ logo_asset_id: id })} accept="image" specKey="hero.custom.logo" />
+          <AssetField label="الصورة الرئيسية" value={v.main_image_asset_id ?? null} onChange={(id) => set({ main_image_asset_id: id })} accept="image" specKey="hero.custom.main" />
         </div>
         <div className="grid md:grid-cols-2 gap-3 mt-4">
           <Toggle label="عرض الشعار" checked={v.show_logo !== false} onChange={(x) => set({ show_logo: x })} />
@@ -739,6 +766,7 @@ function SlidesEditor({ title, group, slides, onChange, reload }: {
           <SlideRow
             key={slide.id}
             slide={slide}
+            group={group}
             first={i === 0}
             last={i === slides.length - 1}
             expanded={editing === slide.id}
@@ -754,8 +782,9 @@ function SlidesEditor({ title, group, slides, onChange, reload }: {
   );
 }
 
-function SlideRow({ slide, first, last, expanded, onToggle, onMoveUp, onMoveDown, onRemove, onUpdate }: any) {
+function SlideRow({ slide, group, first, last, expanded, onToggle, onMoveUp, onMoveDown, onRemove, onUpdate }: any) {
   const s: Slide = slide;
+  const specBase = group === "hero" ? "hero.slider" : "slider";
   const [thumb, setThumb] = useState<string | null>(null);
   const sign = useServerFn(adminSignedUrls);
 
@@ -799,8 +828,8 @@ function SlideRow({ slide, first, last, expanded, onToggle, onMoveUp, onMoveDown
       {expanded && (
         <div className="border-t border-slate-800 p-4 space-y-4 bg-slate-950/40">
           <div className="grid md:grid-cols-2 gap-4">
-            <AssetField label="صورة سطح المكتب" value={s.desktop_asset_id} onChange={(id) => onUpdate({ desktop_asset_id: id })} accept="image" />
-            <AssetField label="صورة الجوال (اختياري)" value={s.mobile_asset_id} onChange={(id) => onUpdate({ mobile_asset_id: id })} accept="image" />
+            <AssetField label="صورة سطح المكتب" value={s.desktop_asset_id} onChange={(id) => onUpdate({ desktop_asset_id: id })} accept="image" specKey={`${specBase}.desktop`} />
+            <AssetField label="صورة الجوال (اختياري)" value={s.mobile_asset_id} onChange={(id) => onUpdate({ mobile_asset_id: id })} accept="image" specKey={`${specBase}.mobile`} />
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <TextField label="العنوان بالعربية" value={s.title_ar ?? ""} onChange={(x) => onUpdate({ title_ar: x })} />
@@ -937,7 +966,7 @@ function RangeField({ label, value, onChange, min, max, step }: { label: string;
   );
 }
 
-function AssetField({ label, value, onChange, accept }: { label: string; value: string | null; onChange: (id: string | null) => void; accept: "image" | "pdf" }) {
+function AssetField({ label, value, onChange, accept, specKey }: { label: string; value: string | null; onChange: (id: string | null) => void; accept: "image" | "pdf"; specKey?: string }) {
   const [picker, setPicker] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const sign = useServerFn(adminSignedUrls);
@@ -972,6 +1001,7 @@ function AssetField({ label, value, onChange, accept }: { label: string; value: 
           )}
         </div>
       </div>
+      <ImageSpecHint specKey={specKey} previewUrl={preview} />
       {picker && (
         <AssetPicker
           accept={accept}

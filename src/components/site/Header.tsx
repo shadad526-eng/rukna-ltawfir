@@ -32,7 +32,9 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
       { to: "/$lang/catalogs", label: t("nav.catalogs") },
       { to: "/$lang/about", label: t("nav.about") },
       { to: "/$lang/partners", label: t("nav.partners") },
+      { to: "/$lang/branches", label: t("nav.branches") },
       { to: "/$lang/contact", label: t("nav.contact") },
+
     ],
     [t],
   );

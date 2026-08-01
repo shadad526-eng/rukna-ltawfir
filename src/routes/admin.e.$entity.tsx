@@ -9,6 +9,7 @@ import { Search, Plus, Pencil, Trash2, X, ChevronRight, ChevronLeft, ChevronDown
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageForUpload } from "@/lib/optimize-image";
+import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
@@ -235,6 +236,12 @@ function EntityPage() {
         try { v = v.trim() ? JSON.parse(v) : null; }
         catch { errors[f.key] = "JSON غير صالح"; continue; }
       }
+      // Repeatable extra-fields area is stored in a NOT NULL jsonb column.
+      if (f.type === "page_fields") {
+        const list = Array.isArray((v as any)?.fields) ? (v as any).fields : [];
+        v = { ...(typeof v === "object" && v ? v : {}), fields: list };
+      }
+
 
       // NOT NULL columns that the editor leaves optional: mirror another field.
       if ((v === null || v === "") && f.fallbackFrom) {
@@ -451,7 +458,7 @@ function EntityPage() {
             <form onSubmit={(e) => { e.preventDefault(); save(editing); }} className="p-5 space-y-4">
               {visibleFields.map((f) => (
                 <FieldInput key={f.key} field={f} value={editing[f.key]}
-                  refs={refs} error={fieldErrors[f.key]}
+                  refs={refs} error={fieldErrors[f.key]} specKey={`${entity}.${f.key}`}
                   onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
                   onChange={(v) => setField(f.key, v)} />
               ))}
@@ -467,7 +474,7 @@ function EntityPage() {
                     <div className="mt-3 space-y-4">
                       {advancedFields.map((f) => (
                         <FieldInput key={f.key} field={f} value={editing[f.key]}
-                          refs={refs} error={fieldErrors[f.key]}
+                          refs={refs} error={fieldErrors[f.key]} specKey={`${entity}.${f.key}`}
                           onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
                           onChange={(v) => setField(f.key, v)} />
                       ))}
@@ -560,8 +567,8 @@ function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
   return <span className="text-slate-200 truncate block">{String(v)}</span>;
 }
 
-function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: {
-  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string;
+function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, specKey }: {
+  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string; specKey?: string;
 }) {
   const baseCls = "w-full bg-slate-950 border rounded-lg px-3 py-2 text-sm focus:outline-none";
   const border = error ? "border-rose-500 focus:border-rose-400" : "border-slate-800 focus:border-emerald-500";
@@ -706,6 +713,53 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error }: 
             </div>
           </div>
         </div>
+        <ImageSpecHint specKey={specKey} previewUrl={isImg ? url : null} />
+        {hintEl}
+      </div>
+    );
+  }
+
+  if (field.type === "page_fields") {
+    const list: any[] = Array.isArray(value?.fields) ? value.fields : [];
+    const commit = (next: any[]) => onChange({ ...(typeof value === "object" && value ? value : {}), fields: next });
+    const patch = (i: number, p: any) => commit(list.map((f, j) => (j === i ? { ...f, ...p } : f)));
+    const move = (i: number, dir: -1 | 1) => {
+      const j = i + dir;
+      if (j < 0 || j >= list.length) return;
+      const next = [...list];
+      [next[i], next[j]] = [next[j], next[i]];
+      commit(next.map((f, k) => ({ ...f, sort_order: k })));
+    };
+    return (
+      <div className="block text-sm space-y-2">{labelEl}
+        <div className="space-y-2">
+          {list.map((f, i) => (
+            <div key={i} className="rounded-lg border border-slate-800 bg-slate-950 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-slate-400">حقل {i + 1}</span>
+                <div className="flex items-center gap-1">
+                  <label className="flex items-center gap-1 text-[11px] text-slate-400">
+                    <input type="checkbox" checked={f.enabled !== false} onChange={(e) => patch(i, { enabled: e.target.checked })} className="accent-emerald-500" />
+                    مفعّل
+                  </label>
+                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className="px-2 py-0.5 rounded bg-slate-800 text-xs disabled:opacity-30">↑</button>
+                  <button type="button" onClick={() => move(i, 1)} disabled={i === list.length - 1} className="px-2 py-0.5 rounded bg-slate-800 text-xs disabled:opacity-30">↓</button>
+                  <button type="button" onClick={() => commit(list.filter((_, j) => j !== i))} className="px-2 py-0.5 rounded bg-rose-600/20 text-rose-300 text-xs">حذف</button>
+                </div>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                <input value={f.label_ar ?? ""} onChange={(e) => patch(i, { label_ar: e.target.value })} placeholder="العنوان (AR)" className={base} />
+                <input value={f.label_en ?? ""} onChange={(e) => patch(i, { label_en: e.target.value })} placeholder="Label (EN)" dir="ltr" className={base} />
+                <textarea rows={2} value={f.value_ar ?? ""} onChange={(e) => patch(i, { value_ar: e.target.value })} placeholder="القيمة (AR)" className={base} />
+                <textarea rows={2} value={f.value_en ?? ""} onChange={(e) => patch(i, { value_en: e.target.value })} placeholder="Value (EN)" dir="ltr" className={base} />
+                <input value={f.icon_url ?? ""} onChange={(e) => patch(i, { icon_url: e.target.value })} placeholder="رابط أيقونة أو صورة (اختياري)" dir="ltr" className={base + " md:col-span-2"} />
+              </div>
+            </div>
+          ))}
+          {list.length === 0 && <div className="rounded-lg border border-dashed border-slate-800 p-4 text-center text-xs text-slate-500">لا توجد حقول إضافية.</div>}
+        </div>
+        <button type="button" onClick={() => commit([...list, { enabled: true, sort_order: list.length }])}
+          className="rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-1.5 text-xs">＋ إضافة حقل</button>
         {hintEl}
       </div>
     );

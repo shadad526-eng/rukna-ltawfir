@@ -18,7 +18,9 @@ export type FieldType =
   | "tags"
   | "brand_multi_ref"
   | "product_multi_ref"
-  | "article_multi_ref";
+  | "article_multi_ref"
+  | "page_fields";
+
 
 export type Field = {
   key: string;
@@ -207,25 +209,55 @@ export const ENTITIES: EntityConfig[] = [
     ],
   },
   {
-    key: "pages", label: "الصفحات", table: "pages", group: "المحتوى",
+    key: "pages", label: "صفحات الموقع", table: "pages", group: "المحتوى",
     listColumns: [
       { key: "title_ar", label: "العنوان", type: "text" },
       { key: "slug", label: "المعرّف", type: "text" },
-      { key: "is_published", label: "منشور", type: "boolean" },
+      { key: "is_published", label: "مفعّلة", type: "boolean" },
     ],
     searchColumns: ["title_ar", "slug"],
     labelColumn: "title_ar",
     fields: [
       { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
       { key: "title_en", label: "Title (EN)", type: "text" },
-      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true },
-      { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
-      { key: "body_en", label: "Body (EN)", type: "textarea" },
-      { key: "seo_title", label: "عنوان SEO", type: "text", advanced: true },
-      { key: "seo_description", label: "وصف SEO", type: "textarea", advanced: true },
-      { key: "is_published", label: "منشور", type: "boolean" },
+      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true, hint: "about / partners / contact هي صفحات الموقع الحالية." },
+      { key: "intro_ar", label: "النص التعريفي (AR)", type: "textarea", hint: "يظهر أسفل عنوان الصفحة مباشرة." },
+      { key: "intro_en", label: "Intro (EN)", type: "textarea" },
+      { key: "body_ar", label: "محتوى الصفحة (AR)", type: "textarea" },
+      { key: "body_en", label: "Page content (EN)", type: "textarea" },
+      { key: "cover_asset_id", label: "صورة الصفحة", type: "asset" },
+      { key: "extra", label: "حقول إضافية", type: "page_fields", hint: "بطاقات معلومات إضافية تظهر داخل الصفحة." },
+      { key: "seo_title_ar", label: "عنوان SEO (AR)", type: "text", advanced: true },
+      { key: "seo_description_ar", label: "وصف SEO (AR)", type: "textarea", advanced: true },
+      { key: "is_published", label: "مفعّلة", type: "boolean" },
     ],
   },
+  {
+    key: "branches", label: "الفروع والعناوين", table: "branches", group: "الإعدادات",
+    listColumns: [
+      { key: "name_ar", label: "الفرع", type: "text" },
+      { key: "address_ar", label: "العنوان", type: "text" },
+      { key: "whatsapp_number", label: "واتساب", type: "text" },
+      { key: "sort_order", label: "الترتيب", type: "number" },
+      { key: "is_visible", label: "ظاهر", type: "boolean" },
+    ],
+    searchColumns: ["name_ar", "name_en", "address_ar"],
+    labelColumn: "name_ar",
+    orderBy: { column: "sort_order", ascending: true },
+    fields: [
+      { key: "name_ar", label: "اسم الفرع (AR)", type: "text", required: true },
+      { key: "name_en", label: "Branch name (EN)", type: "text" },
+      { key: "address_ar", label: "العنوان الكامل (AR)", type: "textarea", required: true },
+      { key: "address_en", label: "Full address (EN)", type: "textarea" },
+      { key: "whatsapp_number", label: "رقم واتساب", type: "text", required: true, hint: "بصيغة دولية بدون +، مثال: 967774040383" },
+      { key: "whatsapp_message_ar", label: "رسالة واتساب (AR)", type: "textarea" },
+      { key: "whatsapp_message_en", label: "WhatsApp message (EN)", type: "textarea" },
+      { key: "map_url", label: "رابط الخريطة (اختياري)", type: "text" },
+      { key: "sort_order", label: "الترتيب", type: "number" },
+      { key: "is_visible", label: "ظاهر في الموقع", type: "boolean" },
+    ],
+  },
+
   {
     key: "catalogs", label: "الكتالوجات (PDF)", table: "catalogs", group: "الكتالوج",
     listColumns: [

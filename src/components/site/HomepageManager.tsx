@@ -108,14 +108,17 @@ export function HomepageSlider({
 
   const isFade = config.transition === "fade";
   const transMs = Math.max(150, config.transition_ms ?? 500);
+  // One consistent responsive frame per variant, matching the recommended
+  // upload dimensions (banner 8:3 desktop / 4:3 mobile, hero 16:7 / 4:3).
   const aspectClass =
     variant === "hero"
-      ? "aspect-[16/9] md:aspect-[21/9] min-h-[380px] md:min-h-[520px]"
-      : "aspect-[16/6] md:aspect-[21/6] min-h-[220px] md:min-h-[300px]";
+      ? "aspect-[4/3] md:aspect-[16/7]"
+      : "aspect-[4/3] md:aspect-[8/3]";
 
   return (
     <div
       className={`relative w-full overflow-hidden bg-slate-900 ${aspectClass}`}
+
       dir={dir}
       onMouseEnter={() => config.pause_on_hover && setPaused(true)}
       onMouseLeave={() => config.pause_on_hover && setPaused(false)}
@@ -157,27 +160,20 @@ export function HomepageSlider({
           return (
             <div key={s.id} className={base} style={style} aria-hidden={!active}>
               {src ? (
-                <>
-                  {/* Blurred backdrop keeps the frame filled while the slide itself is never cropped. */}
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 scale-110 bg-cover bg-center opacity-40 blur-2xl"
-                    style={{ backgroundImage: `url("${src}")` }}
-                  />
-                  <img
-                    src={src}
-                    alt={alt}
-                    data-content-image=""
-                    className="relative h-full w-full object-contain object-center"
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "low"}
-                    decoding="async"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                  />
-                </>
+                <img
+                  src={src}
+                  alt={alt}
+                  data-content-image=""
+                  className="h-full w-full object-cover object-center"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : "low"}
+                  decoding="async"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-trust-700 to-trust-900" />
               )}
+
               {(title || desc || ctaHref(s.cta1) || ctaHref(s.cta2)) && (
                 <div className="absolute inset-0 bg-black/30" />
               )}
@@ -438,6 +434,25 @@ export function HomepageMainSlider({
 }: {
   config: HomepageConfig["main_slider"];
 }) {
+  const { lang } = useLocale();
   if (!config.enabled || !config.slides.length) return null;
-  return <HomepageSlider slides={config.slides} config={config.config} variant="banner" />;
+  const cfg = config.config ?? {};
+  const title =
+    cfg.section_title_enabled !== false
+      ? ((lang === "ar" ? cfg.section_title_ar : cfg.section_title_en) || "").trim()
+      : "";
+  return (
+    <section className="relative z-0 isolate bg-background py-10 md:py-14">
+      {title ? (
+        <div className="mx-auto mb-6 max-w-7xl px-4 text-center md:mb-8 md:px-8">
+          <h2 className="font-arabic text-2xl font-bold leading-tight text-foreground md:text-4xl">
+            {title}
+          </h2>
+          <div className="mx-auto mt-4 h-px w-16 prem-divider" />
+        </div>
+      ) : null}
+      <HomepageSlider slides={config.slides} config={config.config} variant="banner" />
+    </section>
+  );
 }
+
