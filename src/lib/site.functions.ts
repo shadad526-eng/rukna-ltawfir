@@ -581,3 +581,102 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
     });
     return dbItems.slice(0, limit);
   });
+
+// ---------- Branches ----------
+
+export type BranchPublic = {
+  id: string;
+  name_ar: string;
+  name_en: string | null;
+  address_ar: string;
+  address_en: string | null;
+  whatsapp_number: string;
+  whatsapp_message_ar: string | null;
+  whatsapp_message_en: string | null;
+  map_url: string | null;
+};
+
+export const listBranches = createServerFn({ method: "GET" }).handler(
+  async (): Promise<BranchPublic[]> => {
+    const client = getPublicDataClient() as any;
+    const { data } = await client
+      .from("branches")
+      .select(
+        "id,name_ar,name_en,address_ar,address_en,whatsapp_number,whatsapp_message_ar,whatsapp_message_en,map_url,sort_order",
+      )
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true });
+    return ((data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      name_ar: r.name_ar,
+      name_en: r.name_en,
+      address_ar: r.address_ar,
+      address_en: r.address_en,
+      whatsapp_number: r.whatsapp_number,
+      whatsapp_message_ar: r.whatsapp_message_ar,
+      whatsapp_message_en: r.whatsapp_message_en,
+      map_url: r.map_url,
+    }));
+  },
+);
+
+// ---------- Editable corporate pages (about / partners / contact) ----------
+
+export type PageExtraField = {
+  label_ar?: string;
+  label_en?: string;
+  value_ar?: string;
+  value_en?: string;
+  icon_url?: string | null;
+  sort_order?: number;
+  enabled?: boolean;
+};
+
+export type SitePage = {
+  slug: string;
+  title_ar: string | null;
+  title_en: string | null;
+  intro_ar: string | null;
+  intro_en: string | null;
+  body_html_ar: string;
+  body_html_en: string;
+  cover_url: string | null;
+  is_published: boolean;
+  fields: PageExtraField[];
+};
+
+export const getSitePage = createServerFn({ method: "GET" })
+  .inputValidator((slug: string) => slug)
+  .handler(async ({ data: slug }): Promise<SitePage | null> => {
+    const client = getPublicDataClient() as any;
+    const { data } = await client
+      .from("pages")
+      .select(
+        "slug,title_ar,title_en,intro_ar,intro_en,body_ar,body_en,cover_asset_id,is_published,extra",
+      )
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (!data) return null;
+    const extra = (data.extra ?? {}) as any;
+    const rawFields = Array.isArray(extra?.fields) ? extra.fields : [];
+    const [bodyAr, bodyEn, coverUrl] = await Promise.all([
+      richBodyHtml(data.body_ar),
+      richBodyHtml(data.body_en),
+      assetUrl(data.cover_asset_id),
+    ]);
+    return {
+      slug: data.slug,
+      title_ar: data.title_ar ?? null,
+      title_en: data.title_en ?? null,
+      intro_ar: data.intro_ar ?? null,
+      intro_en: data.intro_en ?? null,
+      body_html_ar: bodyAr,
+      body_html_en: bodyEn,
+      cover_url: coverUrl,
+      is_published: !!data.is_published,
+      fields: (rawFields as PageExtraField[])
+        .filter((f) => f && f.enabled !== false)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    };
+  });
