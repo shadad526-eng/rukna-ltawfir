@@ -156,9 +156,9 @@ function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
         <article className="prem-card relative overflow-hidden p-8 md:p-12">
           <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-trust-700 to-leaf-600" />
-          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={t("about.purpose.title")} />
+          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={T("purpose.title", t("about.purpose.title"))} />
           <p className="mt-6 text-base leading-loose text-ink-600 md:text-lg">
-            {t("about.purpose.body")}
+            {T("purpose.body", t("about.purpose.body"))}
           </p>
         </article>
       </section>
@@ -172,12 +172,12 @@ function AboutPage() {
             </span>
             <span className="h-3 w-px bg-white/40" />
             <span className="text-[11px] font-semibold tracking-[0.18em] text-white/90">
-              {t("about.promise.title")}
+              {T("promise.title", t("about.promise.title"))}
             </span>
           </div>
           <blockquote className="mt-8 font-arabic text-2xl font-bold leading-[1.5] text-white md:text-4xl md:leading-[1.45]">
             <span className="text-white/80">{isAr ? "”" : "“"}</span>
-            {t("about.promise.body")}
+            {T("promise.body", t("about.promise.body"))}
             <span className="text-white/80">{isAr ? "“" : "”"}</span>
           </blockquote>
           <div className="mx-auto mt-8 h-px w-24 bg-white/40" />
@@ -186,13 +186,13 @@ function AboutPage() {
 
       {/* WHAT WE BELIEVE */}
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
-        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={t("about.believe.title")} />
+        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={T("believe.title", t("about.believe.title"))} />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {t("about.believe.body1")}
+            {T("believe.body1", t("about.believe.body1"))}
           </p>
           <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {t("about.believe.body2")}
+            {T("believe.body2", t("about.believe.body2"))}
           </p>
         </div>
       </section>
@@ -200,9 +200,9 @@ function AboutPage() {
       {/* FULL ECOSYSTEM */}
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="hq-eyebrow">{t("about.fullSystemEyebrow")}</div>
+          <div className="hq-eyebrow">{T("ecosystem.eyebrow", t("about.fullSystemEyebrow"))}</div>
           <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-            {t("about.fullSystemTitle")}
+            {T("ecosystem.title", t("about.fullSystemTitle"))}
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => {
@@ -230,16 +230,16 @@ function AboutPage() {
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
         <h2 className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
-          {t("about.ctaTitle")}
+          {T("cta.title", t("about.ctaTitle"))}
         </h2>
-        <p className="mt-4 text-ink-600">{t("about.ctaDesc")}</p>
+        <p className="mt-4 text-ink-600">{T("cta.desc", t("about.ctaDesc"))}</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <WhatsAppCTA number={id.whatsapp_number}>{t("about.ctaWhatsapp")}</WhatsAppCTA>
+          <WhatsAppCTA number={id.whatsapp_number}>{T("cta.whatsapp", t("about.ctaWhatsapp"))}</WhatsAppCTA>
           <LLink
             to="/$lang/partners"
             className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
           >
-            {t("about.ctaPartners")}
+            {T("cta.partners", t("about.ctaPartners"))}
           </LLink>
         </div>
       </section>
