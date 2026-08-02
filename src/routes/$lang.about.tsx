@@ -64,9 +64,18 @@ function AboutPage() {
   const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: brands } = useSuspenseQuery(brandsQO);
+  const { data: page } = useSuspenseQuery(pageQO);
   const ident = useLocalizedIdentity(id);
 
+  const c = page?.content ?? {};
+  const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+
   const valueKeys = ["trust", "quality", "partnership", "innovation", "responsibility", "excellence"] as const;
+  const values = pickList(
+    c,
+    "values.items",
+    valueKeys.map((k) => ({ title_ar: t(`about.values.${k}T`), desc_ar: t(`about.values.${k}D`) })),
+  );
 
   return (
     <div className="min-h-screen bg-background">
