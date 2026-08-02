@@ -1,15 +1,17 @@
 import { LLink } from "@/i18n/LLink";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
+import { getCorporateIdentity, getSitePage, listBrands } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { itemText, pickList, pickText } from "@/lib/page-content";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
+const pageQO = queryOptions({ queryKey: ["site-page", "about"], queryFn: () => getSitePage({ data: "about" }) });
 
 export const Route = createFileRoute("/$lang/about")({
   head: ({ params }) => {
