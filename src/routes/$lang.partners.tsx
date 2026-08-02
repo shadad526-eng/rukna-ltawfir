@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCorporateIdentity } from "@/lib/site.functions";
+import { getCorporateIdentity, getSitePage } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { itemText, pickList, pickText } from "@/lib/page-content";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
+const pageQO = queryOptions({ queryKey: ["site-page", "partners"], queryFn: () => getSitePage({ data: "partners" }) });
 
 export const Route = createFileRoute("/$lang/partners")({
   head: ({ params }) => {
@@ -29,34 +31,35 @@ export const Route = createFileRoute("/$lang/partners")({
     };
   },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(identityQO);
+    await Promise.all([
+      context.queryClient.ensureQueryData(identityQO),
+      context.queryClient.ensureQueryData(pageQO),
+    ]);
   },
   component: PartnersPage,
 });
 
 function PartnersPage() {
-  const { t } = useLocale();
+  const { lang, t } = useLocale();
   const { data: id } = useSuspenseQuery(identityQO);
+  const { data: page } = useSuspenseQuery(pageQO);
   const ident = useLocalizedIdentity(id);
 
-  const tiers = [
-    { t: t("partners.tiers.wholesaleT"), d: t("partners.tiers.wholesaleD") },
-    { t: t("partners.tiers.pharmaT"), d: t("partners.tiers.pharmaD") },
-    { t: t("partners.tiers.retailT"), d: t("partners.tiers.retailD") },
-    { t: t("partners.tiers.digitalT"), d: t("partners.tiers.digitalD") },
-  ];
+  const c = page?.content ?? {};
+  const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
 
-  const advantages = (t("partners.advantages") as unknown as string[]) ?? [];
-  const advantagesArr = Array.isArray(advantages)
-    ? advantages
-    : [
-        t("partners.advantages.0" as never),
-        t("partners.advantages.1" as never),
-        t("partners.advantages.2" as never),
-        t("partners.advantages.3" as never),
-      ];
+  const tiers = pickList(c, "tiers.items", [
+    { title_ar: t("partners.tiers.wholesaleT"), desc_ar: t("partners.tiers.wholesaleD") },
+    { title_ar: t("partners.tiers.pharmaT"), desc_ar: t("partners.tiers.pharmaD") },
+    { title_ar: t("partners.tiers.retailT"), desc_ar: t("partners.tiers.retailD") },
+    { title_ar: t("partners.tiers.digitalT"), desc_ar: t("partners.tiers.digitalD") },
+  ]);
 
-  const waMsg = t("partners.waMsg");
+  const rawAdvantages = t("partners.advantages") as unknown;
+  const fallbackAdvantages = (Array.isArray(rawAdvantages) ? (rawAdvantages as string[]) : []).map((a) => ({ text_ar: a }));
+  const advantagesArr = pickList(c, "why.items", fallbackAdvantages);
+
+  const waMsg = T("hero.waMsg", t("partners.waMsg"));
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,33 +72,33 @@ function PartnersPage() {
 
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="hq-eyebrow">{t("partners.eyebrow")}</div>
+          <div className="hq-eyebrow">{T("hero.eyebrow", t("partners.eyebrow"))}</div>
           <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {t("partners.title")}
+            {T("hero.title", t("partners.title"))}
           </h1>
           <div className="mt-6 h-px w-28 prem-divider" />
           <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {t("partners.subtitle")}
+            {T("hero.subtitle", t("partners.subtitle"))}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <WhatsAppCTA number={id.whatsapp_number} message={waMsg}>
-              {t("partners.openChat")}
+              {T("hero.openChat", t("partners.openChat"))}
             </WhatsAppCTA>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8">
-        <div className="hq-eyebrow">{t("partners.channelsEyebrow")}</div>
+        <div className="hq-eyebrow">{T("tiers.eyebrow", t("partners.channelsEyebrow"))}</div>
         <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-          {t("partners.channelsTitle")}
+          {T("tiers.title", t("partners.channelsTitle"))}
         </h2>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {tiers.map((tier, i) => (
-            <article key={tier.t} className="prem-card relative p-6">
+          {tiers.map((tier: any, i: number) => (
+            <article key={`${itemText(tier, "title", lang)}-${i}`} className="prem-card relative p-6">
               <div className="text-[10px] font-bold tracking-[0.24em] text-trust-700">0{i + 1}</div>
-              <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{tier.t}</h3>
-              <p className="mt-3 text-[13px] leading-loose text-ink-600">{tier.d}</p>
+              <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{itemText(tier, "title", lang)}</h3>
+              <p className="mt-3 text-[13px] leading-loose text-ink-600">{itemText(tier, "desc", lang)}</p>
             </article>
           ))}
         </div>
@@ -104,30 +107,30 @@ function PartnersPage() {
       <section className="border-y border-border bg-card">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8">
           <div>
-            <div className="hq-eyebrow">{t("partners.whyEyebrow")}</div>
+            <div className="hq-eyebrow">{T("why.eyebrow", t("partners.whyEyebrow"))}</div>
             <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-              {t("partners.whyTitle")}
+              {T("why.title", t("partners.whyTitle"))}
             </h2>
             <ul className="mt-7 space-y-4">
-              {advantagesArr.map((a) => (
-                <li key={a} className="flex items-start gap-3 text-[15px] leading-loose text-foreground">
+              {advantagesArr.map((a: any, i: number) => (
+                <li key={`${itemText(a, "text", lang)}-${i}`} className="flex items-start gap-3 text-[15px] leading-loose text-foreground">
                   <span className="mt-1 grid size-6 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700">✓</span>
-                  <span>{a}</span>
+                  <span>{itemText(a, "text", lang)}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="glass rounded-3xl p-8 md:p-10">
-            <div className="hq-eyebrow">{t("partners.channelEyebrow")}</div>
-            <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground">{t("partners.channelTitle")}</h3>
-            <p className="mt-3 text-sm leading-loose text-ink-600">{t("partners.channelDesc")}</p>
+            <div className="hq-eyebrow">{T("channel.eyebrow", t("partners.channelEyebrow"))}</div>
+            <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground">{T("channel.title", t("partners.channelTitle"))}</h3>
+            <p className="mt-3 text-sm leading-loose text-ink-600">{T("channel.desc", t("partners.channelDesc"))}</p>
             <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-              <div className="text-xs font-semibold text-ink-600">{t("partners.waNumberLabel")}</div>
+              <div className="text-xs font-semibold text-ink-600">{T("channel.numberLabel", t("partners.waNumberLabel"))}</div>
               <div className="mt-1 font-arabic text-xl font-bold text-trust-700">+967 {id.whatsapp_number}</div>
             </div>
             <div className="mt-6">
               <WhatsAppCTA number={id.whatsapp_number} message={waMsg} className="w-full">
-                {t("partners.sendNow")}
+                {T("channel.sendNow", t("partners.sendNow"))}
               </WhatsAppCTA>
             </div>
           </div>
