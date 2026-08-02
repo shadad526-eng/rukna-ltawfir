@@ -19,7 +19,8 @@ export type FieldType =
   | "brand_multi_ref"
   | "product_multi_ref"
   | "article_multi_ref"
-  | "page_fields";
+  | "page_fields"
+  | "page_sections";
 
 
 export type Field = {
@@ -226,7 +227,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "body_ar", label: "محتوى الصفحة (AR)", type: "textarea" },
       { key: "body_en", label: "Page content (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الصفحة", type: "asset" },
-      { key: "extra", label: "حقول إضافية", type: "page_fields", hint: "بطاقات معلومات إضافية تظهر داخل الصفحة." },
+      { key: "extra", label: "أقسام الصفحة", type: "page_sections", hint: "تحرير نصوص أقسام الصفحة بالعربية والإنجليزية." },
       { key: "seo_title_ar", label: "عنوان SEO (AR)", type: "text", advanced: true },
       { key: "seo_description_ar", label: "وصف SEO (AR)", type: "textarea", advanced: true },
       { key: "is_published", label: "مفعّلة", type: "boolean" },

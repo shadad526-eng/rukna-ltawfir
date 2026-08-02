@@ -1,15 +1,17 @@
 import { LLink } from "@/i18n/LLink";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
+import { getCorporateIdentity, getSitePage, listBrands } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { itemText, pickList, pickText } from "@/lib/page-content";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
+const pageQO = queryOptions({ queryKey: ["site-page", "about"], queryFn: () => getSitePage({ data: "about" }) });
 
 export const Route = createFileRoute("/$lang/about")({
   head: ({ params }) => {
@@ -34,6 +36,7 @@ export const Route = createFileRoute("/$lang/about")({
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(brandsQO),
+      context.queryClient.ensureQueryData(pageQO),
     ]);
   },
   component: AboutPage,
@@ -61,9 +64,18 @@ function AboutPage() {
   const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: brands } = useSuspenseQuery(brandsQO);
+  const { data: page } = useSuspenseQuery(pageQO);
   const ident = useLocalizedIdentity(id);
 
+  const c = page?.content ?? {};
+  const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+
   const valueKeys = ["trust", "quality", "partnership", "innovation", "responsibility", "excellence"] as const;
+  const values = pickList(
+    c,
+    "values.items",
+    valueKeys.map((k) => ({ title_ar: t(`about.values.${k}T`), desc_ar: t(`about.values.${k}D`) })),
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,13 +89,13 @@ function AboutPage() {
       {/* HERO */}
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="hq-eyebrow">{t("about.eyebrow")}</div>
+          <div className="hq-eyebrow">{T("hero.eyebrow", t("about.eyebrow"))}</div>
           <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {ident.legalName} <span className="text-trust-700">{t("about.titleSuffix")}</span>
+            {ident.legalName} <span className="text-trust-700">{T("hero.titleSuffix", t("about.titleSuffix"))}</span>
           </h1>
           <div className="mt-6 h-px w-28 prem-divider" />
           <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {t("about.subtitle")}
+            {T("hero.subtitle", t("about.subtitle"))}
           </p>
         </div>
       </section>
@@ -93,16 +105,16 @@ function AboutPage() {
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trust-700 to-leaf-600" />
-            <SectionHeading eyebrow={t("about.vision.eyebrow")} title={t("about.vision.title")} />
+            <SectionHeading eyebrow={t("about.vision.eyebrow")} title={T("vision.title", t("about.vision.title"))} />
             <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {t("about.vision.body")}
+              {T("vision.body", t("about.vision.body"))}
             </p>
           </article>
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-leaf-600 to-trust-700" />
-            <SectionHeading eyebrow={t("about.mission.eyebrow")} title={t("about.mission.title")} />
+            <SectionHeading eyebrow={t("about.mission.eyebrow")} title={T("mission.title", t("about.mission.title"))} />
             <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {t("about.mission.body")}
+              {T("mission.body", t("about.mission.body"))}
             </p>
           </article>
         </div>
@@ -111,14 +123,14 @@ function AboutPage() {
       {/* VALUES */}
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <SectionHeading eyebrow={t("about.values.eyebrow")} title={t("about.values.title")} />
+          <SectionHeading eyebrow={t("about.values.eyebrow")} title={T("values.title", t("about.values.title"))} />
           <p className="mt-4 max-w-2xl text-[15px] leading-loose text-ink-600">
-            {t("about.values.subtitle")}
+            {T("values.subtitle", t("about.values.subtitle"))}
           </p>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {valueKeys.map((k, i) => (
+            {values.map((v: any, i: number) => (
               <article
-                key={k}
+                key={`${itemText(v, "title", lang)}-${i}`}
                 className="prem-card group relative p-7 transition-transform hover:-translate-y-1"
               >
                 <div className="flex items-center gap-3">
@@ -126,12 +138,12 @@ function AboutPage() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <h3 className="font-arabic text-xl font-bold text-foreground">
-                    {t(`about.values.${k}T`)}
+                    {itemText(v, "title", lang)}
                   </h3>
                 </div>
                 <div className="mt-4 h-px w-10 prem-divider" />
                 <p className="mt-4 text-[14.5px] leading-loose text-ink-600">
-                  {t(`about.values.${k}D`)}
+                  {itemText(v, "desc", lang)}
                 </p>
               </article>
             ))}
@@ -139,13 +151,14 @@ function AboutPage() {
         </div>
       </section>
 
+
       {/* PURPOSE */}
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
         <article className="prem-card relative overflow-hidden p-8 md:p-12">
           <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-trust-700 to-leaf-600" />
-          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={t("about.purpose.title")} />
+          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={T("purpose.title", t("about.purpose.title"))} />
           <p className="mt-6 text-base leading-loose text-ink-600 md:text-lg">
-            {t("about.purpose.body")}
+            {T("purpose.body", t("about.purpose.body"))}
           </p>
         </article>
       </section>
@@ -159,12 +172,12 @@ function AboutPage() {
             </span>
             <span className="h-3 w-px bg-white/40" />
             <span className="text-[11px] font-semibold tracking-[0.18em] text-white/90">
-              {t("about.promise.title")}
+              {T("promise.title", t("about.promise.title"))}
             </span>
           </div>
           <blockquote className="mt-8 font-arabic text-2xl font-bold leading-[1.5] text-white md:text-4xl md:leading-[1.45]">
             <span className="text-white/80">{isAr ? "”" : "“"}</span>
-            {t("about.promise.body")}
+            {T("promise.body", t("about.promise.body"))}
             <span className="text-white/80">{isAr ? "“" : "”"}</span>
           </blockquote>
           <div className="mx-auto mt-8 h-px w-24 bg-white/40" />
@@ -173,13 +186,13 @@ function AboutPage() {
 
       {/* WHAT WE BELIEVE */}
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
-        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={t("about.believe.title")} />
+        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={T("believe.title", t("about.believe.title"))} />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {t("about.believe.body1")}
+            {T("believe.body1", t("about.believe.body1"))}
           </p>
           <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {t("about.believe.body2")}
+            {T("believe.body2", t("about.believe.body2"))}
           </p>
         </div>
       </section>
@@ -187,9 +200,9 @@ function AboutPage() {
       {/* FULL ECOSYSTEM */}
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="hq-eyebrow">{t("about.fullSystemEyebrow")}</div>
+          <div className="hq-eyebrow">{T("ecosystem.eyebrow", t("about.fullSystemEyebrow"))}</div>
           <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-            {t("about.fullSystemTitle")}
+            {T("ecosystem.title", t("about.fullSystemTitle"))}
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => {
@@ -217,16 +230,16 @@ function AboutPage() {
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
         <h2 className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
-          {t("about.ctaTitle")}
+          {T("cta.title", t("about.ctaTitle"))}
         </h2>
-        <p className="mt-4 text-ink-600">{t("about.ctaDesc")}</p>
+        <p className="mt-4 text-ink-600">{T("cta.desc", t("about.ctaDesc"))}</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <WhatsAppCTA number={id.whatsapp_number}>{t("about.ctaWhatsapp")}</WhatsAppCTA>
+          <WhatsAppCTA number={id.whatsapp_number}>{T("cta.whatsapp", t("about.ctaWhatsapp"))}</WhatsAppCTA>
           <LLink
             to="/$lang/partners"
             className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
           >
-            {t("about.ctaPartners")}
+            {T("cta.partners", t("about.ctaPartners"))}
           </LLink>
         </div>
       </section>

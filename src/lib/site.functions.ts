@@ -643,6 +643,8 @@ export type SitePage = {
   cover_url: string | null;
   is_published: boolean;
   fields: PageExtraField[];
+  /** Structured section content edited from the dashboard. */
+  content: Record<string, any>;
 };
 
 export const getSitePage = createServerFn({ method: "GET" })
@@ -678,5 +680,6 @@ export const getSitePage = createServerFn({ method: "GET" })
       fields: (rawFields as PageExtraField[])
         .filter((f) => f && f.enabled !== false)
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+      content: (extra?.content && typeof extra.content === "object" ? extra.content : {}) as Record<string, any>,
     };
   });
