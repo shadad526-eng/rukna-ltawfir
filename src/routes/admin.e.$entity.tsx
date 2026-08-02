@@ -10,6 +10,7 @@ import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageForUpload } from "@/lib/optimize-image";
 import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
+import { PageSectionsEditor } from "@/components/admin/PageSectionsEditor";
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
@@ -241,6 +242,11 @@ function EntityPage() {
         const list = Array.isArray((v as any)?.fields) ? (v as any).fields : [];
         v = { ...(typeof v === "object" && v ? v : {}), fields: list };
       }
+      // Structured page sections are stored in the same NOT NULL jsonb column.
+      if (f.type === "page_sections") {
+        const obj = typeof v === "object" && v ? v : {};
+        v = { ...obj, content: (obj as any).content ?? {} };
+      }
 
 
       // NOT NULL columns that the editor leaves optional: mirror another field.
@@ -457,7 +463,7 @@ function EntityPage() {
             </div>
             <form onSubmit={(e) => { e.preventDefault(); save(editing); }} className="p-5 space-y-4">
               {visibleFields.map((f) => (
-                <FieldInput key={f.key} field={f} value={editing[f.key]}
+                <FieldInput key={f.key} field={f} value={editing[f.key]} row={editing}
                   refs={refs} error={fieldErrors[f.key]} specKey={`${entity}.${f.key}`}
                   onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
                   onChange={(v) => setField(f.key, v)} />
@@ -473,7 +479,7 @@ function EntityPage() {
                   {showAdvanced && (
                     <div className="mt-3 space-y-4">
                       {advancedFields.map((f) => (
-                        <FieldInput key={f.key} field={f} value={editing[f.key]}
+                        <FieldInput key={f.key} field={f} value={editing[f.key]} row={editing}
                           refs={refs} error={fieldErrors[f.key]} specKey={`${entity}.${f.key}`}
                           onOpenAssetPicker={() => setAssetPickerFor({ key: f.key, accept: f.accept ?? "image" })}
                           onChange={(v) => setField(f.key, v)} />
@@ -567,8 +573,8 @@ function renderCell(col: Column, v: any, row: any, refs: RefMaps) {
   return <span className="text-slate-200 truncate block">{String(v)}</span>;
 }
 
-function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, specKey }: {
-  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string; specKey?: string;
+function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, specKey, row }: {
+  field: Field; value: any; onChange: (v: any) => void; refs: RefMaps; onOpenAssetPicker: () => void; error?: string; specKey?: string; row?: Record<string, any>;
 }) {
   const baseCls = "w-full bg-slate-950 border rounded-lg px-3 py-2 text-sm focus:outline-none";
   const border = error ? "border-rose-500 focus:border-rose-400" : "border-slate-800 focus:border-emerald-500";
@@ -714,6 +720,15 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
           </div>
         </div>
         <ImageSpecHint specKey={specKey} previewUrl={isImg ? url : null} />
+        {hintEl}
+      </div>
+    );
+  }
+
+  if (field.type === "page_sections") {
+    return (
+      <div className="block text-sm space-y-2">{labelEl}
+        <PageSectionsEditor slug={row?.slug} value={value} onChange={onChange} />
         {hintEl}
       </div>
     );
