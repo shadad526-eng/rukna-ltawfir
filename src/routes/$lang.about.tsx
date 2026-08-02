@@ -36,6 +36,7 @@ export const Route = createFileRoute("/$lang/about")({
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(brandsQO),
+      context.queryClient.ensureQueryData(pageQO),
     ]);
   },
   component: AboutPage,
