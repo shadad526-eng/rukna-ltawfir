@@ -643,6 +643,8 @@ export type SitePage = {
   cover_url: string | null;
   is_published: boolean;
   fields: PageExtraField[];
+  /** Structured section content edited from the dashboard. */
+  content: Record<string, any>;
 };
 
 export const getSitePage = createServerFn({ method: "GET" })
