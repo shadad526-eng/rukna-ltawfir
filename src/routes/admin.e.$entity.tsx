@@ -10,7 +10,9 @@ import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageForUpload } from "@/lib/optimize-image";
 import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
-import { PageSectionsEditor } from "@/components/admin/PageSectionsEditor";
+import { isContentPageSlug } from "@/lib/page-content";
+import { Link } from "@tanstack/react-router";
+
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
