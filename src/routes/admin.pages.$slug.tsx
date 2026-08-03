@@ -14,7 +14,9 @@ import {
   withDefaults,
   type ContentField,
   type ContentGroup,
+  type ContentPageSlug,
   type PageContent,
+
 } from "@/lib/page-content";
 
 export const Route = createFileRoute("/admin/pages/$slug")({
