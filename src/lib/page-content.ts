@@ -84,12 +84,13 @@ export const HEADING_LIMITS = {
 };
 
 export const HEADING_COLOR_PRESETS: { label: string; value: string }[] = [
-  { label: "أساسي (أزرق الثقة)", value: "var(--trust-700)" },
-  { label: "ثانوي (أخضر)", value: "var(--leaf-700)" },
-  { label: "تمييز", value: "var(--accent)" },
-  { label: "محايد (النص الأساسي)", value: "var(--foreground)" },
+  { label: "أزرق الثقة (أساسي)", value: "oklch(0.46 0.16 245)" },
+  { label: "أخضر الطبيعة", value: "oklch(0.58 0.16 138)" },
+  { label: "أخضر فاتح (تمييز)", value: "oklch(0.68 0.17 138)" },
+  { label: "رمادي داكن", value: "oklch(0.38 0.02 250)" },
   { label: "أبيض", value: "#ffffff" },
 ];
+
 
 export function clampHeadingSize(v: unknown, which: "desktop" | "mobile"): number | null {
   const n = typeof v === "number" ? v : Number(v);
