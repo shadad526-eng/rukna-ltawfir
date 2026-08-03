@@ -402,6 +402,17 @@ function EntityPage() {
                 ))}
                 <td className="p-3">
                   <div className="flex items-center gap-1 justify-end">
+                    {isContentPageSlug(r.slug) && (
+                      <Link
+                        to="/admin/pages/$slug"
+                        params={{ slug: r.slug }}
+                        className="rounded bg-emerald-600/20 px-2 py-1 text-[11px] text-emerald-300 hover:bg-emerald-600/30"
+                        title="تحرير أقسام الصفحة"
+                      >
+                        محرّر الأقسام
+                      </Link>
+                    )}
+
                     <button onClick={() => setEditing(r)} className="p-1.5 rounded hover:bg-slate-700 text-sky-300" title="تعديل">
                       <Pencil className="w-4 h-4" />
                     </button>
