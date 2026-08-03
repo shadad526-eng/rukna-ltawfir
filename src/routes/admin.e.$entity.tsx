@@ -726,8 +726,6 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
 
   if (field.type === "page_fields") {
 
-
-  if (field.type === "page_fields") {
     const list: any[] = Array.isArray(value?.fields) ? value.fields : [];
     const commit = (next: any[]) => onChange({ ...(typeof value === "object" && value ? value : {}), fields: next });
     const patch = (i: number, p: any) => commit(list.map((f, j) => (j === i ? { ...f, ...p } : f)));
