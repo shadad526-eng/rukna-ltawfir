@@ -18,10 +18,11 @@ import {
 } from "@/lib/page-content";
 
 export const Route = createFileRoute("/admin/pages/$slug")({
-  loader: ({ params }) => {
+  loader: ({ params }): { slug: ContentPageSlug } => {
     if (!isContentPageSlug(params.slug)) throw notFound();
     return { slug: params.slug };
   },
+
   component: PageEditor,
 });
 

@@ -36,6 +36,7 @@ import { Route as LangBrandsSlugRouteImport } from './routes/$lang.brands.$slug'
 import { Route as LangNewsIndexRouteImport } from './routes/$lang.news.index'
 import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
 import { Route as AdminEEntityRouteImport } from './routes/admin.e.$entity'
+import { Route as AdminPagesSlugRouteImport } from './routes/admin.pages.$slug'
 import { Route as LangBrandsSlugIndexRouteImport } from './routes/$lang.brands.$slug.index'
 import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.brands.$slug.$productSlug'
 
@@ -174,6 +175,11 @@ const AdminEEntityRoute = AdminEEntityRouteImport.update({
   path: '/e/$entity',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPagesSlugRoute = AdminPagesSlugRouteImport.update({
+  id: '/pages/$slug',
+  path: '/pages/$slug',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LangBrandsSlugIndexRoute = LangBrandsSlugIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
+  '/admin/pages/$slug': typeof AdminPagesSlugRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/news/': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/$lang/admin/seo': typeof LangAdminSeoRoute
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
+  '/admin/pages/$slug': typeof AdminPagesSlugRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
   '/$lang/news': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/$lang/brands/$slug': typeof LangBrandsSlugRouteWithChildren
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
+  '/admin/pages/$slug': typeof AdminPagesSlugRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/news/': typeof LangNewsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
+    | '/admin/pages/$slug'
     | '/$lang/brands/'
     | '/$lang/news/'
     | '/$lang/brands/$slug/$productSlug'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/$lang/admin/seo'
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
+    | '/admin/pages/$slug'
     | '/$lang/brands'
     | '/$lang/news'
     | '/$lang/brands/$slug/$productSlug'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/$lang/brands/$slug'
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
+    | '/admin/pages/$slug'
     | '/$lang/brands/'
     | '/$lang/news/'
     | '/$lang/brands/$slug/$productSlug'
@@ -567,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEEntityRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pages/$slug': {
+      id: '/admin/pages/$slug'
+      path: '/pages/$slug'
+      fullPath: '/admin/pages/$slug'
+      preLoaderRoute: typeof AdminPagesSlugRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/$lang/brands/$slug/': {
       id: '/$lang/brands/$slug/'
       path: '/'
@@ -655,6 +674,7 @@ interface AdminRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminEEntityRoute: typeof AdminEEntityRoute
+  AdminPagesSlugRoute: typeof AdminPagesSlugRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -664,6 +684,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminEEntityRoute: AdminEEntityRoute,
+  AdminPagesSlugRoute: AdminPagesSlugRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
