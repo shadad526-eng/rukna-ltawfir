@@ -19,8 +19,8 @@ export type FieldType =
   | "brand_multi_ref"
   | "product_multi_ref"
   | "article_multi_ref"
-  | "page_fields"
-  | "page_sections";
+  | "page_fields";
+
 
 
 export type Field = {
