@@ -126,9 +126,11 @@ function GroupEditor({
 }
 
 function PageEditor() {
-  const { slug } = Route.useLoaderData();
+  const params = Route.useParams();
+  const slug = params.slug as ContentPageSlug;
   const navigate = useNavigate();
   const schema = PAGE_SCHEMAS[slug];
+
   const [lang, setLang] = useState<"ar" | "en">("ar");
   const [content, setContent] = useState<PageContent | null>(null);
   const [extra, setExtra] = useState<Record<string, any>>({});
