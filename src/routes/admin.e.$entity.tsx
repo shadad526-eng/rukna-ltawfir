@@ -724,14 +724,8 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
     );
   }
 
-  if (field.type === "page_sections") {
-    return (
-      <div className="block text-sm space-y-2">{labelEl}
-        <PageSectionsEditor slug={row?.slug} value={value} onChange={onChange} />
-        {hintEl}
-      </div>
-    );
-  }
+  if (field.type === "page_fields") {
+
 
   if (field.type === "page_fields") {
     const list: any[] = Array.isArray(value?.fields) ? value.fields : [];
