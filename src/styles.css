@@ -622,3 +622,25 @@
   .article-prose h3 { font-size: 1.12rem; }
   .article-prose img { border-radius: 12px; margin: 1.2em auto; }
 }
+
+/* ---- Admin-authored page content ------------------------------------- */
+/* Inline formatted text: inherits the surrounding component's typography. */
+.rich-inline > :first-child { margin-top: 0; }
+.rich-inline > :last-child { margin-bottom: 0; }
+.rich-inline p { margin: 0 0 0.85em; }
+.rich-inline p:last-child { margin-bottom: 0; }
+.rich-inline strong, .rich-inline b { font-weight: 700; }
+.rich-inline em, .rich-inline i { font-style: italic; }
+.rich-inline u { text-decoration: underline; }
+.rich-inline s, .rich-inline strike { text-decoration: line-through; }
+.rich-inline a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 3px; }
+.rich-inline ul { list-style: disc; padding-inline-start: 1.4rem; margin: 0 0 0.85em; }
+.rich-inline ol { list-style: decimal; padding-inline-start: 1.4rem; margin: 0 0 0.85em; }
+.rich-inline li { margin: 0.25em 0; }
+.rich-inline br { line-height: inherit; }
+
+/* Headings with administrator-controlled responsive typography. */
+.styled-heading { font-size: var(--h-fs-m, inherit); }
+@media (min-width: 768px) {
+  .styled-heading { font-size: var(--h-fs-d, var(--h-fs-m, inherit)); }
+}
