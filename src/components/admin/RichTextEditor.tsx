@@ -29,6 +29,8 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
 
   const ref = useRef<HTMLDivElement>(null);
   const [source, setSource] = useState(false);
+  const [colorOpen, setColorOpen] = useState(false);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
