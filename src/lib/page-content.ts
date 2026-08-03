@@ -439,6 +439,19 @@ function asText(v: unknown): string {
   return "";
 }
 
+/** Strips markup so legacy plain-text renderers never show raw tags. */
+function stripTags(v: string): string {
+  if (!v.includes("<")) return v;
+  return v
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /** Reads a localized value with a guaranteed fallback. */
 export function pickText(
   content: PageContent | null | undefined,
@@ -446,9 +459,9 @@ export function pickText(
   lang: "ar" | "en",
   fallback: string,
 ): string {
-  const primary = asText(content?.[`${key}_${lang}`]);
+  const primary = stripTags(asText(content?.[`${key}_${lang}`]));
   if (primary.trim()) return primary;
-  const arabic = asText(content?.[`${key}_ar`]);
+  const arabic = stripTags(asText(content?.[`${key}_ar`]));
   if (lang === "en" && arabic.trim() && !fallback) return arabic;
   return fallback;
 }
@@ -477,9 +490,9 @@ export function pickList<T = any>(
 /** Localized item value inside a repeater row. */
 export function itemText(row: any, key: string, lang: "ar" | "en"): string {
   if (!row) return "";
-  const v = asText(row[`${key}_${lang}`]);
+  const v = stripTags(asText(row[`${key}_${lang}`]));
   if (v.trim()) return v;
-  const ar = asText(row[`${key}_ar`]);
+  const ar = stripTags(asText(row[`${key}_ar`]));
   if (ar.trim()) return ar;
   return typeof row[key] === "string" ? row[key] : "";
 }
