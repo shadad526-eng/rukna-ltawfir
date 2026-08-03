@@ -3,10 +3,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
 import { fileToBase64 } from "@/lib/file-to-base64";
+import { HEADING_COLOR_PRESETS } from "@/lib/page-content";
 import {
   Bold, Italic, Underline, Strikethrough, List, ListOrdered,
   Heading1, Heading2, Heading3, Quote, Link as LinkIcon,
   Image as ImageIcon, Table as TableIcon, Undo, Redo, Eraser, Code,
+  AlignRight, AlignCenter, AlignLeft, Palette,
 } from "lucide-react";
 
 type Props = {
@@ -15,13 +17,16 @@ type Props = {
   onPickImage?: () => void;
   dir?: "rtl" | "ltr" | "auto";
   minHeight?: number;
+  /** Paragraph mode: hides block-level tools (headings, tables, code, images). */
+  compact?: boolean;
 };
 
 function exec(cmd: string, arg?: string) {
   document.execCommand(cmd, false, arg);
 }
 
-export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", minHeight = 240 }: Props) {
+export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", minHeight = 240, compact = false }: Props) {
+
   const ref = useRef<HTMLDivElement>(null);
   const [source, setSource] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
