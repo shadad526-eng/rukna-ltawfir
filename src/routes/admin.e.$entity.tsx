@@ -244,11 +244,8 @@ function EntityPage() {
         const list = Array.isArray((v as any)?.fields) ? (v as any).fields : [];
         v = { ...(typeof v === "object" && v ? v : {}), fields: list };
       }
-      // Structured page sections are stored in the same NOT NULL jsonb column.
-      if (f.type === "page_sections") {
-        const obj = typeof v === "object" && v ? v : {};
-        v = { ...obj, content: (obj as any).content ?? {} };
-      }
+
+
 
 
       // NOT NULL columns that the editor leaves optional: mirror another field.
