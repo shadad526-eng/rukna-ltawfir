@@ -10,7 +10,9 @@ import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageForUpload } from "@/lib/optimize-image";
 import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
-import { PageSectionsEditor } from "@/components/admin/PageSectionsEditor";
+import { isContentPageSlug } from "@/lib/page-content";
+import { Link } from "@tanstack/react-router";
+
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
 const RICHTEXT_KEYS = new Set([
@@ -242,11 +244,8 @@ function EntityPage() {
         const list = Array.isArray((v as any)?.fields) ? (v as any).fields : [];
         v = { ...(typeof v === "object" && v ? v : {}), fields: list };
       }
-      // Structured page sections are stored in the same NOT NULL jsonb column.
-      if (f.type === "page_sections") {
-        const obj = typeof v === "object" && v ? v : {};
-        v = { ...obj, content: (obj as any).content ?? {} };
-      }
+
+
 
 
       // NOT NULL columns that the editor leaves optional: mirror another field.
@@ -403,6 +402,17 @@ function EntityPage() {
                 ))}
                 <td className="p-3">
                   <div className="flex items-center gap-1 justify-end">
+                    {isContentPageSlug(r.slug) && (
+                      <Link
+                        to="/admin/pages/$slug"
+                        params={{ slug: r.slug }}
+                        className="rounded bg-emerald-600/20 px-2 py-1 text-[11px] text-emerald-300 hover:bg-emerald-600/30"
+                        title="تحرير أقسام الصفحة"
+                      >
+                        محرّر الأقسام
+                      </Link>
+                    )}
+
                     <button onClick={() => setEditing(r)} className="p-1.5 rounded hover:bg-slate-700 text-sky-300" title="تعديل">
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -725,16 +735,8 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
     );
   }
 
-  if (field.type === "page_sections") {
-    return (
-      <div className="block text-sm space-y-2">{labelEl}
-        <PageSectionsEditor slug={row?.slug} value={value} onChange={onChange} />
-        {hintEl}
-      </div>
-    );
-  }
-
   if (field.type === "page_fields") {
+
     const list: any[] = Array.isArray(value?.fields) ? value.fields : [];
     const commit = (next: any[]) => onChange({ ...(typeof value === "object" && value ? value : {}), fields: next });
     const patch = (i: number, p: any) => commit(list.map((f, j) => (j === i ? { ...f, ...p } : f)));
