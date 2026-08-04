@@ -43,7 +43,7 @@ export const Route = createFileRoute("/$lang/about")({
   component: AboutPage,
 });
 
-function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+function SectionHeading({ eyebrow, title, heading }: { eyebrow: string; title: string; heading?: HeadingValue | null }) {
   return (
     <div>
       <div className="inline-flex items-center gap-3">
@@ -52,9 +52,9 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
         </span>
         <div className="h-px w-10 bg-gradient-to-r from-trust-700/60 to-transparent" />
       </div>
-      <h2 className="mt-4 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
+      <StyledHeading heading={heading} level={2} className="mt-4 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
         {title}
-      </h2>
+      </StyledHeading>
       <div className="mt-4 h-px w-16 prem-divider" />
     </div>
   );
@@ -70,6 +70,8 @@ function AboutPage() {
 
   const c = page?.content ?? {};
   const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+  const R = (key: string, fallback: string) => pickRich(c, key, lang, fallback);
+  const H = (key: string) => pickHeading(c, key, lang);
 
   const valueKeys = ["trust", "quality", "partnership", "innovation", "responsibility", "excellence"] as const;
   const values = pickList(
@@ -77,6 +79,7 @@ function AboutPage() {
     "values.items",
     valueKeys.map((k) => ({ title_ar: t(`about.values.${k}T`), desc_ar: t(`about.values.${k}D`) })),
   );
+
 
   return (
     <div className="min-h-screen bg-background">
