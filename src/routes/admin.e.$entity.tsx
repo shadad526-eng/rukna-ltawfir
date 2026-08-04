@@ -618,12 +618,15 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
   );
 
   if (field.type === "textarea") {
-    if (RICHTEXT_KEYS.has(field.key)) {
+    const editor = resolveEditor(field);
+    if (editor !== "plain") {
       return (
         <label className="block text-sm space-y-1">{labelEl}
           <RichTextEditor
             value={value ?? ""}
             onChange={onChange}
+            compact={editor === "compact"}
+            minHeight={editor === "compact" ? 140 : 240}
             dir={field.key.endsWith("_en") ? "ltr" : "rtl"}
           />
           {hintEl}
@@ -637,6 +640,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
       </label>
     );
   }
+
   if (field.type === "boolean") {
     return (
       <label className="flex items-center gap-3 text-sm text-slate-300 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 cursor-pointer">
