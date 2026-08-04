@@ -72,7 +72,7 @@ export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, addr
             <ul className="space-y-2 text-sm leading-loose opacity-90">
               <li>{t("footer.whatsapp")}: +967 {whatsappNumber}</li>
               {email ? <li>{t("footer.email")}: {email}</li> : null}
-              {address ? <li>{t("footer.address")}: {address}</li> : null}
+              {address ? <li>{t("footer.address")}: <RichText value={address} /></li> : null}
             </ul>
             <div className="mt-5">
               <WhatsAppCTA number={whatsappNumber} variant="pill">{t("footer.startInquiry")}</WhatsAppCTA>
