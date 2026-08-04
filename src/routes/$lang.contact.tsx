@@ -176,7 +176,7 @@ function ContactPage() {
                   <article key={b.id} className="flex h-full flex-col rounded-2xl border border-border bg-background p-6 premium-shadow">
                     <h3 className="font-arabic text-lg font-bold text-foreground">{bName}</h3>
                     <div className="mt-3 h-px w-12 prem-divider" />
-                    <p className="mt-4 flex-1 text-sm leading-loose text-ink-600">{bAddress}</p>
+                    <RichText as="p" className="mt-4 flex-1 text-sm leading-loose text-ink-600" value={bAddress} />
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <WhatsAppCTA number={local} message={message} variant="pill">
                         {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
