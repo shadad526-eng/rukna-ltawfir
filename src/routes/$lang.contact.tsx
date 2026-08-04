@@ -97,13 +97,12 @@ function ContactPage() {
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("contact.eyebrow"))}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
+          <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
             {T("hero.title", t("contact.title"))}
-          </h1>
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {T("hero.subtitle", t("contact.subtitle"))}
-          </p>
+          <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
+            value={R("hero.subtitle", t("contact.subtitle"))} />
         </div>
       </section>
 
