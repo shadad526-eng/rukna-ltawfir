@@ -22,6 +22,26 @@ const RICHTEXT_KEYS = new Set([
   "description_ar", "description_en",
 ]);
 
+// Short descriptive fields: paragraph-only formatting (no headings/tables).
+const COMPACT_KEYS = new Set([
+  "short_description_ar", "short_description_en",
+  "excerpt_ar", "excerpt_en",
+  "intro_ar", "intro_en",
+  "tagline_ar", "tagline_en",
+  "usage_instructions_ar", "usage_instructions_en",
+  "hero_sub_ar", "hero_sub_en",
+  "address_ar", "address_en",
+]);
+
+/** Which editor a textarea field should use. */
+function resolveEditor(field: { key: string; editor?: "rich" | "compact" | "plain" }) {
+  if (field.editor) return field.editor;
+  if (RICHTEXT_KEYS.has(field.key)) return "rich";
+  if (COMPACT_KEYS.has(field.key)) return "compact";
+  return "plain";
+}
+
+
 // URL-safe slug (keeps Arabic letters as-is, replaces spaces/punct with `-`).
 function slugify(input: string): string {
   return (input ?? "")
