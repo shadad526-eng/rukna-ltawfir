@@ -496,3 +496,30 @@ export function itemText(row: any, key: string, lang: "ar" | "en"): string {
   if (ar.trim()) return ar;
   return typeof row[key] === "string" ? row[key] : "";
 }
+
+/**
+ * Reads a localized value preserving admin formatting (inline HTML). Used with
+ * the public `<RichText>` renderer; falls back to the original published copy.
+ */
+export function pickRich(
+  content: PageContent | null | undefined,
+  key: string,
+  lang: "ar" | "en",
+  fallback: string,
+): string {
+  const primary = asText(content?.[`${key}_${lang}`]);
+  if (primary.trim()) return primary;
+  const arabic = asText(content?.[`${key}_ar`]);
+  if (lang === "en" && arabic.trim() && !fallback) return arabic;
+  return fallback;
+}
+
+/** Localized repeater value preserving admin formatting. */
+export function itemRich(row: any, key: string, lang: "ar" | "en"): string {
+  if (!row) return "";
+  const v = asText(row[`${key}_${lang}`]);
+  if (v.trim()) return v;
+  const ar = asText(row[`${key}_ar`]);
+  if (ar.trim()) return ar;
+  return typeof row[key] === "string" ? row[key] : "";
+}
