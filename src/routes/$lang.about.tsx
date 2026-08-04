@@ -157,10 +157,10 @@ function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
         <article className="prem-card relative overflow-hidden p-8 md:p-12">
           <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-trust-700 to-leaf-600" />
-          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={T("purpose.title", t("about.purpose.title"))} />
-          <p className="mt-6 text-base leading-loose text-ink-600 md:text-lg">
-            {T("purpose.body", t("about.purpose.body"))}
-          </p>
+          <SectionHeading eyebrow={T("purpose.eyebrow", t("about.purpose.eyebrow"))} heading={H("purpose.title")} title={T("purpose.title", t("about.purpose.title"))} />
+          <RichText as="p" className="mt-6 text-base leading-loose text-ink-600 md:text-lg"
+            value={R("purpose.body", t("about.purpose.body"))} />
+
         </article>
       </section>
 
