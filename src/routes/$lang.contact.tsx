@@ -156,17 +156,16 @@ function ContactPage() {
         <section className="border-t border-border bg-card">
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
             <div className="hq-eyebrow">{T("branches.eyebrow", isAr ? "شبكة الفروع" : "Branch network")}</div>
-            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+            <StyledHeading heading={H("branches.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
               {T("branches.title", isAr ? "فروعنا وعناويننا" : "Our branches and addresses")}
-            </h2>
-            <p className="mt-4 max-w-3xl text-sm leading-loose text-ink-600">
-              {T(
+            </StyledHeading>
+            <RichText as="p" className="mt-4 max-w-3xl text-sm leading-loose text-ink-600"
+              value={R(
                 "branches.subtitle",
                 isAr
                   ? "اختر الفرع الأقرب إليك وتواصل معنا مباشرة عبر واتساب."
                   : "Choose the branch nearest to you and reach us directly on WhatsApp.",
-              )}
-            </p>
+              )} />
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {branches.map((b) => {
                 const bName = (isAr ? b.name_ar : b.name_en || b.name_ar) ?? "";
