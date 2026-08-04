@@ -4,6 +4,7 @@ import { SocialLinks } from "./SocialLinks";
 import { useT } from "@/i18n/LocaleProvider";
 import { useQuery } from "@tanstack/react-query";
 import { getCorporateIdentity } from "@/lib/site.functions";
+import { RichText } from "@/components/site/RichText";
 
 type Props = {
   legalName: string;
