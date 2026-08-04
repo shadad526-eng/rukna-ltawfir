@@ -229,10 +229,10 @@ function AboutPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
-        <h2 className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
+        <StyledHeading heading={H("cta.title")} level={2} className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
           {T("cta.title", t("about.ctaTitle"))}
-        </h2>
-        <p className="mt-4 text-ink-600">{T("cta.desc", t("about.ctaDesc"))}</p>
+        </StyledHeading>
+        <RichText as="p" className="mt-4 text-ink-600" value={R("cta.desc", t("about.ctaDesc"))} />
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <WhatsAppCTA number={id.whatsapp_number}>{T("cta.whatsapp", t("about.ctaWhatsapp"))}</WhatsAppCTA>
           <LLink
