@@ -7,7 +7,8 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { itemText, pickList, pickText } from "@/lib/page-content";
+import { itemRich, itemText, pickHeading, pickList, pickRich, pickText, type HeadingValue } from "@/lib/page-content";
+import { RichText, StyledHeading } from "@/components/site/RichText";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const brandsQO = queryOptions({ queryKey: ["brands"], queryFn: () => listBrands() });
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/$lang/about")({
   component: AboutPage,
 });
 
-function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+function SectionHeading({ eyebrow, title, heading }: { eyebrow: string; title: string; heading?: HeadingValue | null }) {
   return (
     <div>
       <div className="inline-flex items-center gap-3">
@@ -51,9 +52,9 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
         </span>
         <div className="h-px w-10 bg-gradient-to-r from-trust-700/60 to-transparent" />
       </div>
-      <h2 className="mt-4 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
+      <StyledHeading heading={heading} level={2} className="mt-4 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
         {title}
-      </h2>
+      </StyledHeading>
       <div className="mt-4 h-px w-16 prem-divider" />
     </div>
   );
@@ -69,6 +70,8 @@ function AboutPage() {
 
   const c = page?.content ?? {};
   const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+  const R = (key: string, fallback: string) => pickRich(c, key, lang, fallback);
+  const H = (key: string) => pickHeading(c, key, lang);
 
   const valueKeys = ["trust", "quality", "partnership", "innovation", "responsibility", "excellence"] as const;
   const values = pickList(
@@ -76,6 +79,7 @@ function AboutPage() {
     "values.items",
     valueKeys.map((k) => ({ title_ar: t(`about.values.${k}T`), desc_ar: t(`about.values.${k}D`) })),
   );
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,13 +94,12 @@ function AboutPage() {
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("about.eyebrow"))}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {ident.legalName} <span className="text-trust-700">{T("hero.titleSuffix", t("about.titleSuffix"))}</span>
-          </h1>
+          <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
+            <>{ident.legalName} <span className="text-trust-700">{T("hero.titleSuffix", t("about.titleSuffix"))}</span></>
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {T("hero.subtitle", t("about.subtitle"))}
-          </p>
+          <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
+            value={R("hero.subtitle", t("about.subtitle"))} />
         </div>
       </section>
 
@@ -105,17 +108,15 @@ function AboutPage() {
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trust-700 to-leaf-600" />
-            <SectionHeading eyebrow={t("about.vision.eyebrow")} title={T("vision.title", t("about.vision.title"))} />
-            <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {T("vision.body", t("about.vision.body"))}
-            </p>
+            <SectionHeading eyebrow={T("vision.eyebrow", t("about.vision.eyebrow"))} heading={H("vision.title")} title={T("vision.title", t("about.vision.title"))} />
+            <RichText as="p" className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base"
+              value={R("vision.body", t("about.vision.body"))} />
           </article>
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-leaf-600 to-trust-700" />
-            <SectionHeading eyebrow={t("about.mission.eyebrow")} title={T("mission.title", t("about.mission.title"))} />
-            <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {T("mission.body", t("about.mission.body"))}
-            </p>
+            <SectionHeading eyebrow={T("mission.eyebrow", t("about.mission.eyebrow"))} heading={H("mission.title")} title={T("mission.title", t("about.mission.title"))} />
+            <RichText as="p" className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base"
+              value={R("mission.body", t("about.mission.body"))} />
           </article>
         </div>
       </section>
@@ -123,10 +124,10 @@ function AboutPage() {
       {/* VALUES */}
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <SectionHeading eyebrow={t("about.values.eyebrow")} title={T("values.title", t("about.values.title"))} />
-          <p className="mt-4 max-w-2xl text-[15px] leading-loose text-ink-600">
-            {T("values.subtitle", t("about.values.subtitle"))}
-          </p>
+          <SectionHeading eyebrow={T("values.eyebrow", t("about.values.eyebrow"))} heading={H("values.title")} title={T("values.title", t("about.values.title"))} />
+          <RichText as="p" className="mt-4 max-w-2xl text-[15px] leading-loose text-ink-600"
+            value={R("values.subtitle", t("about.values.subtitle"))} />
+
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {values.map((v: any, i: number) => (
               <article
@@ -142,9 +143,9 @@ function AboutPage() {
                   </h3>
                 </div>
                 <div className="mt-4 h-px w-10 prem-divider" />
-                <p className="mt-4 text-[14.5px] leading-loose text-ink-600">
-                  {itemText(v, "desc", lang)}
-                </p>
+                <RichText as="p" className="mt-4 text-[14.5px] leading-loose text-ink-600"
+                  value={itemRich(v, "desc", lang)} />
+
               </article>
             ))}
           </div>
@@ -156,10 +157,10 @@ function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
         <article className="prem-card relative overflow-hidden p-8 md:p-12">
           <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-trust-700 to-leaf-600" />
-          <SectionHeading eyebrow={t("about.purpose.eyebrow")} title={T("purpose.title", t("about.purpose.title"))} />
-          <p className="mt-6 text-base leading-loose text-ink-600 md:text-lg">
-            {T("purpose.body", t("about.purpose.body"))}
-          </p>
+          <SectionHeading eyebrow={T("purpose.eyebrow", t("about.purpose.eyebrow"))} heading={H("purpose.title")} title={T("purpose.title", t("about.purpose.title"))} />
+          <RichText as="p" className="mt-6 text-base leading-loose text-ink-600 md:text-lg"
+            value={R("purpose.body", t("about.purpose.body"))} />
+
         </article>
       </section>
 
@@ -168,7 +169,7 @@ function AboutPage() {
         <div className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8 md:py-24">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur">
             <span className="font-mono text-[11px] font-bold tracking-[0.22em] text-white">
-              {t("about.promise.eyebrow")}
+              {T("promise.eyebrow", t("about.promise.eyebrow"))}
             </span>
             <span className="h-3 w-px bg-white/40" />
             <span className="text-[11px] font-semibold tracking-[0.18em] text-white/90">
@@ -177,7 +178,7 @@ function AboutPage() {
           </div>
           <blockquote className="mt-8 font-arabic text-2xl font-bold leading-[1.5] text-white md:text-4xl md:leading-[1.45]">
             <span className="text-white/80">{isAr ? "”" : "“"}</span>
-            {T("promise.body", t("about.promise.body"))}
+            <RichText value={R("promise.body", t("about.promise.body"))} />
             <span className="text-white/80">{isAr ? "“" : "”"}</span>
           </blockquote>
           <div className="mx-auto mt-8 h-px w-24 bg-white/40" />
@@ -186,14 +187,13 @@ function AboutPage() {
 
       {/* WHAT WE BELIEVE */}
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
-        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={T("believe.title", t("about.believe.title"))} />
+        <SectionHeading eyebrow={T("believe.eyebrow", t("about.believe.eyebrow"))} heading={H("believe.title")} title={T("believe.title", t("about.believe.title"))} />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {T("believe.body1", t("about.believe.body1"))}
-          </p>
-          <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {T("believe.body2", t("about.believe.body2"))}
-          </p>
+          <RichText as="p" className="text-[15px] leading-loose text-ink-600 md:text-base"
+            value={R("believe.body1", t("about.believe.body1"))} />
+          <RichText as="p" className="text-[15px] leading-loose text-ink-600 md:text-base"
+            value={R("believe.body2", t("about.believe.body2"))} />
+
         </div>
       </section>
 
@@ -201,9 +201,9 @@ function AboutPage() {
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <div className="hq-eyebrow">{T("ecosystem.eyebrow", t("about.fullSystemEyebrow"))}</div>
-          <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+          <StyledHeading heading={H("ecosystem.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
             {T("ecosystem.title", t("about.fullSystemTitle"))}
-          </h2>
+          </StyledHeading>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => {
               const name = isAr ? b.name_ar : b.name_en;
@@ -229,10 +229,10 @@ function AboutPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
-        <h2 className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
+        <StyledHeading heading={H("cta.title")} level={2} className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
           {T("cta.title", t("about.ctaTitle"))}
-        </h2>
-        <p className="mt-4 text-ink-600">{T("cta.desc", t("about.ctaDesc"))}</p>
+        </StyledHeading>
+        <RichText as="p" className="mt-4 text-ink-600" value={R("cta.desc", t("about.ctaDesc"))} />
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <WhatsAppCTA number={id.whatsapp_number}>{T("cta.whatsapp", t("about.ctaWhatsapp"))}</WhatsAppCTA>
           <LLink

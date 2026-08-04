@@ -39,7 +39,15 @@ export type Field = {
   slugFrom?: string;
   /** If the value is empty on save, copy the value of this field (for NOT NULL columns). */
   fallbackFrom?: string;
+  /**
+   * Editor used for `type: "textarea"` fields:
+   * - "rich": full rich-text editor (long-form content)
+   * - "compact": paragraph-only formatting (short descriptions)
+   * - "plain": raw textarea (internal/technical text)
+   */
+  editor?: "rich" | "compact" | "plain";
 };
+
 
 
 export type Column = {
