@@ -201,9 +201,9 @@ function AboutPage() {
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <div className="hq-eyebrow">{T("ecosystem.eyebrow", t("about.fullSystemEyebrow"))}</div>
-          <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+          <StyledHeading heading={H("ecosystem.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
             {T("ecosystem.title", t("about.fullSystemTitle"))}
-          </h2>
+          </StyledHeading>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
             {brands.map((b) => {
               const name = isAr ? b.name_ar : b.name_en;
