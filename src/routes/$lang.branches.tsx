@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import { RichText } from "@/components/site/RichText";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const branchesQO = queryOptions({ queryKey: ["branches"], queryFn: () => listBranches() });
