@@ -99,7 +99,7 @@ function BranchesPage() {
                   >
                     <h2 className="font-arabic text-xl font-bold text-foreground">{name}</h2>
                     <div className="mt-3 h-px w-12 prem-divider" />
-                    <p className="mt-4 flex-1 text-sm leading-loose text-ink-600">{address}</p>
+                    <RichText as="p" className="mt-4 flex-1 text-sm leading-loose text-ink-600" value={address} />
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <WhatsAppCTA number={local} message={message} variant="pill">
                         {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
