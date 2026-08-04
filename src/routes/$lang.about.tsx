@@ -143,9 +143,9 @@ function AboutPage() {
                   </h3>
                 </div>
                 <div className="mt-4 h-px w-10 prem-divider" />
-                <p className="mt-4 text-[14.5px] leading-loose text-ink-600">
-                  {itemText(v, "desc", lang)}
-                </p>
+                <RichText as="p" className="mt-4 text-[14.5px] leading-loose text-ink-600"
+                  value={itemRich(v, "desc", lang)} />
+
               </article>
             ))}
           </div>
