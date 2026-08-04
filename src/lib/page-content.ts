@@ -440,7 +440,7 @@ function asText(v: unknown): string {
 }
 
 /** Strips markup so legacy plain-text renderers never show raw tags. */
-function stripTags(v: string): string {
+export function stripTags(v: string): string {
   if (!v.includes("<")) return v;
   return v
     .replace(/<br\s*\/?>/gi, " ")
