@@ -6,7 +6,8 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { itemText, pickList, pickText } from "@/lib/page-content";
+import { itemRich, itemText, pickHeading, pickList, pickRich, pickText } from "@/lib/page-content";
+import { RichText, StyledHeading } from "@/components/site/RichText";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const pageQO = queryOptions({ queryKey: ["site-page", "partners"], queryFn: () => getSitePage({ data: "partners" }) });
