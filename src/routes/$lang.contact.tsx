@@ -147,7 +147,7 @@ function ContactPage() {
             <div className="mt-2 font-arabic text-lg font-bold text-foreground">
               {T("cards.addressTitle", t("contact.cards.addressT"))}
             </div>
-            <div className="mt-2 text-sm leading-relaxed text-ink-600 break-words">{headquartersAddress}</div>
+            <RichText as="div" className="mt-2 text-sm leading-relaxed text-ink-600 break-words" value={headquartersAddress} />
           </div>
         </div>
       </section>
