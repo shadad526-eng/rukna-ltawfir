@@ -94,13 +94,12 @@ function AboutPage() {
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("about.eyebrow"))}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {ident.legalName} <span className="text-trust-700">{T("hero.titleSuffix", t("about.titleSuffix"))}</span>
-          </h1>
+          <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
+            <>{ident.legalName} <span className="text-trust-700">{T("hero.titleSuffix", t("about.titleSuffix"))}</span></>
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {T("hero.subtitle", t("about.subtitle"))}
-          </p>
+          <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
+            value={R("hero.subtitle", t("about.subtitle"))} />
         </div>
       </section>
 
@@ -109,17 +108,15 @@ function AboutPage() {
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trust-700 to-leaf-600" />
-            <SectionHeading eyebrow={t("about.vision.eyebrow")} title={T("vision.title", t("about.vision.title"))} />
-            <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {T("vision.body", t("about.vision.body"))}
-            </p>
+            <SectionHeading eyebrow={T("vision.eyebrow", t("about.vision.eyebrow"))} heading={H("vision.title")} title={T("vision.title", t("about.vision.title"))} />
+            <RichText as="p" className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base"
+              value={R("vision.body", t("about.vision.body"))} />
           </article>
           <article className="prem-card relative overflow-hidden p-8 md:p-10">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-leaf-600 to-trust-700" />
-            <SectionHeading eyebrow={t("about.mission.eyebrow")} title={T("mission.title", t("about.mission.title"))} />
-            <p className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base">
-              {T("mission.body", t("about.mission.body"))}
-            </p>
+            <SectionHeading eyebrow={T("mission.eyebrow", t("about.mission.eyebrow"))} heading={H("mission.title")} title={T("mission.title", t("about.mission.title"))} />
+            <RichText as="p" className="mt-6 text-[15px] leading-loose text-ink-600 md:text-base"
+              value={R("mission.body", t("about.mission.body"))} />
           </article>
         </div>
       </section>
@@ -127,10 +124,10 @@ function AboutPage() {
       {/* VALUES */}
       <section className="border-y border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <SectionHeading eyebrow={t("about.values.eyebrow")} title={T("values.title", t("about.values.title"))} />
-          <p className="mt-4 max-w-2xl text-[15px] leading-loose text-ink-600">
-            {T("values.subtitle", t("about.values.subtitle"))}
-          </p>
+          <SectionHeading eyebrow={T("values.eyebrow", t("about.values.eyebrow"))} heading={H("values.title")} title={T("values.title", t("about.values.title"))} />
+          <RichText as="p" className="mt-4 max-w-2xl text-[15px] leading-loose text-ink-600"
+            value={R("values.subtitle", t("about.values.subtitle"))} />
+
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {values.map((v: any, i: number) => (
               <article
