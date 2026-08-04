@@ -169,7 +169,7 @@ function AboutPage() {
         <div className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8 md:py-24">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur">
             <span className="font-mono text-[11px] font-bold tracking-[0.22em] text-white">
-              {t("about.promise.eyebrow")}
+              {T("promise.eyebrow", t("about.promise.eyebrow"))}
             </span>
             <span className="h-3 w-px bg-white/40" />
             <span className="text-[11px] font-semibold tracking-[0.18em] text-white/90">
@@ -178,7 +178,7 @@ function AboutPage() {
           </div>
           <blockquote className="mt-8 font-arabic text-2xl font-bold leading-[1.5] text-white md:text-4xl md:leading-[1.45]">
             <span className="text-white/80">{isAr ? "”" : "“"}</span>
-            {T("promise.body", t("about.promise.body"))}
+            <RichText value={R("promise.body", t("about.promise.body"))} />
             <span className="text-white/80">{isAr ? "“" : "”"}</span>
           </blockquote>
           <div className="mx-auto mt-8 h-px w-24 bg-white/40" />
@@ -187,14 +187,13 @@ function AboutPage() {
 
       {/* WHAT WE BELIEVE */}
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
-        <SectionHeading eyebrow={t("about.believe.eyebrow")} title={T("believe.title", t("about.believe.title"))} />
+        <SectionHeading eyebrow={T("believe.eyebrow", t("about.believe.eyebrow"))} heading={H("believe.title")} title={T("believe.title", t("about.believe.title"))} />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {T("believe.body1", t("about.believe.body1"))}
-          </p>
-          <p className="text-[15px] leading-loose text-ink-600 md:text-base">
-            {T("believe.body2", t("about.believe.body2"))}
-          </p>
+          <RichText as="p" className="text-[15px] leading-loose text-ink-600 md:text-base"
+            value={R("believe.body1", t("about.believe.body1"))} />
+          <RichText as="p" className="text-[15px] leading-loose text-ink-600 md:text-base"
+            value={R("believe.body2", t("about.believe.body2"))} />
+
         </div>
       </section>
 
