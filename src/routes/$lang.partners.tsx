@@ -76,13 +76,12 @@ function PartnersPage() {
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("partners.eyebrow"))}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
+          <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
             {T("hero.title", t("partners.title"))}
-          </h1>
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {T("hero.subtitle", t("partners.subtitle"))}
-          </p>
+          <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
+            value={R("hero.subtitle", t("partners.subtitle"))} />
           <div className="mt-8 flex flex-wrap gap-3">
             <WhatsAppCTA number={id.whatsapp_number} message={waMsg}>
               {T("hero.openChat", t("partners.openChat"))}
@@ -93,15 +92,15 @@ function PartnersPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8">
         <div className="hq-eyebrow">{T("tiers.eyebrow", t("partners.channelsEyebrow"))}</div>
-        <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+        <StyledHeading heading={H("tiers.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
           {T("tiers.title", t("partners.channelsTitle"))}
-        </h2>
+        </StyledHeading>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {tiers.map((tier: any, i: number) => (
             <article key={`${itemText(tier, "title", lang)}-${i}`} className="prem-card relative p-6">
               <div className="text-[10px] font-bold tracking-[0.24em] text-trust-700">0{i + 1}</div>
               <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{itemText(tier, "title", lang)}</h3>
-              <p className="mt-3 text-[13px] leading-loose text-ink-600">{itemText(tier, "desc", lang)}</p>
+              <RichText as="p" className="mt-3 text-[13px] leading-loose text-ink-600" value={itemRich(tier, "desc", lang)} />
             </article>
           ))}
         </div>
@@ -111,22 +110,24 @@ function PartnersPage() {
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8">
           <div>
             <div className="hq-eyebrow">{T("why.eyebrow", t("partners.whyEyebrow"))}</div>
-            <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
+            <StyledHeading heading={H("why.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
               {T("why.title", t("partners.whyTitle"))}
-            </h2>
+            </StyledHeading>
             <ul className="mt-7 space-y-4">
               {advantagesArr.map((a: any, i: number) => (
                 <li key={`${itemText(a, "text", lang)}-${i}`} className="flex items-start gap-3 text-[15px] leading-loose text-foreground">
                   <span className="mt-1 grid size-6 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700">✓</span>
-                  <span>{itemText(a, "text", lang)}</span>
+                  <RichText value={itemRich(a, "text", lang)} />
                 </li>
               ))}
             </ul>
           </div>
           <div className="glass rounded-3xl p-8 md:p-10">
             <div className="hq-eyebrow">{T("channel.eyebrow", t("partners.channelEyebrow"))}</div>
-            <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground">{T("channel.title", t("partners.channelTitle"))}</h3>
-            <p className="mt-3 text-sm leading-loose text-ink-600">{T("channel.desc", t("partners.channelDesc"))}</p>
+            <StyledHeading heading={H("channel.title")} level={3} className="mt-3 font-arabic text-2xl font-bold text-foreground">
+              {T("channel.title", t("partners.channelTitle"))}
+            </StyledHeading>
+            <RichText as="p" className="mt-3 text-sm leading-loose text-ink-600" value={R("channel.desc", t("partners.channelDesc"))} />
             <div className="mt-6 rounded-2xl border border-border bg-card p-5">
               <div className="text-xs font-semibold text-ink-600">{T("channel.numberLabel", t("partners.waNumberLabel"))}</div>
               <div className="mt-1 font-arabic text-xl font-bold text-trust-700">+967 {id.whatsapp_number}</div>
