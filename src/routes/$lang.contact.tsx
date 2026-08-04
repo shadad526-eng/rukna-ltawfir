@@ -69,6 +69,8 @@ function ContactPage() {
 
   const c = page?.content ?? {};
   const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+  const R = (key: string, fallback: string) => pickRich(c, key, lang, fallback);
+  const H = (key: string) => pickHeading(c, key, lang);
 
   const emails = pickList<any>(c, "emails.items", id.email ? [{ label_ar: t("contact.cards.emailHint"), value: id.email }] : []);
   const headquarters = branches[0];
