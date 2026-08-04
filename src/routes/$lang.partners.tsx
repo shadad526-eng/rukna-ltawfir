@@ -48,6 +48,8 @@ function PartnersPage() {
 
   const c = page?.content ?? {};
   const T = (key: string, fallback: string) => pickText(c, key, lang, fallback);
+  const R = (key: string, fallback: string) => pickRich(c, key, lang, fallback);
+  const H = (key: string) => pickHeading(c, key, lang);
 
   const tiers = pickList(c, "tiers.items", [
     { title_ar: t("partners.tiers.wholesaleT"), desc_ar: t("partners.tiers.wholesaleD") },
