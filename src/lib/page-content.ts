@@ -306,6 +306,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("cards.emailHint", "وصف بطاقة البريد", "contact.cards.emailHint"),
         f("cards.addressTitle", "عنوان بطاقة المقر", "contact.cards.addressT"),
         f("cards.addressHint", "وصف بطاقة المقر", "contact.cards.addressHint"),
+        rich("cards.address", "نص العنوان المعروض", "", "عنوان المقر كما يظهر في البطاقة."),
       ],
     },
     {
