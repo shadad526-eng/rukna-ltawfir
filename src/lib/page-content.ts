@@ -164,8 +164,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
       key: "hero", label: "المقدمة الرئيسية (Hero)",
       fields: [
         f("hero.eyebrow", "التسمية العلوية", "about.eyebrow"),
-        head("hero.title", "العنوان الرئيسي (H1)", "", "اتركه فارغًا لعرض اسم الشركة مع تكملة العنوان بالتنسيق الحالي."),
-        f("hero.titleSuffix", "تكملة العنوان الافتراضية", "about.titleSuffix"),
+        head("hero.title", "العنوان الرئيسي (H1)", "", "العنوان كاملًا كما يظهر في الصفحة (اسم الشركة + التكملة)."),
         rich("hero.subtitle", "النص التعريفي", "about.subtitle"),
       ],
     },
