@@ -42,6 +42,7 @@ export const Route = createFileRoute("/$lang/branches")({
     await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
       context.queryClient.ensureQueryData(branchesQO),
+      context.queryClient.ensureQueryData(pageQO),
     ]);
   },
   component: BranchesPage,
@@ -52,7 +53,17 @@ function BranchesPage() {
   const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: branches } = useSuspenseQuery(branchesQO);
+  const { data: page } = useSuspenseQuery(pageQO);
   const ident = useLocalizedIdentity(id);
+
+  const content = (page?.content ?? null) as any;
+  const T = (k: string, fb: string) => pickText(content, k, lang as "ar" | "en", fb);
+  const R = (k: string, fb: string) => pickRich(content, k, lang as "ar" | "en", fb);
+  const H = (k: string) => pickHeading(content, k, lang as "ar" | "en");
+  const B = BRANCHES_FALLBACK;
+
+  const waLabel = T("list.waLabel", isAr ? B.waLabel_ar : B.waLabel_en);
+  const mapLabel = T("list.mapLabel", isAr ? B.mapLabel_ar : B.mapLabel_en);
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,14 +76,20 @@ function BranchesPage() {
 
       <section className="relative overflow-hidden cinema-hero">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
-          <div className="hq-eyebrow">{isAr ? "شبكة الفروع" : "Branch network"}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {isAr ? "فروعنا وعناويننا" : "Our Branches"}
-          </h1>
+          <div className="hq-eyebrow">{T("hero.eyebrow", isAr ? B.eyebrow_ar : B.eyebrow_en)}</div>
+          <StyledHeading
+            heading={H("hero.title")}
+            level={1}
+            className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl"
+          >
+            {isAr ? B.title_ar : B.title_en}
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {isAr ? INTRO_AR : INTRO_EN}
-          </p>
+          <RichText
+            as="p"
+            className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
+            value={R("hero.intro", isAr ? B.intro_ar : B.intro_en)}
+          />
         </div>
       </section>
 
@@ -80,7 +97,7 @@ function BranchesPage() {
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           {branches.length === 0 ? (
             <p className="text-center text-ink-600">
-              {isAr ? "سيتم إضافة الفروع قريبًا." : "Branches will be added soon."}
+              {T("list.empty", isAr ? B.empty_ar : B.empty_en)}
             </p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -100,7 +117,7 @@ function BranchesPage() {
                     <RichText as="p" className="mt-4 flex-1 text-sm leading-loose text-ink-600" value={address} />
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <WhatsAppCTA number={local} message={message} variant="pill">
-                        {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
+                        {waLabel}
                       </WhatsAppCTA>
                       {b.map_url ? (
                         <a
@@ -109,7 +126,7 @@ function BranchesPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center rounded-full border border-border px-5 py-3 text-sm font-semibold text-trust-700 transition-colors hover:bg-secondary"
                         >
-                          {isAr ? "الموقع على الخريطة" : "View on map"}
+                          {mapLabel}
                         </a>
                       ) : null}
                     </div>
@@ -120,6 +137,7 @@ function BranchesPage() {
           )}
         </div>
       </section>
+
 
       <SiteFooter
         legalName={ident.legalName}
