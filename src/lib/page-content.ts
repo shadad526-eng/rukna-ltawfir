@@ -325,6 +325,8 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("branches.eyebrow", "التسمية العلوية"),
         head("branches.title", "عنوان القسم"),
         rich("branches.subtitle", "نص تعريفي"),
+        f("branches.waLabel", "زر واتساب داخل بطاقة الفرع"),
+        f("branches.mapLabel", "زر الخريطة داخل بطاقة الفرع"),
       ],
     },
     {
@@ -347,8 +349,37 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         itemFields: [{ key: "label", label: "الخيار", ui: "text", bilingual: true }],
       },
     },
+    {
+      key: "waMessage", label: "نص رسالة واتساب الجاهزة",
+      fields: [
+        f("wa.intro", "التحية", "contact.msgIntro", "يظهر في أول سطر من الرسالة الجاهزة."),
+        f("wa.nameLabel", "تسمية الاسم داخل الرسالة", "contact.msgName"),
+        f("wa.subjectLabel", "تسمية الموضوع داخل الرسالة", "contact.msgSubject"),
+        f("wa.detailsLabel", "تسمية التفاصيل داخل الرسالة", "contact.msgDetails"),
+        f("wa.emptyValue", "بديل الحقل الفارغ", "contact.msgEmpty"),
+      ],
+    },
+  ],
+  branches: [
+    {
+      key: "hero", label: "المقدمة الرئيسية (Hero)",
+      fields: [
+        f("hero.eyebrow", "التسمية العلوية"),
+        head("hero.title", "العنوان الرئيسي (H1)"),
+        rich("hero.intro", "النص التعريفي"),
+      ],
+    },
+    {
+      key: "list", label: "قائمة الفروع",
+      fields: [
+        f("list.empty", "نص عند عدم وجود فروع"),
+        f("list.waLabel", "زر واتساب داخل بطاقة الفرع"),
+        f("list.mapLabel", "زر الخريطة داخل بطاقة الفرع"),
+      ],
+    },
   ],
 };
+
 
 /** Default values seeded from the current published copy. */
 export function defaultContent(slug: ContentPageSlug): PageContent {
