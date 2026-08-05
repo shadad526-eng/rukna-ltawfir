@@ -566,15 +566,24 @@ export function stripTags(v: string): string {
     .trim();
 }
 
-/** Reads a localized value with a guaranteed fallback. */
+/** True when the administrator explicitly stored a value for this key. */
+function hasStored(content: PageContent | null | undefined, key: string): boolean {
+  return !!content && Object.prototype.hasOwnProperty.call(content, key);
+}
+
+/**
+ * Reads a localized value. An explicitly saved empty value stays empty — the
+ * fallback is only used for keys the administrator never stored.
+ */
 export function pickText(
   content: PageContent | null | undefined,
   key: string,
   lang: "ar" | "en",
   fallback: string,
 ): string {
-  const primary = stripTags(asText(content?.[`${key}_${lang}`]));
-  if (primary.trim()) return primary;
+  if (hasStored(content, `${key}_${lang}`)) {
+    return stripTags(asText(content?.[`${key}_${lang}`]));
+  }
   const arabic = stripTags(asText(content?.[`${key}_ar`]));
   if (lang === "en" && arabic.trim() && !fallback) return arabic;
   return fallback;
@@ -586,20 +595,28 @@ export function pickHeading(
   key: string,
   lang: "ar" | "en",
 ): HeadingValue | null {
-  const raw = content?.[`${key}_${lang}`] ?? (lang === "en" ? content?.[`${key}_ar`] : undefined);
+  const raw = hasStored(content, `${key}_${lang}`)
+    ? content?.[`${key}_${lang}`]
+    : lang === "en"
+      ? content?.[`${key}_ar`]
+      : undefined;
   return normalizeHeading(raw);
 }
 
-/** Reads a repeatable list with a fallback to the original hardcoded list. */
+/**
+ * Reads a repeatable list. An explicitly saved empty list stays empty; the
+ * fallback only applies when nothing was ever stored for the key.
+ */
 export function pickList<T = any>(
   content: PageContent | null | undefined,
   key: string,
   fallback: T[],
 ): T[] {
   const v = content?.[key];
-  if (Array.isArray(v) && v.length > 0) return v as T[];
+  if (Array.isArray(v)) return v as T[];
   return fallback;
 }
+
 
 /** Localized item value inside a repeater row. */
 export function itemText(row: any, key: string, lang: "ar" | "en"): string {
