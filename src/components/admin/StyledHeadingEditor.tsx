@@ -98,10 +98,6 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
             </div>
           )}
         </div>
-        <div className="mx-1 h-5 w-px bg-slate-800" />
-        <AlignBtn v="start" icon={dir === "rtl" ? AlignRight : AlignLeft} title="محاذاة للبداية" />
-        <AlignBtn v="center" icon={AlignCenter} title="توسيط" />
-        <AlignBtn v="end" icon={dir === "rtl" ? AlignLeft : AlignRight} title="محاذاة للنهاية" />
         <div className="flex-1" />
         {hasTypography && (
           <button type="button"
@@ -111,6 +107,7 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
           </button>
         )}
       </div>
+
 
       <div
         ref={ref}
