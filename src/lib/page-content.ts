@@ -45,13 +45,14 @@ export type ContentGroup = {
   repeater?: ContentRepeater;
 };
 
-export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact"] as const;
+export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact", "branches"] as const;
 export type ContentPageSlug = (typeof CONTENT_PAGE_SLUGS)[number];
 
 export const CONTENT_PAGE_LABELS: Record<ContentPageSlug, string> = {
   about: "من نحن",
   partners: "الشراكات",
   contact: "تواصل معنا",
+  branches: "الفروع والعناوين",
 };
 
 export function isContentPageSlug(slug: unknown): slug is ContentPageSlug {
