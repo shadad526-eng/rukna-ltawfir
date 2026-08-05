@@ -98,10 +98,6 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
             </div>
           )}
         </div>
-        <div className="mx-1 h-5 w-px bg-slate-800" />
-        <AlignBtn v="start" icon={dir === "rtl" ? AlignRight : AlignLeft} title="محاذاة للبداية" />
-        <AlignBtn v="center" icon={AlignCenter} title="توسيط" />
-        <AlignBtn v="end" icon={dir === "rtl" ? AlignLeft : AlignRight} title="محاذاة للنهاية" />
         <div className="flex-1" />
         {hasTypography && (
           <button type="button"
@@ -111,6 +107,7 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
           </button>
         )}
       </div>
+
 
       <div
         ref={ref}
@@ -125,7 +122,10 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
           exec("insertText", e.clipboardData.getData("text/plain"));
           emit();
         }}
-        onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
+        onKeyDown={(e) => {
+          // Manual line breaks are allowed; block paragraph splitting.
+          if (e.key === "Enter") { e.preventDefault(); exec("insertLineBreak"); emit(); }
+        }}
         className="rich-inline min-h-[52px] px-3 py-2.5 text-lg font-bold text-white focus:outline-none"
         style={{
           textAlign: h.align === "center" ? "center" : h.align === "end" ? "end" : undefined,
@@ -133,34 +133,46 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
         }}
       />
 
-      <div className="grid grid-cols-2 gap-2 border-t border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-4">
-        <label className="space-y-1 text-[11px] text-slate-400">
-          <span>حجم الخط — سطح المكتب (px)</span>
-          <input type="number" className={num} value={h.sizeDesktop ?? ""} placeholder="افتراضي"
-            min={HEADING_LIMITS.desktop.min} max={HEADING_LIMITS.desktop.max}
-            onChange={(e) => patch({ sizeDesktop: e.target.value === "" ? null : clampHeadingSize(e.target.value, "desktop") })} />
-        </label>
-        <label className="space-y-1 text-[11px] text-slate-400">
-          <span>حجم الخط — الجوال (px)</span>
-          <input type="number" className={num} value={h.sizeMobile ?? ""} placeholder="افتراضي"
-            min={HEADING_LIMITS.mobile.min} max={HEADING_LIMITS.mobile.max}
-            onChange={(e) => patch({ sizeMobile: e.target.value === "" ? null : clampHeadingSize(e.target.value, "mobile") })} />
-        </label>
-        <label className="space-y-1 text-[11px] text-slate-400">
-          <span>سماكة الخط</span>
-          <select className={num} value={h.weight ?? ""}
-            onChange={(e) => patch({ weight: e.target.value === "" ? null : Number(e.target.value) })}>
-            <option value="">افتراضي</option>
-            {HEADING_LIMITS.weight.map((w) => <option key={w} value={w}>{w}</option>)}
-          </select>
-        </label>
-        <label className="space-y-1 text-[11px] text-slate-400">
-          <span>ارتفاع السطر</span>
-          <input type="number" step="0.05" className={num} value={h.lineHeight ?? ""} placeholder="افتراضي"
-            min={HEADING_LIMITS.lineHeight.min} max={HEADING_LIMITS.lineHeight.max}
-            onChange={(e) => patch({ lineHeight: e.target.value === "" ? null : Number(e.target.value) })} />
-        </label>
-      </div>
+      <details className="border-t border-slate-800 bg-slate-900/40">
+        <summary className="cursor-pointer select-none px-3 py-2 text-[11px] text-slate-400 hover:text-slate-200">
+          تنسيق متقدم {hasTypography ? "• مُخصّص" : ""}
+        </summary>
+        <div className="flex items-center gap-1 px-2.5 pb-1">
+          <span className="text-[11px] text-slate-400">المحاذاة</span>
+          <AlignBtn v="start" icon={dir === "rtl" ? AlignRight : AlignLeft} title="محاذاة للبداية" />
+          <AlignBtn v="center" icon={AlignCenter} title="توسيط" />
+          <AlignBtn v="end" icon={dir === "rtl" ? AlignLeft : AlignRight} title="محاذاة للنهاية" />
+        </div>
+        <div className="grid grid-cols-2 gap-2 p-2.5 md:grid-cols-4">
+          <label className="space-y-1 text-[11px] text-slate-400">
+            <span>حجم الخط — سطح المكتب (px)</span>
+            <input type="number" className={num} value={h.sizeDesktop ?? ""} placeholder="افتراضي"
+              min={HEADING_LIMITS.desktop.min} max={HEADING_LIMITS.desktop.max}
+              onChange={(e) => patch({ sizeDesktop: e.target.value === "" ? null : clampHeadingSize(e.target.value, "desktop") })} />
+          </label>
+          <label className="space-y-1 text-[11px] text-slate-400">
+            <span>حجم الخط — الجوال (px)</span>
+            <input type="number" className={num} value={h.sizeMobile ?? ""} placeholder="افتراضي"
+              min={HEADING_LIMITS.mobile.min} max={HEADING_LIMITS.mobile.max}
+              onChange={(e) => patch({ sizeMobile: e.target.value === "" ? null : clampHeadingSize(e.target.value, "mobile") })} />
+          </label>
+          <label className="space-y-1 text-[11px] text-slate-400">
+            <span>سماكة الخط</span>
+            <select className={num} value={h.weight ?? ""}
+              onChange={(e) => patch({ weight: e.target.value === "" ? null : Number(e.target.value) })}>
+              <option value="">افتراضي</option>
+              {HEADING_LIMITS.weight.map((w) => <option key={w} value={w}>{w}</option>)}
+            </select>
+          </label>
+          <label className="space-y-1 text-[11px] text-slate-400">
+            <span>ارتفاع السطر</span>
+            <input type="number" step="0.05" className={num} value={h.lineHeight ?? ""} placeholder="افتراضي"
+              min={HEADING_LIMITS.lineHeight.min} max={HEADING_LIMITS.lineHeight.max}
+              onChange={(e) => patch({ lineHeight: e.target.value === "" ? null : Number(e.target.value) })} />
+          </label>
+        </div>
+      </details>
     </div>
   );
 }
+

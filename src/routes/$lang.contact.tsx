@@ -80,17 +80,20 @@ function ContactPage() {
     { label_ar: t("contact.subjects.support") },
   ]);
   const emails = pickList<any>(c, "emails.items", id.email ? [{ label_ar: t("contact.cards.emailHint"), value: id.email }] : []);
-  const headquarters = branches[0];
-  const headquartersAddress = headquarters
-    ? (isAr ? headquarters.address_ar : headquarters.address_en || headquarters.address_ar)
+  // The headquarters address is administrator-controlled; until it is saved we
+  // keep rendering the value the page has always shown.
+  const legacyAddress = branches[0]
+    ? (isAr ? branches[0].address_ar : branches[0].address_en || branches[0].address_ar)
     : (ident.address ?? t("contact.cards.fallbackAddress"));
+  const headquartersAddress = R("cards.address", legacyAddress ?? "");
 
   const [subject, setSubject] = useState(t("contact.subjects.general"));
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
 
+  const waEmpty = T("wa.emptyValue", t("contact.msgEmpty"));
   const composed =
-    `${t("contact.msgIntro")}،\n${t("contact.msgName")}: ${name || t("contact.msgEmpty")}\n${t("contact.msgSubject")}: ${subject}\n${t("contact.msgDetails")}: ${details || t("contact.msgEmpty")}`;
+    `${T("wa.intro", t("contact.msgIntro"))}،\n${T("wa.nameLabel", t("contact.msgName"))}: ${name || waEmpty}\n${T("wa.subjectLabel", t("contact.msgSubject"))}: ${subject}\n${T("wa.detailsLabel", t("contact.msgDetails"))}: ${details || waEmpty}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,7 +189,7 @@ function ContactPage() {
                     <RichText as="p" className="mt-4 flex-1 text-sm leading-loose text-ink-600" value={bAddress} />
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <WhatsAppCTA number={local} message={message} variant="pill">
-                        {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
+                        {T("branches.waLabel", isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp")}
                       </WhatsAppCTA>
                       {b.map_url ? (
                         <a
@@ -195,7 +198,7 @@ function ContactPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center rounded-full border border-border px-5 py-3 text-sm font-semibold text-trust-700 transition-colors hover:bg-secondary"
                         >
-                          {isAr ? "الموقع على الخريطة" : "View on map"}
+                          {T("branches.mapLabel", isAr ? "الموقع على الخريطة" : "View on map")}
                         </a>
                       ) : null}
                     </div>

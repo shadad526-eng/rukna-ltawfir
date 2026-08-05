@@ -45,13 +45,14 @@ export type ContentGroup = {
   repeater?: ContentRepeater;
 };
 
-export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact"] as const;
+export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact", "branches"] as const;
 export type ContentPageSlug = (typeof CONTENT_PAGE_SLUGS)[number];
 
 export const CONTENT_PAGE_LABELS: Record<ContentPageSlug, string> = {
   about: "من نحن",
   partners: "الشراكات",
   contact: "تواصل معنا",
+  branches: "الفروع والعناوين",
 };
 
 export function isContentPageSlug(slug: unknown): slug is ContentPageSlug {
@@ -163,8 +164,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
       key: "hero", label: "المقدمة الرئيسية (Hero)",
       fields: [
         f("hero.eyebrow", "التسمية العلوية", "about.eyebrow"),
-        head("hero.title", "العنوان الرئيسي (H1)", "", "اتركه فارغًا لعرض اسم الشركة مع تكملة العنوان بالتنسيق الحالي."),
-        f("hero.titleSuffix", "تكملة العنوان الافتراضية", "about.titleSuffix"),
+        head("hero.title", "العنوان الرئيسي (H1)", "", "العنوان كاملًا كما يظهر في الصفحة (اسم الشركة + التكملة)."),
         rich("hero.subtitle", "النص التعريفي", "about.subtitle"),
       ],
     },
@@ -306,6 +306,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("cards.emailHint", "وصف بطاقة البريد", "contact.cards.emailHint"),
         f("cards.addressTitle", "عنوان بطاقة المقر", "contact.cards.addressT"),
         f("cards.addressHint", "وصف بطاقة المقر", "contact.cards.addressHint"),
+        rich("cards.address", "نص العنوان المعروض", "", "عنوان المقر كما يظهر في البطاقة."),
       ],
     },
     {
@@ -325,6 +326,8 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("branches.eyebrow", "التسمية العلوية"),
         head("branches.title", "عنوان القسم"),
         rich("branches.subtitle", "نص تعريفي"),
+        f("branches.waLabel", "زر واتساب داخل بطاقة الفرع"),
+        f("branches.mapLabel", "زر الخريطة داخل بطاقة الفرع"),
       ],
     },
     {
@@ -347,11 +350,69 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         itemFields: [{ key: "label", label: "الخيار", ui: "text", bilingual: true }],
       },
     },
+    {
+      key: "waMessage", label: "نص رسالة واتساب الجاهزة",
+      fields: [
+        f("wa.intro", "التحية", "contact.msgIntro", "يظهر في أول سطر من الرسالة الجاهزة."),
+        f("wa.nameLabel", "تسمية الاسم داخل الرسالة", "contact.msgName"),
+        f("wa.subjectLabel", "تسمية الموضوع داخل الرسالة", "contact.msgSubject"),
+        f("wa.detailsLabel", "تسمية التفاصيل داخل الرسالة", "contact.msgDetails"),
+        f("wa.emptyValue", "بديل الحقل الفارغ", "contact.msgEmpty"),
+      ],
+    },
+  ],
+  branches: [
+    {
+      key: "hero", label: "المقدمة الرئيسية (Hero)",
+      fields: [
+        f("hero.eyebrow", "التسمية العلوية"),
+        head("hero.title", "العنوان الرئيسي (H1)"),
+        rich("hero.intro", "النص التعريفي"),
+      ],
+    },
+    {
+      key: "list", label: "قائمة الفروع",
+      fields: [
+        f("list.empty", "نص عند عدم وجود فروع"),
+        f("list.waLabel", "زر واتساب داخل بطاقة الفرع"),
+        f("list.mapLabel", "زر الخريطة داخل بطاقة الفرع"),
+      ],
+    },
   ],
 };
 
+
+/** Original published copy for the branches page (also used as public fallback). */
+export const BRANCHES_FALLBACK = {
+  eyebrow_ar: "شبكة الفروع",
+  eyebrow_en: "Branch network",
+  title_ar: "فروعنا وعناويننا",
+  title_en: "Our Branches",
+  intro_ar:
+    "نقترب منكم عبر فروعنا في عدد من المحافظات اليمنية، لنقدّم خدماتنا التجارية والتوزيعية بكفاءة، ونوفّر لعملائنا وشركائنا قنوات تواصل مباشرة وسريعة. اختر الفرع الأقرب إليك وتواصل معنا عبر واتساب.",
+  intro_en:
+    "We stay close to you through our branches across several Yemeni governorates, delivering our trade and distribution services efficiently and giving customers and partners fast, direct contact channels. Choose the branch nearest to you and reach us on WhatsApp.",
+  empty_ar: "سيتم إضافة الفروع قريبًا.",
+  empty_en: "Branches will be added soon.",
+  waLabel_ar: "تواصل عبر واتساب",
+  waLabel_en: "Contact on WhatsApp",
+  mapLabel_ar: "الموقع على الخريطة",
+  mapLabel_en: "View on map",
+} as const;
+
+/** Optional runtime values used to seed defaults that depend on live data. */
+export type DefaultSeed = {
+  legalNameAr?: string;
+  legalNameEn?: string;
+  /** Address currently rendered inside the contact "headquarters" card. */
+  addressAr?: string;
+  addressEn?: string;
+};
+
+const TRUST_COLOR = "oklch(0.46 0.16 245)";
+
 /** Default values seeded from the current published copy. */
-export function defaultContent(slug: ContentPageSlug): PageContent {
+export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageContent {
   const out: PageContent = {};
   for (const g of PAGE_SCHEMAS[slug]) {
     for (const fl of g.fields ?? []) {
@@ -393,12 +454,43 @@ export function defaultContent(slug: ContentPageSlug): PageContent {
     { label_ar: "البريد الرسمي", label_en: "Official email", value: "Info@algarademedpower.com" },
     { label_ar: "إدارة العلاقات التجارية", label_en: "Business relations", value: "Mohammed@algarademedpower.com" },
   ];
-  out["branches.eyebrow_ar"] = "شبكة الفروع";
-  out["branches.eyebrow_en"] = "Branch network";
-  out["branches.title_ar"] = "فروعنا وعناويننا";
+  out["branches.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
+  out["branches.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
+  out["branches.title_ar"] = BRANCHES_FALLBACK.title_ar;
   out["branches.title_en"] = "Our branches and addresses";
   out["branches.subtitle_ar"] = "اختر الفرع الأقرب إليك وتواصل معنا مباشرة عبر واتساب.";
   out["branches.subtitle_en"] = "Choose the branch nearest to you and reach us directly on WhatsApp.";
+  out["branches.waLabel_ar"] = BRANCHES_FALLBACK.waLabel_ar;
+  out["branches.waLabel_en"] = BRANCHES_FALLBACK.waLabel_en;
+  out["branches.mapLabel_ar"] = BRANCHES_FALLBACK.mapLabel_ar;
+  out["branches.mapLabel_en"] = BRANCHES_FALLBACK.mapLabel_en;
+
+  if (slug === "branches") {
+    out["hero.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
+    out["hero.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
+    out["hero.title_ar"] = BRANCHES_FALLBACK.title_ar;
+    out["hero.title_en"] = BRANCHES_FALLBACK.title_en;
+    out["hero.intro_ar"] = BRANCHES_FALLBACK.intro_ar;
+    out["hero.intro_en"] = BRANCHES_FALLBACK.intro_en;
+    out["list.empty_ar"] = BRANCHES_FALLBACK.empty_ar;
+    out["list.empty_en"] = BRANCHES_FALLBACK.empty_en;
+    out["list.waLabel_ar"] = BRANCHES_FALLBACK.waLabel_ar;
+    out["list.waLabel_en"] = BRANCHES_FALLBACK.waLabel_en;
+    out["list.mapLabel_ar"] = BRANCHES_FALLBACK.mapLabel_ar;
+    out["list.mapLabel_en"] = BRANCHES_FALLBACK.mapLabel_en;
+  }
+
+  if (slug === "about") {
+    // The historic H1 was composed as `<legal name> <colored suffix>`; the editor
+    // now exposes it as one complete heading with the exact same wording.
+    out["hero.title_ar"] = composeAboutTitle(seed?.legalNameAr ?? "", dig(AR, "about.titleSuffix"));
+    out["hero.title_en"] = composeAboutTitle(seed?.legalNameEn ?? "", dig(EN, "about.titleSuffix"));
+  }
+
+  if (slug === "contact") {
+    out["cards.address_ar"] = seed?.addressAr ?? "";
+    out["cards.address_en"] = seed?.addressEn ?? seed?.addressAr ?? "";
+  }
 
   // Only keep the keys that belong to this page.
   const allowed = new Set<string>();
@@ -413,21 +505,55 @@ export function defaultContent(slug: ContentPageSlug): PageContent {
   return out;
 }
 
+function escapeHtmlText(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** Builds the complete About H1 markup from a legal name and its colored suffix. */
+export function composeAboutTitle(legalName: string, suffix: string): string {
+  const name = escapeHtmlText((legalName ?? "").trim());
+  const tail = escapeHtmlText((suffix ?? "").trim());
+  if (!name && !tail) return "";
+  if (!tail) return name;
+  return `${name} <span style="color: ${TRUST_COLOR}">${tail}</span>`.trim();
+}
+
 /**
- * Merges stored content over the published defaults without ever overwriting an
- * administrator edit. Used to seed the dashboard editor with real values.
+ * Merges stored content over the published defaults. A key that exists in the
+ * stored content always wins — including an explicitly emptied value — so the
+ * editor never resurrects default copy over an administrator decision.
+ * Defaults are only used for keys that are genuinely missing.
  */
-export function withDefaults(slug: ContentPageSlug, stored: PageContent | null | undefined): PageContent {
-  const defaults = defaultContent(slug);
+export function withDefaults(
+  slug: ContentPageSlug,
+  stored: PageContent | null | undefined,
+  seed?: DefaultSeed,
+): PageContent {
+  const defaults = defaultContent(slug, seed);
   const out: PageContent = { ...defaults };
-  for (const [k, v] of Object.entries(stored ?? {})) {
+  const src = stored ?? {};
+  for (const [k, v] of Object.entries(src)) {
     if (v === undefined) continue;
-    if (typeof v === "string" && !v.trim()) continue; // keep the default copy
-    if (Array.isArray(v) && v.length === 0) continue;
     out[k] = v;
+  }
+  // Legacy About hero: `hero.title` used to hold only a decorative override and
+  // the real wording lived in `hero.titleSuffix`. Migrate it into one field.
+  if (slug === "about") {
+    for (const l of ["ar", "en"] as const) {
+      const cur = out[`hero.title_${l}`];
+      const curHtml = typeof cur === "string" ? cur : isHeadingValue(cur) ? (cur.html ?? "") : "";
+      const storedSuffix = src[`hero.titleSuffix_${l}`];
+      const hasStoredTitle = Object.prototype.hasOwnProperty.call(src, `hero.title_${l}`) && curHtml.trim();
+      if (!hasStoredTitle && typeof storedSuffix === "string" && storedSuffix.trim()) {
+        const legal = l === "ar" ? seed?.legalNameAr ?? "" : seed?.legalNameEn ?? "";
+        const html = composeAboutTitle(legal, stripTags(storedSuffix));
+        out[`hero.title_${l}`] = isHeadingValue(cur) ? { ...cur, html } : html;
+      }
+    }
   }
   return out;
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Readers used by the public pages                                    */
@@ -452,15 +578,24 @@ export function stripTags(v: string): string {
     .trim();
 }
 
-/** Reads a localized value with a guaranteed fallback. */
+/** True when the administrator explicitly stored a value for this key. */
+function hasStored(content: PageContent | null | undefined, key: string): boolean {
+  return !!content && Object.prototype.hasOwnProperty.call(content, key);
+}
+
+/**
+ * Reads a localized value. An explicitly saved empty value stays empty — the
+ * fallback is only used for keys the administrator never stored.
+ */
 export function pickText(
   content: PageContent | null | undefined,
   key: string,
   lang: "ar" | "en",
   fallback: string,
 ): string {
-  const primary = stripTags(asText(content?.[`${key}_${lang}`]));
-  if (primary.trim()) return primary;
+  if (hasStored(content, `${key}_${lang}`)) {
+    return stripTags(asText(content?.[`${key}_${lang}`]));
+  }
   const arabic = stripTags(asText(content?.[`${key}_ar`]));
   if (lang === "en" && arabic.trim() && !fallback) return arabic;
   return fallback;
@@ -472,20 +607,28 @@ export function pickHeading(
   key: string,
   lang: "ar" | "en",
 ): HeadingValue | null {
-  const raw = content?.[`${key}_${lang}`] ?? (lang === "en" ? content?.[`${key}_ar`] : undefined);
+  const raw = hasStored(content, `${key}_${lang}`)
+    ? content?.[`${key}_${lang}`]
+    : lang === "en"
+      ? content?.[`${key}_ar`]
+      : undefined;
   return normalizeHeading(raw);
 }
 
-/** Reads a repeatable list with a fallback to the original hardcoded list. */
+/**
+ * Reads a repeatable list. An explicitly saved empty list stays empty; the
+ * fallback only applies when nothing was ever stored for the key.
+ */
 export function pickList<T = any>(
   content: PageContent | null | undefined,
   key: string,
   fallback: T[],
 ): T[] {
   const v = content?.[key];
-  if (Array.isArray(v) && v.length > 0) return v as T[];
+  if (Array.isArray(v)) return v as T[];
   return fallback;
 }
+
 
 /** Localized item value inside a repeater row. */
 export function itemText(row: any, key: string, lang: "ar" | "en"): string {
@@ -507,8 +650,10 @@ export function pickRich(
   lang: "ar" | "en",
   fallback: string,
 ): string {
-  const primary = asText(content?.[`${key}_${lang}`]);
-  if (primary.trim()) return primary;
+  if (hasStored(content, `${key}_${lang}`)) {
+    const v = asText(content?.[`${key}_${lang}`]);
+    return stripTags(v).trim() ? v : "";
+  }
   const arabic = asText(content?.[`${key}_ar`]);
   if (lang === "en" && arabic.trim() && !fallback) return arabic;
   return fallback;
