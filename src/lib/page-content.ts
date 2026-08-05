@@ -381,8 +381,31 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
 };
 
 
+/** Original published copy for the branches page (also used as public fallback). */
+export const BRANCHES_FALLBACK = {
+  eyebrow_ar: "شبكة الفروع",
+  eyebrow_en: "Branch network",
+  title_ar: "فروعنا وعناويننا",
+  title_en: "Our Branches",
+  intro_ar:
+    "نقترب منكم عبر فروعنا في عدد من المحافظات اليمنية، لنقدّم خدماتنا التجارية والتوزيعية بكفاءة، ونوفّر لعملائنا وشركائنا قنوات تواصل مباشرة وسريعة. اختر الفرع الأقرب إليك وتواصل معنا عبر واتساب.",
+  intro_en:
+    "We stay close to you through our branches across several Yemeni governorates, delivering our trade and distribution services efficiently and giving customers and partners fast, direct contact channels. Choose the branch nearest to you and reach us on WhatsApp.",
+  empty_ar: "سيتم إضافة الفروع قريبًا.",
+  empty_en: "Branches will be added soon.",
+  waLabel_ar: "تواصل عبر واتساب",
+  waLabel_en: "Contact on WhatsApp",
+  mapLabel_ar: "الموقع على الخريطة",
+  mapLabel_en: "View on map",
+} as const;
+
+/** Optional runtime values used to seed defaults that depend on live data. */
+export type DefaultSeed = { legalNameAr?: string; legalNameEn?: string };
+
+const TRUST_COLOR = "oklch(0.46 0.16 245)";
+
 /** Default values seeded from the current published copy. */
-export function defaultContent(slug: ContentPageSlug): PageContent {
+export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageContent {
   const out: PageContent = {};
   for (const g of PAGE_SCHEMAS[slug]) {
     for (const fl of g.fields ?? []) {
@@ -424,12 +447,38 @@ export function defaultContent(slug: ContentPageSlug): PageContent {
     { label_ar: "البريد الرسمي", label_en: "Official email", value: "Info@algarademedpower.com" },
     { label_ar: "إدارة العلاقات التجارية", label_en: "Business relations", value: "Mohammed@algarademedpower.com" },
   ];
-  out["branches.eyebrow_ar"] = "شبكة الفروع";
-  out["branches.eyebrow_en"] = "Branch network";
-  out["branches.title_ar"] = "فروعنا وعناويننا";
+  out["branches.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
+  out["branches.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
+  out["branches.title_ar"] = BRANCHES_FALLBACK.title_ar;
   out["branches.title_en"] = "Our branches and addresses";
   out["branches.subtitle_ar"] = "اختر الفرع الأقرب إليك وتواصل معنا مباشرة عبر واتساب.";
   out["branches.subtitle_en"] = "Choose the branch nearest to you and reach us directly on WhatsApp.";
+  out["branches.waLabel_ar"] = BRANCHES_FALLBACK.waLabel_ar;
+  out["branches.waLabel_en"] = BRANCHES_FALLBACK.waLabel_en;
+  out["branches.mapLabel_ar"] = BRANCHES_FALLBACK.mapLabel_ar;
+  out["branches.mapLabel_en"] = BRANCHES_FALLBACK.mapLabel_en;
+
+  if (slug === "branches") {
+    out["hero.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
+    out["hero.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
+    out["hero.title_ar"] = BRANCHES_FALLBACK.title_ar;
+    out["hero.title_en"] = BRANCHES_FALLBACK.title_en;
+    out["hero.intro_ar"] = BRANCHES_FALLBACK.intro_ar;
+    out["hero.intro_en"] = BRANCHES_FALLBACK.intro_en;
+    out["list.empty_ar"] = BRANCHES_FALLBACK.empty_ar;
+    out["list.empty_en"] = BRANCHES_FALLBACK.empty_en;
+    out["list.waLabel_ar"] = BRANCHES_FALLBACK.waLabel_ar;
+    out["list.waLabel_en"] = BRANCHES_FALLBACK.waLabel_en;
+    out["list.mapLabel_ar"] = BRANCHES_FALLBACK.mapLabel_ar;
+    out["list.mapLabel_en"] = BRANCHES_FALLBACK.mapLabel_en;
+  }
+
+  if (slug === "about") {
+    // The historic H1 was composed as `<legal name> <colored suffix>`; the editor
+    // now exposes it as one complete heading with the exact same wording.
+    out["hero.title_ar"] = composeAboutTitle(seed?.legalNameAr ?? "", dig(AR, "about.titleSuffix"));
+    out["hero.title_en"] = composeAboutTitle(seed?.legalNameEn ?? "", dig(EN, "about.titleSuffix"));
+  }
 
   // Only keep the keys that belong to this page.
   const allowed = new Set<string>();
@@ -444,21 +493,55 @@ export function defaultContent(slug: ContentPageSlug): PageContent {
   return out;
 }
 
+function escapeHtmlText(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** Builds the complete About H1 markup from a legal name and its colored suffix. */
+export function composeAboutTitle(legalName: string, suffix: string): string {
+  const name = escapeHtmlText((legalName ?? "").trim());
+  const tail = escapeHtmlText((suffix ?? "").trim());
+  if (!name && !tail) return "";
+  if (!tail) return name;
+  return `${name} <span style="color: ${TRUST_COLOR}">${tail}</span>`.trim();
+}
+
 /**
- * Merges stored content over the published defaults without ever overwriting an
- * administrator edit. Used to seed the dashboard editor with real values.
+ * Merges stored content over the published defaults. A key that exists in the
+ * stored content always wins — including an explicitly emptied value — so the
+ * editor never resurrects default copy over an administrator decision.
+ * Defaults are only used for keys that are genuinely missing.
  */
-export function withDefaults(slug: ContentPageSlug, stored: PageContent | null | undefined): PageContent {
-  const defaults = defaultContent(slug);
+export function withDefaults(
+  slug: ContentPageSlug,
+  stored: PageContent | null | undefined,
+  seed?: DefaultSeed,
+): PageContent {
+  const defaults = defaultContent(slug, seed);
   const out: PageContent = { ...defaults };
-  for (const [k, v] of Object.entries(stored ?? {})) {
+  const src = stored ?? {};
+  for (const [k, v] of Object.entries(src)) {
     if (v === undefined) continue;
-    if (typeof v === "string" && !v.trim()) continue; // keep the default copy
-    if (Array.isArray(v) && v.length === 0) continue;
     out[k] = v;
+  }
+  // Legacy About hero: `hero.title` used to hold only a decorative override and
+  // the real wording lived in `hero.titleSuffix`. Migrate it into one field.
+  if (slug === "about") {
+    for (const l of ["ar", "en"] as const) {
+      const cur = out[`hero.title_${l}`];
+      const curHtml = typeof cur === "string" ? cur : isHeadingValue(cur) ? (cur.html ?? "") : "";
+      const storedSuffix = src[`hero.titleSuffix_${l}`];
+      const hasStoredTitle = Object.prototype.hasOwnProperty.call(src, `hero.title_${l}`) && curHtml.trim();
+      if (!hasStoredTitle && typeof storedSuffix === "string" && storedSuffix.trim()) {
+        const legal = l === "ar" ? seed?.legalNameAr ?? "" : seed?.legalNameEn ?? "";
+        const html = composeAboutTitle(legal, stripTags(storedSuffix));
+        out[`hero.title_${l}`] = isHeadingValue(cur) ? { ...cur, html } : html;
+      }
+    }
   }
   return out;
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Readers used by the public pages                                    */
