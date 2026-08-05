@@ -89,8 +89,9 @@ function ContactPage() {
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
 
+  const waEmpty = T("wa.emptyValue", t("contact.msgEmpty"));
   const composed =
-    `${t("contact.msgIntro")}،\n${t("contact.msgName")}: ${name || t("contact.msgEmpty")}\n${t("contact.msgSubject")}: ${subject}\n${t("contact.msgDetails")}: ${details || t("contact.msgEmpty")}`;
+    `${T("wa.intro", t("contact.msgIntro"))}،\n${T("wa.nameLabel", t("contact.msgName"))}: ${name || waEmpty}\n${T("wa.subjectLabel", t("contact.msgSubject"))}: ${subject}\n${T("wa.detailsLabel", t("contact.msgDetails"))}: ${details || waEmpty}`;
 
   return (
     <div className="min-h-screen bg-background">
