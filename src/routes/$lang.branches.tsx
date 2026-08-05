@@ -1,21 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-import { getCorporateIdentity, listBranches } from "@/lib/site.functions";
+import { getCorporateIdentity, getSitePage, listBranches } from "@/lib/site.functions";
 import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { RichText } from "@/components/site/RichText";
+import { RichText, StyledHeading } from "@/components/site/RichText";
+import { BRANCHES_FALLBACK, pickHeading, pickRich, pickText } from "@/lib/page-content";
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const branchesQO = queryOptions({ queryKey: ["branches"], queryFn: () => listBranches() });
+const pageQO = queryOptions({ queryKey: ["site-page", "branches"], queryFn: () => getSitePage({ data: "branches" }) });
 
-const INTRO_AR =
-  "نقترب منكم عبر فروعنا في عدد من المحافظات اليمنية، لنقدّم خدماتنا التجارية والتوزيعية بكفاءة، ونوفّر لعملائنا وشركائنا قنوات تواصل مباشرة وسريعة. اختر الفرع الأقرب إليك وتواصل معنا عبر واتساب.";
-const INTRO_EN =
-  "We stay close to you through our branches across several Yemeni governorates, delivering our trade and distribution services efficiently and giving customers and partners fast, direct contact channels. Choose the branch nearest to you and reach us on WhatsApp.";
 
 export const Route = createFileRoute("/$lang/branches")({
   head: ({ params }) => {
