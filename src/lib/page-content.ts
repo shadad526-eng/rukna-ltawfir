@@ -638,8 +638,10 @@ export function pickRich(
   lang: "ar" | "en",
   fallback: string,
 ): string {
-  const primary = asText(content?.[`${key}_${lang}`]);
-  if (primary.trim()) return primary;
+  if (hasStored(content, `${key}_${lang}`)) {
+    const v = asText(content?.[`${key}_${lang}`]);
+    return stripTags(v).trim() ? v : "";
+  }
   const arabic = asText(content?.[`${key}_ar`]);
   if (lang === "en" && arabic.trim() && !fallback) return arabic;
   return fallback;
