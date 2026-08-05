@@ -401,7 +401,13 @@ export const BRANCHES_FALLBACK = {
 } as const;
 
 /** Optional runtime values used to seed defaults that depend on live data. */
-export type DefaultSeed = { legalNameAr?: string; legalNameEn?: string };
+export type DefaultSeed = {
+  legalNameAr?: string;
+  legalNameEn?: string;
+  /** Address currently rendered inside the contact "headquarters" card. */
+  addressAr?: string;
+  addressEn?: string;
+};
 
 const TRUST_COLOR = "oklch(0.46 0.16 245)";
 
