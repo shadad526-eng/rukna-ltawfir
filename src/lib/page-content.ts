@@ -487,6 +487,11 @@ export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageC
     out["hero.title_en"] = composeAboutTitle(seed?.legalNameEn ?? "", dig(EN, "about.titleSuffix"));
   }
 
+  if (slug === "contact") {
+    out["cards.address_ar"] = seed?.addressAr ?? "";
+    out["cards.address_en"] = seed?.addressEn ?? seed?.addressAr ?? "";
+  }
+
   // Only keep the keys that belong to this page.
   const allowed = new Set<string>();
   for (const g of PAGE_SCHEMAS[slug]) {
