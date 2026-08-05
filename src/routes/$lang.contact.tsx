@@ -80,10 +80,12 @@ function ContactPage() {
     { label_ar: t("contact.subjects.support") },
   ]);
   const emails = pickList<any>(c, "emails.items", id.email ? [{ label_ar: t("contact.cards.emailHint"), value: id.email }] : []);
-  const headquarters = branches[0];
-  const headquartersAddress = headquarters
-    ? (isAr ? headquarters.address_ar : headquarters.address_en || headquarters.address_ar)
+  // The headquarters address is administrator-controlled; until it is saved we
+  // keep rendering the value the page has always shown.
+  const legacyAddress = branches[0]
+    ? (isAr ? branches[0].address_ar : branches[0].address_en || branches[0].address_ar)
     : (ident.address ?? t("contact.cards.fallbackAddress"));
+  const headquartersAddress = R("cards.address", legacyAddress ?? "");
 
   const [subject, setSubject] = useState(t("contact.subjects.general"));
   const [name, setName] = useState("");
