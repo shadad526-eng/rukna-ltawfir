@@ -187,7 +187,7 @@ function ContactPage() {
                     <RichText as="p" className="mt-4 flex-1 text-sm leading-loose text-ink-600" value={bAddress} />
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <WhatsAppCTA number={local} message={message} variant="pill">
-                        {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
+                        {T("branches.waLabel", isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp")}
                       </WhatsAppCTA>
                       {b.map_url ? (
                         <a
@@ -196,7 +196,7 @@ function ContactPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center rounded-full border border-border px-5 py-3 text-sm font-semibold text-trust-700 transition-colors hover:bg-secondary"
                         >
-                          {isAr ? "الموقع على الخريطة" : "View on map"}
+                          {T("branches.mapLabel", isAr ? "الموقع على الخريطة" : "View on map")}
                         </a>
                       ) : null}
                     </div>
