@@ -9,6 +9,19 @@ import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt, brandLogoAlt, productCaption } from "@/lib/seo-alt";
+import { RichText } from "@/components/site/RichText";
+
+/** Prefers the active-language value, falling back to the other language. */
+function pick(ar: string | null | undefined, en: string | null | undefined, isAr: boolean) {
+  const primary = isAr ? ar : en;
+  return (primary && String(primary).trim()) ? primary : (isAr ? en : ar) ?? null;
+}
+
+function stripTags(v: string | null | undefined): string | null {
+  if (!v) return null;
+  const t = String(v).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return t ? t.slice(0, 300) : null;
+}
 
 const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
 const productQO = (brandSlug: string, productSlug: string) =>
@@ -36,8 +49,12 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
     const pname = p ? (isAr ? p.name_ar : p.name_en) : params.productSlug;
     const bname = p ? p.brand.name_ar : params.slug;
     const suffix = isAr ? "ركن التوفير" : "Rukn Al-Tawfir";
-    const title = p ? `${pname} — ${bname} | ${suffix}` : `${params.productSlug} — ${params.slug} | ${suffix}`;
-    const description = p?.short_description_ar ?? p?.long_description_ar ?? (isAr
+    const seoTitle = p ? (isAr ? p.seo_title_ar : p.seo_title_en) : null;
+    const seoDesc = p ? (isAr ? p.seo_description_ar : p.seo_description_en) : null;
+    const title = seoTitle?.trim()
+      ? seoTitle
+      : p ? `${pname} — ${bname} | ${suffix}` : `${params.productSlug} — ${params.slug} | ${suffix}`;
+    const description = seoDesc?.trim() ?? stripTags(pick(p?.short_description_ar, p?.short_description_en, isAr) ?? pick(p?.long_description_ar, p?.long_description_en, isAr)) ?? (isAr
       ? `صفحة المنتج ${params.productSlug} من علامة ${params.slug}.`
       : `Product page for ${params.productSlug} from ${params.slug}.`);
     const image = p?.cover_url ?? undefined;
@@ -126,7 +143,7 @@ function ProductDetailPage() {
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
   const hero = activeImage ?? p.cover_url;
   const pname = isAr ? p.name_ar : p.name_en;
-  const bname = p.brand.name_ar;
+  const bname = pick(p.brand.name_ar, p.brand.name_en, isAr) ?? p.brand.name_ar;
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,13 +224,14 @@ function ProductDetailPage() {
           </div>
           <h1 className="mt-4 font-arabic text-3xl font-bold text-foreground md:text-4xl">{pname}</h1>
           <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{isAr ? p.name_en : p.name_ar}</div>
-          {p.short_description_ar ? (
-            <p className="mt-4 text-base leading-loose text-foreground/80">{p.short_description_ar}</p>
+          {pick(p.short_description_ar, p.short_description_en, isAr) ? (
+            <RichText as="div" className="mt-4 text-base leading-loose text-foreground/80"
+              value={pick(p.short_description_ar, p.short_description_en, isAr)} />
           ) : null}
 
-          {p.key_benefits_ar.length > 0 ? (
+          {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).length > 0 ? (
             <ul className="mt-5 space-y-2.5">
-              {p.key_benefits_ar.map((b) => (
+              {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-foreground/85">
                   <span className="mt-1.5 inline-block size-1.5 rounded-full" style={{ background: accent }} />
                   {b}
@@ -228,7 +246,7 @@ function ProductDetailPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 {p.variants.map((v) => (
                   <span key={v.id} className="rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-[0_14px_24px_-20px_oklch(0.32_0.13_245/0.32)]">
-                    {v.name_ar}{v.pack_size ? ` · ${v.pack_size}` : ""}
+                    {pick(v.name_ar, v.name_en, isAr)}{v.pack_size ? ` · ${v.pack_size}` : ""}
                   </span>
                 ))}
               </div>
@@ -258,17 +276,19 @@ function ProductDetailPage() {
 
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6">
         <div className="grid gap-6 lg:grid-cols-3">
-          {p.long_description_ar ? (
+          {pick(p.long_description_ar, p.long_description_en, isAr) ? (
             <article className="prem-card lg:col-span-2 p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.about")}</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85">{p.long_description_ar}</p>
+              <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
+                value={pick(p.long_description_ar, p.long_description_en, isAr)} />
             </article>
           ) : null}
 
-          {p.usage_instructions_ar ? (
+          {pick(p.usage_instructions_ar, p.usage_instructions_en, isAr) ? (
             <article className="prem-card p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.usage")}</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85">{p.usage_instructions_ar}</p>
+              <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
+                value={pick(p.usage_instructions_ar, p.usage_instructions_en, isAr)} />
             </article>
           ) : null}
 
@@ -278,7 +298,7 @@ function ProductDetailPage() {
               <ul className="mt-3 divide-y divide-border/70">
                 {p.ingredients.map((i) => (
                   <li key={i.name_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{i.name_ar}</span>
+                    <span className="text-foreground/90">{pick(i.name_ar, i.name_en, isAr)}</span>
                     {i.percentage != null ? <span className="text-muted-foreground">{i.percentage}%</span> : null}
                   </li>
                 ))}
@@ -292,7 +312,7 @@ function ProductDetailPage() {
               <ul className="mt-3 divide-y divide-border/70">
                 {p.nutrition.map((n) => (
                   <li key={n.label_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{n.label_ar}</span>
+                    <span className="text-foreground/90">{pick(n.label_ar, n.label_en, isAr)}</span>
                     <span className="text-muted-foreground">{n.value}{n.unit ? ` ${n.unit}` : ""}</span>
                   </li>
                 ))}
@@ -307,9 +327,9 @@ function ProductDetailPage() {
                 {p.faqs.map((f) => (
                   <details key={f.question_ar} className="group py-3.5">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
-                      {f.question_ar}
+                      {pick(f.question_ar, f.question_en, isAr)}
                     </summary>
-                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{f.answer_ar}</p>
+                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{pick(f.answer_ar, f.answer_en, isAr)}</p>
                   </details>
                 ))}
               </div>
