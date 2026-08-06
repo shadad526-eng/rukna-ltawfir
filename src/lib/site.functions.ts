@@ -42,15 +42,23 @@ export type ProductSummary = {
 };
 
 export type ProductDetail = ProductSummary & {
+  short_description_en: string | null;
   long_description_ar: string | null;
+  long_description_en: string | null;
   usage_instructions_ar: string | null;
+  usage_instructions_en: string | null;
   key_benefits_ar: string[];
-  gallery: { url: string; caption_ar: string | null }[];
-  variants: { id: string; slug: string; name_ar: string; pack_size: string | null; cover_url: string | null }[];
-  ingredients: { name_ar: string; percentage: number | null; notes_ar: string | null }[];
-  nutrition: { label_ar: string; value: string; unit: string | null }[];
-  faqs: { question_ar: string; answer_ar: string }[];
-  brand: { slug: string; name_ar: string; tagline_ar: string | null; brand_tokens: Record<string, string>; logo_url: string | null };
+  key_benefits_en: string[];
+  seo_title_ar: string | null;
+  seo_title_en: string | null;
+  seo_description_ar: string | null;
+  seo_description_en: string | null;
+  gallery: { url: string; caption_ar: string | null; caption_en: string | null }[];
+  variants: { id: string; slug: string; name_ar: string; name_en: string | null; pack_size: string | null; cover_url: string | null }[];
+  ingredients: { name_ar: string; name_en: string | null; percentage: number | null; notes_ar: string | null; notes_en: string | null }[];
+  nutrition: { label_ar: string; label_en: string | null; value: string; unit: string | null }[];
+  faqs: { question_ar: string; answer_ar: string; question_en: string | null; answer_en: string | null }[];
+  brand: { slug: string; name_ar: string; name_en: string | null; tagline_ar: string | null; brand_tokens: Record<string, string>; logo_url: string | null };
 };
 
 export type CatalogSummary = {
@@ -268,14 +276,14 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const supabase = getPublicDataClient();
     const { data: brand } = await supabase
       .from("brands")
-      .select("id, slug, name_ar, tagline_ar, brand_tokens, logo_asset_id")
+      .select("id, slug, name_ar, name_en, tagline_ar, brand_tokens, logo_asset_id")
       .eq("slug", data.brandSlug)
       .maybeSingle();
     if (!brand) return null;
     const { data: p, error } = await supabase
       .from("products")
       .select(
-        "id, slug, name_ar, name_en, short_description_ar, long_description_ar, usage_instructions_ar, key_benefits_ar, cover_asset_id",
+        "id, slug, name_ar, name_en, short_description_ar, short_description_en, long_description_ar, long_description_en, usage_instructions_ar, usage_instructions_en, key_benefits_ar, key_benefits_en, cover_asset_id, seo_title_ar, seo_title_en, seo_description_ar, seo_description_en",
       )
       .eq("brand_id", brand.id)
       .eq("slug", data.productSlug)
@@ -289,28 +297,28 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       assetUrl(brand.logo_asset_id),
       supabase
         .from("product_variants")
-        .select("id, slug, name_ar, pack_size, cover_asset_id")
+        .select("id, slug, name_ar, name_en, pack_size, cover_asset_id")
         .eq("product_id", p.id)
         .eq("is_published", true)
         .order("sort_order", { ascending: true }),
       supabase
         .from("product_assets")
-        .select("caption_ar, sort_order, assets:asset_id ( storage_bucket, storage_path )")
+        .select("caption_ar, caption_en, sort_order, assets:asset_id ( storage_bucket, storage_path )")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
       supabase
         .from("product_ingredients")
-        .select("name_ar, percentage, notes_ar, sort_order")
+        .select("name_ar, name_en, percentage, notes_ar, notes_en, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
       supabase
         .from("product_nutrition")
-        .select("label_ar, value, unit, sort_order")
+        .select("label_ar, label_en, value, unit, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
       supabase
         .from("product_faqs")
-        .select("question_ar, answer_ar, sort_order")
+        .select("question_ar, answer_ar, question_en, answer_en, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
     ]);
@@ -320,14 +328,16 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         id: v.id,
         slug: v.slug,
         name_ar: v.name_ar,
+        name_en: (v as any).name_en ?? null,
         pack_size: v.pack_size,
         cover_url: await assetUrl(v.cover_asset_id),
       })),
     );
     const galleryOut = await Promise.all(
-      ((gallery.data ?? []) as Array<{ caption_ar: string | null; assets: { storage_bucket: string; storage_path: string } | null }>).map(
+      ((gallery.data ?? []) as Array<{ caption_ar: string | null; caption_en: string | null; assets: { storage_bucket: string; storage_path: string } | null }>).map(
         async (g) => ({
           caption_ar: g.caption_ar,
+          caption_en: g.caption_en ?? null,
           url: g.assets ? (await signedUrl(g.assets.storage_bucket, g.assets.storage_path)) ?? "" : "",
         }),
       ),
@@ -340,22 +350,38 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       name_ar: p.name_ar,
       name_en: p.name_en,
       short_description_ar: p.short_description_ar,
+      short_description_en: (p as any).short_description_en ?? null,
       long_description_ar: p.long_description_ar,
+      long_description_en: (p as any).long_description_en ?? null,
       usage_instructions_ar: p.usage_instructions_ar,
+      usage_instructions_en: (p as any).usage_instructions_en ?? null,
       key_benefits_ar: (p.key_benefits_ar as string[] | null) ?? [],
+      key_benefits_en: ((p as any).key_benefits_en as string[] | null) ?? [],
+      seo_title_ar: (p as any).seo_title_ar ?? null,
+      seo_title_en: (p as any).seo_title_en ?? null,
+      seo_description_ar: (p as any).seo_description_ar ?? null,
+      seo_description_en: (p as any).seo_description_en ?? null,
       cover_url,
       gallery: galleryOut.filter((g) => g.url),
       variants: variantsOut,
       ingredients: (ingredients.data ?? []).map((i) => ({
         name_ar: i.name_ar,
+        name_en: (i as any).name_en ?? null,
         percentage: i.percentage as number | null,
         notes_ar: i.notes_ar,
+        notes_en: (i as any).notes_en ?? null,
       })),
-      nutrition: (nutrition.data ?? []).map((n) => ({ label_ar: n.label_ar, value: n.value, unit: n.unit })),
-      faqs: (faqs.data ?? []).map((f) => ({ question_ar: f.question_ar, answer_ar: f.answer_ar })),
+      nutrition: (nutrition.data ?? []).map((n) => ({ label_ar: n.label_ar, label_en: (n as any).label_en ?? null, value: n.value, unit: n.unit })),
+      faqs: (faqs.data ?? []).map((f) => ({
+        question_ar: f.question_ar,
+        answer_ar: f.answer_ar,
+        question_en: (f as any).question_en ?? null,
+        answer_en: (f as any).answer_en ?? null,
+      })),
       brand: {
         slug: brand.slug,
         name_ar: brand.name_ar,
+        name_en: (brand as any).name_en ?? null,
         tagline_ar: brand.tagline_ar,
         brand_tokens: (brand.brand_tokens as Record<string, string>) ?? {},
         logo_url: brandLogo,
