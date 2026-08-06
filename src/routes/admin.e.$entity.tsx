@@ -12,6 +12,8 @@ import { optimizeImageForUpload } from "@/lib/optimize-image";
 import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
 import { isContentPageSlug } from "@/lib/page-content";
 import { Link } from "@tanstack/react-router";
+import { AssetPicker } from "@/components/admin/AssetPicker";
+export { AssetPicker };
 
 
 // Long-form fields get a rich-text editor instead of a plain textarea.
@@ -892,4 +894,4 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
 
 
 
-export { AssetPicker } from "@/components/admin/AssetPicker";
+
