@@ -37,6 +37,7 @@ import { Route as LangNewsIndexRouteImport } from './routes/$lang.news.index'
 import { Route as LangNewsSlugRouteImport } from './routes/$lang.news.$slug'
 import { Route as AdminEEntityRouteImport } from './routes/admin.e.$entity'
 import { Route as AdminPagesSlugRouteImport } from './routes/admin.pages.$slug'
+import { Route as AdminProductsIdRouteImport } from './routes/admin.products.$id'
 import { Route as AdminProductsNewRouteImport } from './routes/admin.products.new'
 import { Route as LangBrandsSlugIndexRouteImport } from './routes/$lang.brands.$slug.index'
 import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.brands.$slug.$productSlug'
@@ -181,6 +182,11 @@ const AdminPagesSlugRoute = AdminPagesSlugRouteImport.update({
   path: '/pages/$slug',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProductsIdRoute = AdminProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminProductsNewRoute = AdminProductsNewRouteImport.update({
   id: '/products/new',
   path: '/products/new',
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/admin/pages/$slug': typeof AdminPagesSlugRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/news/': typeof LangNewsIndexRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/admin/pages/$slug': typeof AdminPagesSlugRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/$lang/brands': typeof LangBrandsIndexRoute
   '/$lang/news': typeof LangNewsIndexRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/$lang/news/$slug': typeof LangNewsSlugRoute
   '/admin/e/$entity': typeof AdminEEntityRoute
   '/admin/pages/$slug': typeof AdminPagesSlugRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/$lang/brands/': typeof LangBrandsIndexRoute
   '/$lang/news/': typeof LangNewsIndexRoute
@@ -323,6 +332,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/admin/pages/$slug'
+    | '/admin/products/$id'
     | '/admin/products/new'
     | '/$lang/brands/'
     | '/$lang/news/'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/admin/pages/$slug'
+    | '/admin/products/$id'
     | '/admin/products/new'
     | '/$lang/brands'
     | '/$lang/news'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/$lang/news/$slug'
     | '/admin/e/$entity'
     | '/admin/pages/$slug'
+    | '/admin/products/$id'
     | '/admin/products/new'
     | '/$lang/brands/'
     | '/$lang/news/'
@@ -598,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPagesSlugRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/products/$id': {
+      id: '/admin/products/$id'
+      path: '/products/$id'
+      fullPath: '/admin/products/$id'
+      preLoaderRoute: typeof AdminProductsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/products/new': {
       id: '/admin/products/new'
       path: '/products/new'
@@ -694,6 +713,7 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminEEntityRoute: typeof AdminEEntityRoute
   AdminPagesSlugRoute: typeof AdminPagesSlugRoute
+  AdminProductsIdRoute: typeof AdminProductsIdRoute
   AdminProductsNewRoute: typeof AdminProductsNewRoute
 }
 
@@ -705,6 +725,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminEEntityRoute: AdminEEntityRoute,
   AdminPagesSlugRoute: AdminPagesSlugRoute,
+  AdminProductsIdRoute: AdminProductsIdRoute,
   AdminProductsNewRoute: AdminProductsNewRoute,
 }
 
