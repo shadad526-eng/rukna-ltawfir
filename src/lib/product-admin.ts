@@ -246,7 +246,7 @@ async function syncChildren(
 ) {
   const keepIds = rows.map((r) => r.id).filter(Boolean) as string[];
   let del = db.from(table).delete().eq("product_id", productId);
-  if (keepIds.length) del = del.not("id", "in", `(${keepIds.join(",")})`);
+  if (keepIds.length) del = del.not("id", "in", `(${keepIds.map((i) => `"${i}"`).join(",")})`);
   const { error: delErr } = await del;
   if (delErr) throw delErr;
 
