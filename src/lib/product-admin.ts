@@ -105,6 +105,10 @@ export function emptyProduct(): ProductDraft {
     key_benefits_ar: [],
     key_benefits_en: [],
     cover_asset_id: null,
+    cover_row_id: null,
+    cover_caption_ar: "",
+    cover_caption_en: "",
+
     is_published: false,
     sort_order: 0,
     seo_title_ar: "",
