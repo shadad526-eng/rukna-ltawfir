@@ -183,6 +183,10 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
     key_benefits_ar: Array.isArray(p.key_benefits_ar) ? p.key_benefits_ar : [],
     key_benefits_en: Array.isArray(p.key_benefits_en) ? p.key_benefits_en : [],
     cover_asset_id: p.cover_asset_id ?? null,
+    cover_row_id: coverRow?.id ?? null,
+    cover_caption_ar: coverRow?.caption_ar ?? "",
+    cover_caption_en: coverRow?.caption_en ?? "",
+
     is_published: !!p.is_published,
     sort_order: p.sort_order ?? 0,
     seo_title_ar: p.seo_title_ar ?? "",
@@ -203,9 +207,10 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
       cover_asset_id: v.cover_asset_id ?? null,
       is_published: !!v.is_published,
     })),
-    gallery: (gallery.data ?? []).map((g: any) => ({
+    gallery: assetRows.filter((g: any) => !coverRow || g.id !== coverRow.id).map((g: any) => ({
       id: g.id,
       asset_id: g.asset_id,
+
       caption_ar: g.caption_ar ?? "",
       caption_en: g.caption_en ?? "",
     })),
