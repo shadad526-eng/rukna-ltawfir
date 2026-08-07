@@ -297,29 +297,29 @@ function ProductDetailPage() {
 
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6">
         <div className="grid gap-6 lg:grid-cols-3">
-          {pick(p.long_description_ar, p.long_description_en, isAr) ? (
+          {longDesc ? (
             <article className="prem-card lg:col-span-2 p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.about")}</h2>
               <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
-                value={pick(p.long_description_ar, p.long_description_en, isAr)} />
+                value={longDesc} />
             </article>
           ) : null}
 
-          {pick(p.usage_instructions_ar, p.usage_instructions_en, isAr) ? (
+          {usage ? (
             <article className="prem-card p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.usage")}</h2>
               <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
-                value={pick(p.usage_instructions_ar, p.usage_instructions_en, isAr)} />
+                value={usage} />
             </article>
           ) : null}
 
-          {p.ingredients.length > 0 ? (
+          {ingredients.length > 0 ? (
             <article className="prem-card p-6 md:p-7 lg:col-span-2">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.ingredients")}</h2>
               <ul className="mt-3 divide-y divide-border/70">
-                {p.ingredients.map((i) => (
-                  <li key={i.name_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{pick(i.name_ar, i.name_en, isAr)}</span>
+                {ingredients.map((i) => (
+                  <li key={i.label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+                    <span className="text-foreground/90">{i.label}</span>
                     {i.percentage != null ? <span className="text-muted-foreground">{i.percentage}%</span> : null}
                   </li>
                 ))}
@@ -327,13 +327,13 @@ function ProductDetailPage() {
             </article>
           ) : null}
 
-          {p.nutrition.length > 0 ? (
+          {nutrition.length > 0 ? (
             <article className="prem-card p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.nutrition")}</h2>
               <ul className="mt-3 divide-y divide-border/70">
-                {p.nutrition.map((n) => (
-                  <li key={n.label_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{pick(n.label_ar, n.label_en, isAr)}</span>
+                {nutrition.map((n) => (
+                  <li key={n.label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+                    <span className="text-foreground/90">{n.label}</span>
                     <span className="text-muted-foreground">{n.value}{n.unit ? ` ${n.unit}` : ""}</span>
                   </li>
                 ))}
@@ -341,21 +341,24 @@ function ProductDetailPage() {
             </article>
           ) : null}
 
-          {p.faqs.length > 0 ? (
+          {faqs.length > 0 ? (
             <article className="prem-card p-6 md:p-7 lg:col-span-3">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.faqs")}</h2>
               <div className="mt-3 divide-y divide-border/70">
-                {p.faqs.map((f) => (
-                  <details key={f.question_ar} className="group py-3.5">
+                {faqs.map((f) => (
+                  <details key={f.question} className="group py-3.5">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
-                      {pick(f.question_ar, f.question_en, isAr)}
+                      {f.question}
                     </summary>
-                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{pick(f.answer_ar, f.answer_en, isAr)}</p>
+                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{f.answer}</p>
                   </details>
                 ))}
               </div>
             </article>
           ) : null}
+        </div>
+      </section>
+
         </div>
       </section>
 
