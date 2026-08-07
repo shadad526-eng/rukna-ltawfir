@@ -53,7 +53,14 @@ export type ProductDetail = ProductSummary & {
   seo_title_en: string | null;
   seo_description_ar: string | null;
   seo_description_en: string | null;
+  /** Cover first (when it exists), then gallery rows in sort order. */
+  images: { url: string; caption_ar: string | null; caption_en: string | null }[];
+  cover_caption_ar: string | null;
+  cover_caption_en: string | null;
+  /** true when the product's brand has at least one published catalog */
+  has_brand_catalog: boolean;
   gallery: { url: string; caption_ar: string | null; caption_en: string | null }[];
+
   variants: { id: string; slug: string; name_ar: string; name_en: string | null; pack_size: string | null; cover_url: string | null }[];
   ingredients: { name_ar: string; name_en: string | null; percentage: number | null; notes_ar: string | null; notes_en: string | null }[];
   nutrition: { label_ar: string; label_en: string | null; value: string; unit: string | null }[];
