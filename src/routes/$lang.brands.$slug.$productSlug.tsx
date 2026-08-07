@@ -8,14 +8,21 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { productAlt, brandLogoAlt, productCaption } from "@/lib/seo-alt";
+import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
 import { RichText } from "@/components/site/RichText";
+
+/** Strict language read: the active language only, no cross-language fallback. */
+function lv(ar: string | null | undefined, en: string | null | undefined, isAr: boolean) {
+  const v = isAr ? ar : en;
+  return v && String(v).trim() ? v : null;
+}
 
 /** Prefers the active-language value, falling back to the other language. */
 function pick(ar: string | null | undefined, en: string | null | undefined, isAr: boolean) {
   const primary = isAr ? ar : en;
   return (primary && String(primary).trim()) ? primary : (isAr ? en : ar) ?? null;
 }
+
 
 function stripTags(v: string | null | undefined): string | null {
   if (!v) return null;
@@ -54,7 +61,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
     const title = seoTitle?.trim()
       ? seoTitle
       : p ? `${pname} — ${bname} | ${suffix}` : `${params.productSlug} — ${params.slug} | ${suffix}`;
-    const description = seoDesc?.trim() ?? stripTags(pick(p?.short_description_ar, p?.short_description_en, isAr) ?? pick(p?.long_description_ar, p?.long_description_en, isAr)) ?? (isAr
+    const description = seoDesc?.trim() ?? stripTags(lv(p?.short_description_ar, p?.short_description_en, isAr) ?? lv(p?.long_description_ar, p?.long_description_en, isAr)) ?? (isAr
       ? `صفحة المنتج ${params.productSlug} من علامة ${params.slug}.`
       : `Product page for ${params.productSlug} from ${params.slug}.`);
     const image = p?.cover_url ?? undefined;
@@ -79,20 +86,24 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
                 name: pname,
                 description,
                 ...(image
-                  ? {
-                      image: [image],
-                      ...(p.gallery && p.gallery.length > 0
-                        ? {
-                            subjectOf: {
-                              "@type": "ImageObject",
-                              contentUrl: image,
-                              caption: productCaption(params.slug, bname, pname, isAr ? "ar" : "en"),
-                              description: productAlt(params.slug, bname, pname, isAr ? "ar" : "en"),
-                            },
-                          }
-                        : {}),
-                    }
+                  ? (() => {
+                      const coverCaption = lv(p.cover_caption_ar, p.cover_caption_en, isAr);
+                      return {
+                        image: (p.images ?? []).map((i) => i.url).filter(Boolean).slice(0, 6),
+                        ...(coverCaption
+                          ? {
+                              subjectOf: {
+                                "@type": "ImageObject",
+                                contentUrl: image,
+                                caption: coverCaption,
+                                description: productAlt(params.slug, bname, pname, isAr ? "ar" : "en"),
+                              },
+                            }
+                          : {}),
+                      };
+                    })()
                   : {}),
+
                 brand: { "@type": "Brand", name: bname },
                 url,
               }),
@@ -136,14 +147,32 @@ function ProductDetailPage() {
   const { data: p } = useSuspenseQuery(productQO(params.slug, params.productSlug));
   const { data: brandProducts } = useSuspenseQuery(brandProductsQO(params.slug));
   const ident = useLocalizedIdentity(id);
-  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   if (!p) return null;
   const related = brandProducts.filter((x) => x.slug !== p.slug).slice(0, 4);
 
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
-  const hero = activeImage ?? p.cover_url;
+  const images = (p.images ?? []).filter((i) => i.url);
+  const active = images[activeIndex] ?? images[0] ?? null;
+  const activeCaption = active ? lv(active.caption_ar, active.caption_en, isAr) : null;
   const pname = isAr ? p.name_ar : p.name_en;
   const bname = pick(p.brand.name_ar, p.brand.name_en, isAr) ?? p.brand.name_ar;
+  const shortDesc = lv(p.short_description_ar, p.short_description_en, isAr);
+  const longDesc = lv(p.long_description_ar, p.long_description_en, isAr);
+  const usage = lv(p.usage_instructions_ar, p.usage_instructions_en, isAr);
+  const benefits = isAr ? p.key_benefits_ar : p.key_benefits_en;
+
+  const ingredients = p.ingredients
+    .map((i) => ({ label: lv(i.name_ar, i.name_en, isAr), percentage: i.percentage }))
+    .filter((i): i is { label: string; percentage: number | null } => !!i.label);
+  const nutrition = p.nutrition
+    .map((n) => ({ label: lv(n.label_ar, n.label_en, isAr), value: n.value, unit: n.unit }))
+    .filter((n) => !!n.label && !!n.value) as { label: string; value: string; unit: string | null }[];
+  const faqs = p.faqs
+    .map((f) => ({ question: lv(f.question_ar, f.question_en, isAr), answer: lv(f.answer_ar, f.answer_en, isAr) }))
+    .filter((f) => !!f.question && !!f.answer) as { question: string; answer: string }[];
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,46 +195,47 @@ function ProductDetailPage() {
         </nav>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:grid-cols-2 md:px-6 md:py-12">
-        <div>
-          <div className="prem-card p-8 md:p-10">
-            <figure className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
-              {hero ? (
+      <section className={`mx-auto grid max-w-7xl gap-10 px-4 py-8 md:px-6 md:py-12 ${active ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+        {active ? (
+          <div>
+            <div className="prem-card p-8 md:p-10">
+              <figure className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
                 <img
-                  src={hero}
+                  src={active.url}
                   alt={productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
                   data-content-image=""
                   className="size-full cursor-zoom-in object-contain"
                 />
-              ) : (
-                <div className="grid size-full place-items-center text-sm text-muted-foreground">{t("common.officialPackageImage")}</div>
-              )}
-            </figure>
-            <figcaption className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
-              {productCaption(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
-            </figcaption>
-            {p.gallery.length > 0 ? (
-              <div className="mt-4 grid grid-cols-4 gap-2">
-                {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url, idx) => (
-                  <button
-                    key={url}
-                    type="button"
-                    onClick={() => setActiveImage(url)}
-                    className={`podium aspect-square overflow-hidden rounded-xl p-1 transition-all ${
-                      hero === url ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <img
-                      src={url ?? ""}
-                      alt={`${productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")} — ${isAr ? "صورة" : "view"} ${idx + 1}`}
-                      className="size-full object-contain"
-                    />
-                  </button>
-                ))}
-              </div>
-            ) : null}
+              </figure>
+              {activeCaption ? (
+                <figcaption className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+                  {activeCaption}
+                </figcaption>
+              ) : null}
+              {images.length > 1 ? (
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  {images.map((img, idx) => (
+                    <button
+                      key={img.url}
+                      type="button"
+                      onClick={() => setActiveIndex(idx)}
+                      className={`podium aspect-square overflow-hidden rounded-xl p-1 transition-all ${
+                        idx === activeIndex ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")} — ${isAr ? "صورة" : "view"} ${idx + 1}`}
+                        className="size-full object-contain"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
+        ) : null}
+
 
         <div className="prem-card p-7 md:p-9">
           <div className="flex items-center gap-3">
@@ -224,14 +254,13 @@ function ProductDetailPage() {
           </div>
           <h1 className="mt-4 font-arabic text-3xl font-bold text-foreground md:text-4xl">{pname}</h1>
           <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{isAr ? p.name_en : p.name_ar}</div>
-          {pick(p.short_description_ar, p.short_description_en, isAr) ? (
-            <RichText as="div" className="mt-4 text-base leading-loose text-foreground/80"
-              value={pick(p.short_description_ar, p.short_description_en, isAr)} />
+          {shortDesc ? (
+            <RichText as="div" className="mt-4 text-base leading-loose text-foreground/80" value={shortDesc} />
           ) : null}
 
-          {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).length > 0 ? (
+          {benefits.length > 0 ? (
             <ul className="mt-5 space-y-2.5">
-              {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).map((b) => (
+              {benefits.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-foreground/85">
                   <span className="mt-1.5 inline-block size-1.5 rounded-full" style={{ background: accent }} />
                   {b}
@@ -260,13 +289,16 @@ function ProductDetailPage() {
             >
               {t("product.askAbout")}
             </WhatsAppCTA>
-            <LLink
-              to="/$lang/catalogs"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              {t("product.viewCatalog")}
-            </LLink>
+            {p.has_brand_catalog ? (
+              <LLink
+                to="/$lang/catalogs"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                {t("product.viewCatalog")}
+              </LLink>
+            ) : null}
           </div>
+
 
           <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
             {t("product.pricingNotice")}
@@ -276,29 +308,29 @@ function ProductDetailPage() {
 
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6">
         <div className="grid gap-6 lg:grid-cols-3">
-          {pick(p.long_description_ar, p.long_description_en, isAr) ? (
+          {longDesc ? (
             <article className="prem-card lg:col-span-2 p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.about")}</h2>
               <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
-                value={pick(p.long_description_ar, p.long_description_en, isAr)} />
+                value={longDesc} />
             </article>
           ) : null}
 
-          {pick(p.usage_instructions_ar, p.usage_instructions_en, isAr) ? (
+          {usage ? (
             <article className="prem-card p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.usage")}</h2>
               <RichText as="div" className="article-prose mt-3 whitespace-pre-line text-sm leading-loose text-foreground/85"
-                value={pick(p.usage_instructions_ar, p.usage_instructions_en, isAr)} />
+                value={usage} />
             </article>
           ) : null}
 
-          {p.ingredients.length > 0 ? (
+          {ingredients.length > 0 ? (
             <article className="prem-card p-6 md:p-7 lg:col-span-2">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.ingredients")}</h2>
               <ul className="mt-3 divide-y divide-border/70">
-                {p.ingredients.map((i) => (
-                  <li key={i.name_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{pick(i.name_ar, i.name_en, isAr)}</span>
+                {ingredients.map((i) => (
+                  <li key={i.label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+                    <span className="text-foreground/90">{i.label}</span>
                     {i.percentage != null ? <span className="text-muted-foreground">{i.percentage}%</span> : null}
                   </li>
                 ))}
@@ -306,13 +338,13 @@ function ProductDetailPage() {
             </article>
           ) : null}
 
-          {p.nutrition.length > 0 ? (
+          {nutrition.length > 0 ? (
             <article className="prem-card p-6 md:p-7">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.nutrition")}</h2>
               <ul className="mt-3 divide-y divide-border/70">
-                {p.nutrition.map((n) => (
-                  <li key={n.label_ar} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                    <span className="text-foreground/90">{pick(n.label_ar, n.label_en, isAr)}</span>
+                {nutrition.map((n) => (
+                  <li key={n.label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+                    <span className="text-foreground/90">{n.label}</span>
                     <span className="text-muted-foreground">{n.value}{n.unit ? ` ${n.unit}` : ""}</span>
                   </li>
                 ))}
@@ -320,16 +352,16 @@ function ProductDetailPage() {
             </article>
           ) : null}
 
-          {p.faqs.length > 0 ? (
+          {faqs.length > 0 ? (
             <article className="prem-card p-6 md:p-7 lg:col-span-3">
               <h2 className="font-arabic text-lg font-bold text-foreground">{t("product.faqs")}</h2>
               <div className="mt-3 divide-y divide-border/70">
-                {p.faqs.map((f) => (
-                  <details key={f.question_ar} className="group py-3.5">
+                {faqs.map((f) => (
+                  <details key={f.question} className="group py-3.5">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
-                      {pick(f.question_ar, f.question_en, isAr)}
+                      {f.question}
                     </summary>
-                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{pick(f.answer_ar, f.answer_en, isAr)}</p>
+                    <p className="mt-2 text-sm leading-loose text-muted-foreground">{f.answer}</p>
                   </details>
                 ))}
               </div>
@@ -337,6 +369,8 @@ function ProductDetailPage() {
           ) : null}
         </div>
       </section>
+
+
 
       {related.length > 0 ? (
         <section className="border-t border-border bg-card">

@@ -71,6 +71,10 @@ export type ProductDraft = {
   key_benefits_ar: string[];
   key_benefits_en: string[];
   cover_asset_id: string | null;
+  /** id of the product_assets row that carries the cover caption (if any) */
+  cover_row_id?: string | null;
+  cover_caption_ar: string | null;
+  cover_caption_en: string | null;
   is_published: boolean;
   sort_order: number;
   seo_title_ar: string | null;
@@ -83,6 +87,7 @@ export type ProductDraft = {
   nutrition: NutritionDraft[];
   faqs: FaqDraft[];
 };
+
 
 export function emptyProduct(): ProductDraft {
   return {
@@ -100,6 +105,10 @@ export function emptyProduct(): ProductDraft {
     key_benefits_ar: [],
     key_benefits_en: [],
     cover_asset_id: null,
+    cover_row_id: null,
+    cover_caption_ar: "",
+    cover_caption_en: "",
+
     is_published: false,
     sort_order: 0,
     seo_title_ar: "",
@@ -152,7 +161,13 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
   if (error) throw error;
   if (!p) throw new Error("المنتج غير موجود");
 
+  // The product_assets row that points at the cover asset carries the cover
+  // caption; everything else is the gallery.
+  const assetRows: any[] = gallery.data ?? [];
+  const coverRow = p.cover_asset_id ? assetRows.find((g) => g.asset_id === p.cover_asset_id) ?? null : null;
+
   return {
+
     id: p.id,
     brand_id: p.brand_id ?? null,
     category_id: p.category_id ?? null,
@@ -168,6 +183,10 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
     key_benefits_ar: Array.isArray(p.key_benefits_ar) ? p.key_benefits_ar : [],
     key_benefits_en: Array.isArray(p.key_benefits_en) ? p.key_benefits_en : [],
     cover_asset_id: p.cover_asset_id ?? null,
+    cover_row_id: coverRow?.id ?? null,
+    cover_caption_ar: coverRow?.caption_ar ?? "",
+    cover_caption_en: coverRow?.caption_en ?? "",
+
     is_published: !!p.is_published,
     sort_order: p.sort_order ?? 0,
     seo_title_ar: p.seo_title_ar ?? "",
@@ -188,9 +207,10 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
       cover_asset_id: v.cover_asset_id ?? null,
       is_published: !!v.is_published,
     })),
-    gallery: (gallery.data ?? []).map((g: any) => ({
+    gallery: assetRows.filter((g: any) => !coverRow || g.id !== coverRow.id).map((g: any) => ({
       id: g.id,
       asset_id: g.asset_id,
+
       caption_ar: g.caption_ar ?? "",
       caption_en: g.caption_en ?? "",
     })),
@@ -319,17 +339,31 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
     })),
   );
 
+  // product_assets holds the cover caption row first (when a cover exists),
+  // followed by the gallery rows in their edited order.
+  const coverRow = d.cover_asset_id
+    ? [{
+        ...(d.cover_row_id ? { id: d.cover_row_id } : {}),
+        asset_id: d.cover_asset_id,
+        caption_ar: nullable(d.cover_caption_ar),
+        caption_en: nullable(d.cover_caption_en),
+      }]
+    : [];
   await syncChildren(
     "product_assets",
     productId!,
-    d.gallery
-      .filter((g) => g.asset_id)
-      .map((g) => ({
-        ...(g.id ? { id: g.id } : {}),
-        asset_id: g.asset_id,
-        caption_ar: nullable(g.caption_ar),
-        caption_en: nullable(g.caption_en),
-      })),
+    [
+      ...coverRow,
+      ...d.gallery
+        .filter((g) => g.asset_id && g.asset_id !== d.cover_asset_id)
+        .map((g) => ({
+          ...(g.id && g.id !== d.cover_row_id ? { id: g.id } : {}),
+          asset_id: g.asset_id,
+          caption_ar: nullable(g.caption_ar),
+          caption_en: nullable(g.caption_en),
+        })),
+    ],
+
   );
 
   await syncChildren(
