@@ -395,7 +395,12 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       seo_description_ar: (p as any).seo_description_ar ?? null,
       seo_description_en: (p as any).seo_description_en ?? null,
       cover_url,
-      gallery: galleryOut.filter((g) => g.url),
+      cover_caption_ar: coverRow?.caption_ar ?? null,
+      cover_caption_en: coverRow?.caption_en ?? null,
+      images: imagesOut,
+      has_brand_catalog: (brandCatalogs.data ?? []).length > 0,
+      gallery: galleryOut,
+
       variants: variantsOut,
       ingredients: (ingredients.data ?? []).map((i) => ({
         name_ar: i.name_ar,
