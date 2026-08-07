@@ -162,6 +162,17 @@ function ProductDetailPage() {
   const usage = lv(p.usage_instructions_ar, p.usage_instructions_en, isAr);
   const benefits = isAr ? p.key_benefits_ar : p.key_benefits_en;
 
+  const ingredients = p.ingredients
+    .map((i) => ({ label: lv(i.name_ar, i.name_en, isAr), percentage: i.percentage }))
+    .filter((i): i is { label: string; percentage: number | null } => !!i.label);
+  const nutrition = p.nutrition
+    .map((n) => ({ label: lv(n.label_ar, n.label_en, isAr), value: n.value, unit: n.unit }))
+    .filter((n) => !!n.label && !!n.value) as { label: string; value: string; unit: string | null }[];
+  const faqs = p.faqs
+    .map((f) => ({ question: lv(f.question_ar, f.question_en, isAr), answer: lv(f.answer_ar, f.answer_en, isAr) }))
+    .filter((f) => !!f.question && !!f.answer) as { question: string; answer: string }[];
+
+
 
   return (
     <div className="min-h-screen bg-background">
