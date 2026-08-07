@@ -184,46 +184,47 @@ function ProductDetailPage() {
         </nav>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:grid-cols-2 md:px-6 md:py-12">
-        <div>
-          <div className="prem-card p-8 md:p-10">
-            <figure className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
-              {hero ? (
+      <section className={`mx-auto grid max-w-7xl gap-10 px-4 py-8 md:px-6 md:py-12 ${active ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+        {active ? (
+          <div>
+            <div className="prem-card p-8 md:p-10">
+              <figure className="podium aspect-square w-full overflow-hidden rounded-[1.8rem] p-8">
                 <img
-                  src={hero}
+                  src={active.url}
                   alt={productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
                   data-content-image=""
                   className="size-full cursor-zoom-in object-contain"
                 />
-              ) : (
-                <div className="grid size-full place-items-center text-sm text-muted-foreground">{t("common.officialPackageImage")}</div>
-              )}
-            </figure>
-            <figcaption className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
-              {productCaption(p.brand.slug, bname, pname, isAr ? "ar" : "en")}
-            </figcaption>
-            {p.gallery.length > 0 ? (
-              <div className="mt-4 grid grid-cols-4 gap-2">
-                {[p.cover_url, ...p.gallery.map((g) => g.url)].filter(Boolean).map((url, idx) => (
-                  <button
-                    key={url}
-                    type="button"
-                    onClick={() => setActiveImage(url)}
-                    className={`podium aspect-square overflow-hidden rounded-xl p-1 transition-all ${
-                      hero === url ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <img
-                      src={url ?? ""}
-                      alt={`${productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")} — ${isAr ? "صورة" : "view"} ${idx + 1}`}
-                      className="size-full object-contain"
-                    />
-                  </button>
-                ))}
-              </div>
-            ) : null}
+              </figure>
+              {activeCaption ? (
+                <figcaption className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+                  {activeCaption}
+                </figcaption>
+              ) : null}
+              {images.length > 1 ? (
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  {images.map((img, idx) => (
+                    <button
+                      key={img.url}
+                      type="button"
+                      onClick={() => setActiveIndex(idx)}
+                      className={`podium aspect-square overflow-hidden rounded-xl p-1 transition-all ${
+                        idx === activeIndex ? "border-primary shadow-[0_18px_34px_-22px_oklch(0.32_0.13_245/0.4)]" : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${productAlt(p.brand.slug, bname, pname, isAr ? "ar" : "en")} — ${isAr ? "صورة" : "view"} ${idx + 1}`}
+                        className="size-full object-contain"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
+        ) : null}
+
 
         <div className="prem-card p-7 md:p-9">
           <div className="flex items-center gap-3">
