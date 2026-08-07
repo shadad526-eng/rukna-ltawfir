@@ -61,7 +61,7 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
     const title = seoTitle?.trim()
       ? seoTitle
       : p ? `${pname} — ${bname} | ${suffix}` : `${params.productSlug} — ${params.slug} | ${suffix}`;
-    const description = seoDesc?.trim() ?? stripTags(pick(p?.short_description_ar, p?.short_description_en, isAr) ?? pick(p?.long_description_ar, p?.long_description_en, isAr)) ?? (isAr
+    const description = seoDesc?.trim() ?? stripTags(lv(p?.short_description_ar, p?.short_description_en, isAr) ?? lv(p?.long_description_ar, p?.long_description_en, isAr)) ?? (isAr
       ? `صفحة المنتج ${params.productSlug} من علامة ${params.slug}.`
       : `Product page for ${params.productSlug} from ${params.slug}.`);
     const image = p?.cover_url ?? undefined;
@@ -86,20 +86,24 @@ export const Route = createFileRoute("/$lang/brands/$slug/$productSlug")({
                 name: pname,
                 description,
                 ...(image
-                  ? {
-                      image: [image],
-                      ...(p.gallery && p.gallery.length > 0
-                        ? {
-                            subjectOf: {
-                              "@type": "ImageObject",
-                              contentUrl: image,
-                              caption: productCaption(params.slug, bname, pname, isAr ? "ar" : "en"),
-                              description: productAlt(params.slug, bname, pname, isAr ? "ar" : "en"),
-                            },
-                          }
-                        : {}),
-                    }
+                  ? (() => {
+                      const coverCaption = lv(p.cover_caption_ar, p.cover_caption_en, isAr);
+                      return {
+                        image: (p.images ?? []).map((i) => i.url).filter(Boolean).slice(0, 6),
+                        ...(coverCaption
+                          ? {
+                              subjectOf: {
+                                "@type": "ImageObject",
+                                contentUrl: image,
+                                caption: coverCaption,
+                                description: productAlt(params.slug, bname, pname, isAr ? "ar" : "en"),
+                              },
+                            }
+                          : {}),
+                      };
+                    })()
                   : {}),
+
                 brand: { "@type": "Brand", name: bname },
                 url,
               }),
