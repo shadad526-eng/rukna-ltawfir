@@ -339,17 +339,31 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
     })),
   );
 
+  // product_assets holds the cover caption row first (when a cover exists),
+  // followed by the gallery rows in their edited order.
+  const coverRow = d.cover_asset_id
+    ? [{
+        ...(d.cover_row_id ? { id: d.cover_row_id } : {}),
+        asset_id: d.cover_asset_id,
+        caption_ar: nullable(d.cover_caption_ar),
+        caption_en: nullable(d.cover_caption_en),
+      }]
+    : [];
   await syncChildren(
     "product_assets",
     productId!,
-    d.gallery
-      .filter((g) => g.asset_id)
-      .map((g) => ({
-        ...(g.id ? { id: g.id } : {}),
-        asset_id: g.asset_id,
-        caption_ar: nullable(g.caption_ar),
-        caption_en: nullable(g.caption_en),
-      })),
+    [
+      ...coverRow,
+      ...d.gallery
+        .filter((g) => g.asset_id && g.asset_id !== d.cover_asset_id)
+        .map((g) => ({
+          ...(g.id && g.id !== d.cover_row_id ? { id: g.id } : {}),
+          asset_id: g.asset_id,
+          caption_ar: nullable(g.caption_ar),
+          caption_en: nullable(g.caption_en),
+        })),
+    ],
+
   );
 
   await syncChildren(
