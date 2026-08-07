@@ -11,11 +11,18 @@ import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt, brandLogoAlt, productCaption } from "@/lib/seo-alt";
 import { RichText } from "@/components/site/RichText";
 
+/** Strict language read: the active language only, no cross-language fallback. */
+function lv(ar: string | null | undefined, en: string | null | undefined, isAr: boolean) {
+  const v = isAr ? ar : en;
+  return v && String(v).trim() ? v : null;
+}
+
 /** Prefers the active-language value, falling back to the other language. */
 function pick(ar: string | null | undefined, en: string | null | undefined, isAr: boolean) {
   const primary = isAr ? ar : en;
   return (primary && String(primary).trim()) ? primary : (isAr ? en : ar) ?? null;
 }
+
 
 function stripTags(v: string | null | undefined): string | null {
   if (!v) return null;
