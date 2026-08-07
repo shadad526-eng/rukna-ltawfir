@@ -161,7 +161,13 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
   if (error) throw error;
   if (!p) throw new Error("المنتج غير موجود");
 
+  // The product_assets row that points at the cover asset carries the cover
+  // caption; everything else is the gallery.
+  const assetRows: any[] = gallery.data ?? [];
+  const coverRow = p.cover_asset_id ? assetRows.find((g) => g.asset_id === p.cover_asset_id) ?? null : null;
+
   return {
+
     id: p.id,
     brand_id: p.brand_id ?? null,
     category_id: p.category_id ?? null,
