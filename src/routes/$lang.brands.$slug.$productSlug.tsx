@@ -243,14 +243,13 @@ function ProductDetailPage() {
           </div>
           <h1 className="mt-4 font-arabic text-3xl font-bold text-foreground md:text-4xl">{pname}</h1>
           <div className="mt-1 text-sm font-medium uppercase tracking-wide text-muted-foreground">{isAr ? p.name_en : p.name_ar}</div>
-          {pick(p.short_description_ar, p.short_description_en, isAr) ? (
-            <RichText as="div" className="mt-4 text-base leading-loose text-foreground/80"
-              value={pick(p.short_description_ar, p.short_description_en, isAr)} />
+          {shortDesc ? (
+            <RichText as="div" className="mt-4 text-base leading-loose text-foreground/80" value={shortDesc} />
           ) : null}
 
-          {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).length > 0 ? (
+          {benefits.length > 0 ? (
             <ul className="mt-5 space-y-2.5">
-              {(isAr ? p.key_benefits_ar : (p.key_benefits_en.length ? p.key_benefits_en : p.key_benefits_ar)).map((b) => (
+              {benefits.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-foreground/85">
                   <span className="mt-1.5 inline-block size-1.5 rounded-full" style={{ background: accent }} />
                   {b}
@@ -279,13 +278,16 @@ function ProductDetailPage() {
             >
               {t("product.askAbout")}
             </WhatsAppCTA>
-            <LLink
-              to="/$lang/catalogs"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              {t("product.viewCatalog")}
-            </LLink>
+            {p.has_brand_catalog ? (
+              <LLink
+                to="/$lang/catalogs"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                {t("product.viewCatalog")}
+              </LLink>
+            ) : null}
           </div>
+
 
           <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
             {t("product.pricingNotice")}
