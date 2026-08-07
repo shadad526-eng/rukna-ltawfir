@@ -251,7 +251,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
                 </Field>
               </div>
 
-              <div className="mt-4">
+              <div className="mt-4 space-y-4">
                 <Field label="صورة الغلاف">
                   <AssetBox
                     url={draft.cover_asset_id ? assetUrls[draft.cover_asset_id] : null}
@@ -260,7 +260,20 @@ export function ProductEditor({ productId }: { productId?: string }) {
                     onClear={() => patch({ cover_asset_id: null })}
                   />
                 </Field>
+                {draft.cover_asset_id ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="تعليق صورة الغلاف (AR)" hint="يظهر أسفل الصورة في الصفحة العامة. اتركه فارغاً لإخفائه.">
+                      <input className={input} value={draft.cover_caption_ar ?? ""}
+                        onChange={(e) => patch({ cover_caption_ar: e.target.value })} />
+                    </Field>
+                    <Field label="Cover caption (EN)" hint="Shown under the image on the English page. Leave empty to hide.">
+                      <input className={input} dir="ltr" value={draft.cover_caption_en ?? ""}
+                        onChange={(e) => patch({ cover_caption_en: e.target.value })} />
+                    </Field>
+                  </div>
+                ) : null}
               </div>
+
             </Card>
           )}
 
