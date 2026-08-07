@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
-import { productAlt, brandLogoAlt, productCaption } from "@/lib/seo-alt";
+import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
 import { RichText } from "@/components/site/RichText";
 
 /** Strict language read: the active language only, no cross-language fallback. */
