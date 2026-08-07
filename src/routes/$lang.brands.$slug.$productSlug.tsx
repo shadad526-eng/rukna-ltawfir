@@ -147,14 +147,21 @@ function ProductDetailPage() {
   const { data: p } = useSuspenseQuery(productQO(params.slug, params.productSlug));
   const { data: brandProducts } = useSuspenseQuery(brandProductsQO(params.slug));
   const ident = useLocalizedIdentity(id);
-  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   if (!p) return null;
   const related = brandProducts.filter((x) => x.slug !== p.slug).slice(0, 4);
 
   const accent = p.brand.brand_tokens.accent ?? "var(--leaf-500)";
-  const hero = activeImage ?? p.cover_url;
+  const images = (p.images ?? []).filter((i) => i.url);
+  const active = images[activeIndex] ?? images[0] ?? null;
+  const activeCaption = active ? lv(active.caption_ar, active.caption_en, isAr) : null;
   const pname = isAr ? p.name_ar : p.name_en;
   const bname = pick(p.brand.name_ar, p.brand.name_en, isAr) ?? p.brand.name_ar;
+  const shortDesc = lv(p.short_description_ar, p.short_description_en, isAr);
+  const longDesc = lv(p.long_description_ar, p.long_description_en, isAr);
+  const usage = lv(p.usage_instructions_ar, p.usage_instructions_en, isAr);
+  const benefits = isAr ? p.key_benefits_ar : p.key_benefits_en;
+
 
   return (
     <div className="min-h-screen bg-background">
