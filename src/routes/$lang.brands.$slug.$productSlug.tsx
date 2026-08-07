@@ -359,8 +359,7 @@ function ProductDetailPage() {
         </div>
       </section>
 
-        </div>
-      </section>
+
 
       {related.length > 0 ? (
         <section className="border-t border-border bg-card">
