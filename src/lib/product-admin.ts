@@ -71,6 +71,10 @@ export type ProductDraft = {
   key_benefits_ar: string[];
   key_benefits_en: string[];
   cover_asset_id: string | null;
+  /** id of the product_assets row that carries the cover caption (if any) */
+  cover_row_id?: string | null;
+  cover_caption_ar: string | null;
+  cover_caption_en: string | null;
   is_published: boolean;
   sort_order: number;
   seo_title_ar: string | null;
@@ -83,6 +87,7 @@ export type ProductDraft = {
   nutrition: NutritionDraft[];
   faqs: FaqDraft[];
 };
+
 
 export function emptyProduct(): ProductDraft {
   return {
