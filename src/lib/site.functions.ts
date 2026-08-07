@@ -299,7 +299,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     if (error) throw error;
     if (!p) return null;
 
-    const [cover_url, brandLogo, variants, gallery, ingredients, nutrition, faqs] = await Promise.all([
+    const [cover_url, brandLogo, variants, gallery, ingredients, nutrition, faqs, brandCatalogs] = await Promise.all([
       assetUrl(p.cover_asset_id),
       assetUrl(brand.logo_asset_id),
       supabase
@@ -310,7 +310,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .order("sort_order", { ascending: true }),
       supabase
         .from("product_assets")
-        .select("caption_ar, caption_en, sort_order, assets:asset_id ( storage_bucket, storage_path )")
+        .select("asset_id, caption_ar, caption_en, sort_order, assets:asset_id ( storage_bucket, storage_path )")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
       supabase
@@ -328,6 +328,12 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .select("question_ar, answer_ar, question_en, answer_en, sort_order")
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("catalogs")
+        .select("id")
+        .eq("brand_id", brand.id)
+        .eq("is_published", true)
+        .limit(1),
     ]);
 
     const variantsOut = await Promise.all(
@@ -340,15 +346,35 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         cover_url: await assetUrl(v.cover_asset_id),
       })),
     );
-    const galleryOut = await Promise.all(
-      ((gallery.data ?? []) as Array<{ caption_ar: string | null; caption_en: string | null; assets: { storage_bucket: string; storage_path: string } | null }>).map(
-        async (g) => ({
+    type AssetRow = {
+      asset_id: string;
+      caption_ar: string | null;
+      caption_en: string | null;
+      assets: { storage_bucket: string; storage_path: string } | null;
+    };
+    const assetRows = (gallery.data ?? []) as unknown as AssetRow[];
+    const resolvedRows = (
+      await Promise.all(
+        assetRows.map(async (g) => ({
+          asset_id: g.asset_id,
           caption_ar: g.caption_ar,
           caption_en: g.caption_en ?? null,
           url: g.assets ? (await signedUrl(g.assets.storage_bucket, g.assets.storage_path)) ?? "" : "",
-        }),
-      ),
-    );
+        })),
+      )
+    ).filter((g) => g.url); // ignore broken / unresolved asset records
+
+    const coverRow = p.cover_asset_id ? resolvedRows.find((g) => g.asset_id === p.cover_asset_id) ?? null : null;
+    const galleryOut = resolvedRows
+      .filter((g) => !p.cover_asset_id || g.asset_id !== p.cover_asset_id)
+      .map(({ url, caption_ar, caption_en }) => ({ url, caption_ar, caption_en }));
+    const imagesOut = [
+      ...(cover_url
+        ? [{ url: cover_url, caption_ar: coverRow?.caption_ar ?? null, caption_en: coverRow?.caption_en ?? null }]
+        : []),
+      ...galleryOut,
+    ];
+
 
     return {
       id: p.id,
