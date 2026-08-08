@@ -64,7 +64,7 @@ function Dashboard() {
           <p className="text-sm text-slate-400 mt-1">نظرة عامة مباشرة على المحتوى والطلبات والنشاط</p>
         </div>
         <div className="flex gap-2">
-          <Link to="/admin/e/$entity" params={{ entity: "products" }} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm">+ منتج جديد</Link>
+          <Link to="/admin/products/new" className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm">+ منتج جديد</Link>
           <Link to="/admin/e/$entity" params={{ entity: "insights" }} className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">+ مقال جديد</Link>
         </div>
       </header>
@@ -77,9 +77,8 @@ function Dashboard() {
           const cfg = ENTITIES.find((e) => e.table === k);
           const Icon = CARD_ICONS[k] ?? FileText;
           const v = stats?.[k] ?? 0;
-          return (
-            <Link key={k} to="/admin/e/$entity" params={{ entity: cfg?.key ?? k }}
-              className="group bg-gradient-to-br from-slate-900 to-slate-900/50 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-5 transition-colors">
+          const card = (
+            <>
               <div className="flex items-center justify-between">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center">
                   <Icon className="w-5 h-5" />
@@ -90,6 +89,17 @@ function Dashboard() {
                 <div className="text-3xl font-bold">{v.toLocaleString("ar-EG")}</div>
                 <div className="text-sm text-slate-400 mt-1">{cfg?.label ?? k}</div>
               </div>
+            </>
+          );
+          const className = "group bg-gradient-to-br from-slate-900 to-slate-900/50 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-5 transition-colors";
+          return k === "products" ? (
+            <Link key={k} to="/admin/products" className={className}>
+              {card}
+            </Link>
+          ) : (
+            <Link key={k} to="/admin/e/$entity" params={{ entity: cfg?.key ?? k }}
+              className={className}>
+              {card}
             </Link>
           );
         })}
@@ -123,7 +133,13 @@ function Dashboard() {
             {["brands", "products", "insights", "catalogs", "certifications", "navigation_items"].map((k) => {
               const cfg = ENTITIES.find((e) => e.key === k);
               const Icon = CARD_ICONS[k] ?? FileText;
-              return (
+              return k === "products" ? (
+                <Link key={k} to="/admin/products"
+                  className="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-sm">
+                  <Icon className="w-4 h-4 text-emerald-400" />
+                  <span className="truncate">{cfg?.label ?? k}</span>
+                </Link>
+              ) : (
                 <Link key={k} to="/admin/e/$entity" params={{ entity: k }}
                   className="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-sm">
                   <Icon className="w-4 h-4 text-emerald-400" />
