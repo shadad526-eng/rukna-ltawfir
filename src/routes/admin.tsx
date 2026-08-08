@@ -62,9 +62,10 @@ function AdminShell() {
   if (!isSuper) return null;
 
   const groups = Array.from(new Set(ENTITIES.map((e) => e.group)));
+  const genericEntities = ENTITIES.filter((e) => e.key !== "products" && e.key !== "product_variants");
   const filteredEntities = query
-    ? ENTITIES.filter((e) => e.label.includes(query) || e.key.includes(query.toLowerCase()))
-    : ENTITIES;
+    ? genericEntities.filter((e) => e.label.includes(query) || e.key.includes(query.toLowerCase()))
+    : genericEntities;
 
   return (
     <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 flex" style={{ fontFamily: "'IBM Plex Sans Arabic', system-ui, sans-serif" }}>

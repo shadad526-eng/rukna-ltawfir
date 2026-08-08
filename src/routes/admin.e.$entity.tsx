@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,7 +76,15 @@ function asStringArray(v: any): string[] {
 
 
 
-export const Route = createFileRoute("/admin/e/$entity")({ ssr: false, component: EntityPage });
+export const Route = createFileRoute("/admin/e/$entity")({
+  ssr: false,
+  beforeLoad: ({ params }) => {
+    if (params.entity === "products" || params.entity === "product_variants") {
+      throw redirect({ to: "/admin/products", replace: true });
+    }
+  },
+  component: EntityPage,
+});
 
 const PAGE_SIZE = 25;
 

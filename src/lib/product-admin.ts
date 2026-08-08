@@ -159,6 +159,8 @@ export async function loadProduct(id: string): Promise<ProductDraft> {
     db.from("product_faqs").select("*").eq("product_id", id).order("sort_order", { ascending: true }),
   ]);
   if (error) throw error;
+  const relatedError = variants.error ?? gallery.error ?? ingredients.error ?? nutrition.error ?? faqs.error;
+  if (relatedError) throw relatedError;
   if (!p) throw new Error("المنتج غير موجود");
 
   // The product_assets row that points at the cover asset carries the cover
@@ -267,7 +269,7 @@ async function syncChildren(
   const keepIds = rows.map((r) => r.id).filter(Boolean) as string[];
   let del = db.from(table).delete().eq("product_id", productId);
   if (keepIds.length) del = del.not("id", "in", `(${keepIds.map((i) => `"${i}"`).join(",")})`);
-  const { error: delErr } = await del;
+  const { error: delErr } = await del.select("id");
   if (delErr) throw delErr;
 
   if (!rows.length) return;
@@ -276,12 +278,14 @@ async function syncChildren(
   const withoutId = payload.map((r) => { const { id, ...rest } = r; return r.id ? null : rest; }).filter(Boolean) as any[];
 
   if (withId.length) {
-    const { error } = await db.from(table).upsert(withId, { onConflict: "id" });
+    const { data, error } = await db.from(table).upsert(withId, { onConflict: "id" }).select("id");
     if (error) throw error;
+    if (!data || data.length !== withId.length) throw new Error(`تعذّر التحقق من حفظ بيانات ${table}`);
   }
   if (withoutId.length) {
-    const { error } = await db.from(table).insert(withoutId);
+    const { data, error } = await db.from(table).insert(withoutId).select("id");
     if (error) throw error;
+    if (!data || data.length !== withoutId.length) throw new Error(`تعذّر التحقق من إضافة بيانات ${table}`);
   }
 }
 
@@ -312,17 +316,20 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
 
   let productId = d.id;
   if (productId) {
-    const { error } = await db.from("products").update(base).eq("id", productId);
+    const { data, error } = await db.from("products").update(base).eq("id", productId).select("id").maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error("لم يتم حفظ المنتج — تحقّق من صلاحيات الحساب");
   } else {
     const { data, error } = await db.from("products").insert(base).select("id").single();
     if (error) throw error;
     productId = data.id as string;
   }
 
+  if (!productId) throw new Error("تعذّر تحديد المنتج بعد الحفظ");
+
   await syncChildren(
     "product_variants",
-    productId!,
+    productId,
     d.variants.map((v, i) => ({
       ...(v.id ? { id: v.id } : {}),
       slug: slugify(v.slug) || `${base.slug}-${i + 1}`,
@@ -351,7 +358,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
     : [];
   await syncChildren(
     "product_assets",
-    productId!,
+    productId,
     [
       ...coverRow,
       ...d.gallery
@@ -368,7 +375,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
 
   await syncChildren(
     "product_ingredients",
-    productId!,
+    productId,
     d.ingredients
       .filter((i) => str(i.name_ar).trim())
       .map((i) => ({
@@ -385,7 +392,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
 
   await syncChildren(
     "product_nutrition",
-    productId!,
+    productId,
     d.nutrition
       .filter((n) => str(n.label_ar).trim())
       .map((n) => ({
@@ -399,7 +406,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
 
   await syncChildren(
     "product_faqs",
-    productId!,
+    productId,
     d.faqs
       .filter((f) => str(f.question_ar).trim())
       .map((f) => ({
@@ -411,5 +418,5 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
       })),
   );
 
-  return productId!;
+  return productId;
 }
