@@ -77,7 +77,7 @@ function PartnersPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("partners.eyebrow"))}</div>
           <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {T("hero.title", t("partners.title"))}
+            <RichText value={R("hero.title", t("partners.title"))} />
           </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
           <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
@@ -93,7 +93,7 @@ function PartnersPage() {
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-8">
         <div className="hq-eyebrow">{T("tiers.eyebrow", t("partners.channelsEyebrow"))}</div>
         <StyledHeading heading={H("tiers.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-          {T("tiers.title", t("partners.channelsTitle"))}
+          <RichText value={R("tiers.title", t("partners.channelsTitle"))} />
         </StyledHeading>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {tiers.map((tier: any, i: number) => (
@@ -111,7 +111,7 @@ function PartnersPage() {
           <div>
             <div className="hq-eyebrow">{T("why.eyebrow", t("partners.whyEyebrow"))}</div>
             <StyledHeading heading={H("why.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-              {T("why.title", t("partners.whyTitle"))}
+              <RichText value={R("why.title", t("partners.whyTitle"))} />
             </StyledHeading>
             <ul className="mt-7 space-y-4">
               {advantagesArr.map((a: any, i: number) => (
@@ -125,7 +125,7 @@ function PartnersPage() {
           <div className="glass rounded-3xl p-8 md:p-10">
             <div className="hq-eyebrow">{T("channel.eyebrow", t("partners.channelEyebrow"))}</div>
             <StyledHeading heading={H("channel.title")} level={3} className="mt-3 font-arabic text-2xl font-bold text-foreground">
-              {T("channel.title", t("partners.channelTitle"))}
+              <RichText value={R("channel.title", t("partners.channelTitle"))} />
             </StyledHeading>
             <RichText as="p" className="mt-3 text-sm leading-loose text-ink-600" value={R("channel.desc", t("partners.channelDesc"))} />
             <div className="mt-6 rounded-2xl border border-border bg-card p-5">

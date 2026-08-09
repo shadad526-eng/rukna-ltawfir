@@ -82,7 +82,7 @@ function BranchesPage() {
             level={1}
             className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl"
           >
-            {isAr ? B.title_ar : B.title_en}
+            <RichText value={R("hero.title", isAr ? B.title_ar : B.title_en)} />
           </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
           <RichText

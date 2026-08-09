@@ -108,7 +108,7 @@ function ContactPage() {
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="hq-eyebrow">{T("hero.eyebrow", t("contact.eyebrow"))}</div>
           <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">
-            {T("hero.title", t("contact.title"))}
+            <RichText value={R("hero.title", t("contact.title"))} />
           </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
           <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg"
@@ -167,7 +167,7 @@ function ContactPage() {
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
             <div className="hq-eyebrow">{T("branches.eyebrow", isAr ? "شبكة الفروع" : "Branch network")}</div>
             <StyledHeading heading={H("branches.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-              {T("branches.title", isAr ? "فروعنا وعناويننا" : "Our branches and addresses")}
+              <RichText value={R("branches.title", isAr ? "فروعنا وعناويننا" : "Our branches and addresses")} />
             </StyledHeading>
             <RichText as="p" className="mt-4 max-w-3xl text-sm leading-loose text-ink-600"
               value={R(
@@ -215,7 +215,7 @@ function ContactPage() {
           <div>
             <div className="hq-eyebrow">{T("form.eyebrow", t("contact.formEyebrow"))}</div>
             <StyledHeading heading={H("form.title")} level={2} className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-              {T("form.title", t("contact.formTitle"))}
+              <RichText value={R("form.title", t("contact.formTitle"))} />
             </StyledHeading>
             <RichText as="p" className="mt-4 text-sm leading-loose text-ink-600" value={R("form.desc", t("contact.formDesc"))} />
           </div>
