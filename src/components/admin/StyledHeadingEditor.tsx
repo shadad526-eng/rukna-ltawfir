@@ -34,7 +34,8 @@ export function StyledHeadingEditor({ value, onChange, dir = "rtl", placeholder 
   const h = toHeading(value);
   const ref = useRef<HTMLDivElement>(null);
   const [colorOpen, setColorOpen] = useState(false);
-  const lastHtml = useRef<string>(h.html ?? "");
+  // Starts null so the first render always injects the stored value into the editor.
+  const lastHtml = useRef<string | null>(null);
 
   useEffect(() => {
     const incoming = h.html ?? "";

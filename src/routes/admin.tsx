@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ENTITIES } from "@/lib/admin-entities";
+import { CONTENT_PAGE_LABELS } from "@/lib/page-content";
 import ruknLogo from "@/assets/brands/rukn.json";
 import {
   LayoutDashboard, Users, Image as ImageIcon, LogOut,
@@ -100,6 +101,19 @@ function AdminShell() {
           <SidebarLink to="/admin/products" icon={Package} label="مساحة عمل المنتجات" />
           <SidebarLink to="/admin/users" icon={Users} label="المدراء والصلاحيات" />
           <SidebarLink to="/admin/media" icon={ImageIcon} label="مكتبة الوسائط" />
+
+          <div className="mt-4">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">صفحات الشركة</div>
+            {(Object.keys(CONTENT_PAGE_LABELS) as (keyof typeof CONTENT_PAGE_LABELS)[]).map((slug) => (
+              <SidebarLink
+                key={slug}
+                to="/admin/pages/$slug"
+                params={{ slug }}
+                icon={Globe}
+                label={CONTENT_PAGE_LABELS[slug]}
+              />
+            ))}
+          </div>
 
           {groups.map((g) => {
             const items = filteredEntities.filter((e) => e.group === g);
