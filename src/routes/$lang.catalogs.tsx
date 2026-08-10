@@ -94,11 +94,13 @@ function CatalogsHub() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {catalogs.map((c) => {
               const vis = visibilityMap[c.visibility];
+              const title = isAr ? c.title_ar : c.title_en || c.title_ar;
+              const desc = isAr ? c.description_ar : c.description_en || c.description_ar;
               return (
                 <article key={c.id} className="prem-card group flex h-full flex-col overflow-hidden">
                   <div className="podium relative flex aspect-[3/4] items-center justify-center border-b border-border/70 p-6">
                     {c.cover_url ? (
-                      <img src={c.cover_url} alt={c.title_ar} data-content-image="" className="size-full cursor-zoom-in object-contain transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
+                      <img src={c.cover_url} alt={title} data-content-image="" className="size-full cursor-zoom-in object-contain transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
                     ) : (
                       <span className="text-xs text-muted-foreground">{t("catalogs.coverFallback")}</span>
                     )}
@@ -108,15 +110,23 @@ function CatalogsHub() {
                     <span className={`inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${vis.tone}`}>
                       {vis.label}
                     </span>
-                    <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{c.title_ar}</h3>
+                    <h3 className="mt-3 font-arabic text-lg font-bold text-foreground">{title}</h3>
                     {c.brand_name_ar ? (
                       <div className="mt-1 text-xs text-muted-foreground">{c.brand_name_ar}{c.year ? ` · ${c.year}` : ""}</div>
                     ) : c.year ? (
                       <div className="mt-1 text-xs text-muted-foreground">{c.year}</div>
                     ) : null}
-                    {c.description_ar ? (
-                      <p className="mt-3 line-clamp-3 text-sm leading-loose text-ink-600">{c.description_ar}</p>
+                    {desc ? (
+                      <p className="mt-3 line-clamp-3 text-sm leading-loose text-ink-600">{desc}</p>
                     ) : null}
+                    {c.languages.length ? (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {c.languages.map((l) => (
+                          <span key={l} className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-ink-600">{l}</span>
+                        ))}
+                      </div>
+                    ) : null}
+
 
                     <div className="mt-auto pt-5">
                       {c.visibility === "public" && c.pdf_url ? (
