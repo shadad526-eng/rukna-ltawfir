@@ -135,20 +135,13 @@ function ContactPage() {
             </div>
             <ul className="mt-2 space-y-2">
               {emails.length === 0 && <li className="text-sm text-ink-600">—</li>}
-              {emails.map((e: any, i: number) => {
-                const value = typeof e?.value === "string" ? e.value : "";
-                const label = itemText(e, "label", lang);
-                return (
-                  <li key={`${value}-${i}`} className="text-sm leading-relaxed text-ink-600">
-                    {label && <span className="block text-[11px] text-muted-foreground">{label}</span>}
-                    {value ? (
-                      <a href={`mailto:${value}`} dir="ltr" className="break-all font-medium text-trust-700 hover:underline">
-                        {value}
-                      </a>
-                    ) : "—"}
-                  </li>
-                );
-              })}
+              {emails.map((value, i) => (
+                <li key={`${value}-${i}`} className="text-sm leading-relaxed text-ink-600">
+                  <a href={`mailto:${value}`} dir="ltr" className="break-all font-medium text-trust-700 hover:underline">
+                    {value}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -157,7 +150,7 @@ function ContactPage() {
             <div className="mt-2 font-arabic text-lg font-bold text-foreground">
               {T("cards.addressTitle", t("contact.cards.addressT"))}
             </div>
-            <RichText as="div" className="mt-2 text-sm leading-relaxed text-ink-600 break-words" value={headquartersAddress} />
+            <div className="mt-2 text-sm leading-relaxed text-ink-600 break-words">{headquartersAddress}</div>
           </div>
         </div>
       </section>
