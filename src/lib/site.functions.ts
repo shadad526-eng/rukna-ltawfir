@@ -184,7 +184,7 @@ export const getBrandBySlug = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("brands")
       .select(
-        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
+        "id, slug, name_ar, name_en, tagline_ar, tagline_en, description_ar, description_en, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
       )
       .eq("slug", data.slug)
       .eq("status", "active")
@@ -201,7 +201,9 @@ export const getBrandBySlug = createServerFn({ method: "GET" })
       name_ar: row.name_ar,
       name_en: row.name_en,
       tagline_ar: row.tagline_ar,
+      tagline_en: (row as any).tagline_en ?? null,
       description_ar: row.description_ar,
+      description_en: (row as any).description_en ?? null,
       is_partner: row.is_partner,
       sort_order: row.sort_order,
       brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
