@@ -121,6 +121,7 @@ type RefMaps = {
   products: Record<string, string>;
   articles: Record<string, string>;
   navItems: Record<string, string>;
+  certifications: Record<string, string>;
   assetUrls: Record<string, string>;
   assetInfo: Record<string, { name: string; mime: string | null }>;
 };
