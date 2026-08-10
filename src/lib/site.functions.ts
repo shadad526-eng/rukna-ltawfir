@@ -445,7 +445,7 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
   const { data, error } = await supabase
     .from("catalogs")
     .select(
-      "id, slug, title_ar, description_ar, year, visibility, cover_asset_id, pdf_asset_id, sort_order, brand:brand_id ( slug, name_ar )",
+      "id, slug, title_ar, title_en, description_ar, description_en, languages, year, visibility, cover_asset_id, pdf_asset_id, sort_order, brand:brand_id ( slug, name_ar )",
     )
     .eq("is_published", true)
     .order("sort_order", { ascending: true });
@@ -465,7 +465,10 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
         id: c.id as string,
         slug: c.slug as string,
         title_ar: c.title_ar as string,
+        title_en: (c.title_en as string | null) ?? null,
         description_ar: (c.description_ar as string | null) ?? null,
+        description_en: (c.description_en as string | null) ?? null,
+        languages: ((c.languages as string[] | null) ?? []).filter(Boolean),
         year: (c.year as number | null) ?? null,
         visibility: c.visibility as CatalogSummary["visibility"],
         brand_slug: brand?.slug ?? null,
