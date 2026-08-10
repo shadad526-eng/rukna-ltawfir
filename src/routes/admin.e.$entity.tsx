@@ -261,6 +261,8 @@ function EntityPage() {
     const payload: Record<string, any> = {};
     for (const f of cfg!.fields) {
       if (f.hidden) continue;
+      // Relationship stored in a join table, not a column on this row.
+      if (f.type === "certification_multi_ref") continue;
       let v = row[f.key];
 
       // Normalize empty → null
@@ -286,6 +288,12 @@ function EntityPage() {
         v = Array.isArray(v) ? v : asStringArray(v);
         if ((v as string[]).length === 0) v = null;
       }
+      // Language list is a NOT NULL array column — never send null.
+      if (f.type === "lang_multi") {
+        const langs = (Array.isArray(v) ? v : asStringArray(v)).filter((l) => l === "ar" || l === "en");
+        v = langs.length ? langs : ["ar"];
+      }
+
       if (f.type === "json" && typeof v === "string") {
         try { v = v.trim() ? JSON.parse(v) : null; }
         catch { errors[f.key] = "JSON غير صالح"; continue; }
