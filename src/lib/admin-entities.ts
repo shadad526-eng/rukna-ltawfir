@@ -289,6 +289,8 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_en", label: "Title (EN)", type: "text", fallbackFrom: "title_ar", hint: "اختياري — يُستخدم العنوان العربي تلقائياً إذا تُرك فارغاً." },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_ar", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
+      { key: "description_en", label: "Description (EN)", type: "textarea" },
+      { key: "languages", label: "لغات الكتالوج", type: "lang_multi", hint: "اللغات المتوفرة داخل ملف الكتالوج." },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref", hint: "اختر «عام» إذا لم يكن الكتالوج تابعاً لعلامة محددة." },
       { key: "cover_asset_id", label: "الغلاف", type: "asset", accept: "image" },
