@@ -115,7 +115,7 @@ export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("corporate_identity")
       .select(
-        "legal_name_ar, legal_name_en, parent_group_ar, hero_headline_ar, hero_sub_ar, whatsapp_number, email, address_ar, logo_asset_id",
+        "legal_name_ar, legal_name_en, parent_group_ar, parent_group_en, hero_headline_ar, hero_sub_ar, whatsapp_number, email, address_ar, address_en, logo_asset_id",
       )
       .eq("id", 1)
       .single();
@@ -125,11 +125,13 @@ export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
       legal_name_ar: data.legal_name_ar,
       legal_name_en: data.legal_name_en,
       parent_group_ar: data.parent_group_ar,
+      parent_group_en: (data as any).parent_group_en ?? null,
       hero_headline_ar: data.hero_headline_ar,
       hero_sub_ar: data.hero_sub_ar,
       whatsapp_number: data.whatsapp_number,
       email: data.email,
       address_ar: data.address_ar,
+      address_en: (data as any).address_en ?? null,
       logo_url,
     };
   },
@@ -141,7 +143,7 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("brands")
       .select(
-        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
+        "id, slug, name_ar, name_en, tagline_ar, tagline_en, description_ar, description_en, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
       )
       .eq("status", "active")
       .order("sort_order", { ascending: true });
@@ -159,7 +161,9 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
           name_ar: row.name_ar as string,
           name_en: row.name_en as string,
           tagline_ar: (row.tagline_ar as string | null) ?? null,
+          tagline_en: (row.tagline_en as string | null) ?? null,
           description_ar: (row.description_ar as string | null) ?? null,
+          description_en: (row.description_en as string | null) ?? null,
           is_partner: row.is_partner as boolean,
           sort_order: row.sort_order as number,
           brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
