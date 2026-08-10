@@ -306,19 +306,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("cards.emailHint", "وصف بطاقة البريد", "contact.cards.emailHint"),
         f("cards.addressTitle", "عنوان بطاقة المقر", "contact.cards.addressT"),
         f("cards.addressHint", "وصف بطاقة المقر", "contact.cards.addressHint"),
-        rich("cards.address", "نص العنوان المعروض", "", "عنوان المقر كما يظهر في البطاقة."),
       ],
-    },
-    {
-      key: "emails", label: "عناوين البريد الرسمية",
-      repeater: {
-        key: "emails.items", label: "قائمة البريد الإلكتروني",
-        hint: "تظهر داخل بطاقة البريد الإلكتروني في صفحة التواصل، وكل عنوان يفتح مباشرة عبر mailto.",
-        itemFields: [
-          { key: "label", label: "الوصف", ui: "text", bilingual: true },
-          { key: "value", label: "البريد الإلكتروني", ui: "text", bilingual: false },
-        ],
-      },
     },
     {
       key: "branches", label: "قسم الفروع",
