@@ -79,13 +79,13 @@ function ContactPage() {
     { label_ar: t("contact.subjects.catalog") },
     { label_ar: t("contact.subjects.support") },
   ]);
-  const emails = pickList<any>(c, "emails.items", id.email ? [{ label_ar: t("contact.cards.emailHint"), value: id.email }] : []);
-  // The headquarters address is administrator-controlled; until it is saved we
-  // keep rendering the value the page has always shown.
-  const legacyAddress = branches[0]
-    ? (isAr ? branches[0].address_ar : branches[0].address_en || branches[0].address_ar)
-    : (ident.address ?? t("contact.cards.fallbackAddress"));
-  const headquartersAddress = R("cards.address", legacyAddress ?? "");
+  // Official emails and the headquarters address come from corporate identity
+  // (single source of truth) so they are never duplicated in page content.
+  const emails = (id.email ?? "").split(/[,;\s]+/).map((e) => e.trim()).filter(Boolean);
+  const headquartersAddress =
+    (ident.address ?? "") ||
+    (branches[0] ? (isAr ? branches[0].address_ar : branches[0].address_en || branches[0].address_ar) : "") ||
+    t("contact.cards.fallbackAddress");
 
   const [subject, setSubject] = useState(t("contact.subjects.general"));
   const [name, setName] = useState("");
@@ -135,20 +135,13 @@ function ContactPage() {
             </div>
             <ul className="mt-2 space-y-2">
               {emails.length === 0 && <li className="text-sm text-ink-600">—</li>}
-              {emails.map((e: any, i: number) => {
-                const value = typeof e?.value === "string" ? e.value : "";
-                const label = itemText(e, "label", lang);
-                return (
-                  <li key={`${value}-${i}`} className="text-sm leading-relaxed text-ink-600">
-                    {label && <span className="block text-[11px] text-muted-foreground">{label}</span>}
-                    {value ? (
-                      <a href={`mailto:${value}`} dir="ltr" className="break-all font-medium text-trust-700 hover:underline">
-                        {value}
-                      </a>
-                    ) : "—"}
-                  </li>
-                );
-              })}
+              {emails.map((value, i) => (
+                <li key={`${value}-${i}`} className="text-sm leading-relaxed text-ink-600">
+                  <a href={`mailto:${value}`} dir="ltr" className="break-all font-medium text-trust-700 hover:underline">
+                    {value}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -157,7 +150,7 @@ function ContactPage() {
             <div className="mt-2 font-arabic text-lg font-bold text-foreground">
               {T("cards.addressTitle", t("contact.cards.addressT"))}
             </div>
-            <RichText as="div" className="mt-2 text-sm leading-relaxed text-ink-600 break-words" value={headquartersAddress} />
+            <div className="mt-2 text-sm leading-relaxed text-ink-600 break-words">{headquartersAddress}</div>
           </div>
         </div>
       </section>

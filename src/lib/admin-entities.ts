@@ -19,6 +19,8 @@ export type FieldType =
   | "brand_multi_ref"
   | "product_multi_ref"
   | "article_multi_ref"
+  | "certification_multi_ref"
+  | "lang_multi"
   | "page_fields";
 
 
@@ -88,14 +90,18 @@ export const ENTITIES: EntityConfig[] = [
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true, hint: "يُستخدم في رابط الصفحة. يُولَّد تلقائياً من الاسم الإنجليزي." },
       { key: "tagline_ar", label: "الشعار الفرعي (AR)", type: "text" },
+      { key: "tagline_en", label: "Tagline (EN)", type: "text" },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
+      { key: "description_en", label: "Description (EN)", type: "textarea" },
       { key: "is_partner", label: "علامة شريكة", type: "boolean" },
-      { key: "sort_order", label: "ترتيب العرض", type: "number" },
+      { key: "is_umbrella", label: "علامة مظلّة (Umbrella)", type: "boolean" },
+      { key: "sort_order", label: "ترتيب العرض", type: "number", hint: "يتحكّم بترتيب العلامة في كل الصفحات (الرئيسية، من نحن، العلامات)." },
       { key: "status", label: "الحالة", type: "select", options: [
         { value: "active", label: "منشور" }, { value: "draft", label: "مسودة" }, { value: "archived", label: "مؤرشف" },
       ] },
       { key: "logo_asset_id", label: "شعار العلامة", type: "asset" },
       { key: "hero_asset_id", label: "صورة الهيرو", type: "asset" },
+      { key: "__certifications", label: "الشهادات المرتبطة", type: "certification_multi_ref", hint: "تُدار من جدول الشهادات ويتم ربطها بالعلامة هنا." },
       { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json", advanced: true, hint: "إعدادات فنية متقدمة (ألوان مخصصة)." },
     ],
   },
@@ -181,6 +187,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_en", label: "Title (EN)", type: "text" },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true, hint: "يُولَّد تلقائياً من العنوان." },
       { key: "excerpt_ar", label: "المقتطف (AR)", type: "textarea" },
+      { key: "excerpt_en", label: "Excerpt (EN)", type: "textarea" },
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
@@ -282,6 +289,8 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_en", label: "Title (EN)", type: "text", fallbackFrom: "title_ar", hint: "اختياري — يُستخدم العنوان العربي تلقائياً إذا تُرك فارغاً." },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_ar", required: true },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
+      { key: "description_en", label: "Description (EN)", type: "textarea" },
+      { key: "languages", label: "لغات الكتالوج", type: "lang_multi", hint: "اللغات المتوفرة داخل ملف الكتالوج." },
       { key: "year", label: "السنة", type: "number" },
       { key: "brand_id", label: "العلامة", type: "brand_ref", hint: "اختر «عام» إذا لم يكن الكتالوج تابعاً لعلامة محددة." },
       { key: "cover_asset_id", label: "الغلاف", type: "asset", accept: "image" },
@@ -498,11 +507,15 @@ export const ENTITIES: EntityConfig[] = [
       { key: "legal_name_ar", label: "الاسم القانوني (AR)", type: "text", required: true },
       { key: "legal_name_en", label: "Legal Name (EN)", type: "text", required: true },
       { key: "parent_group_ar", label: "المجموعة الأم (AR)", type: "text" },
+      { key: "parent_group_en", label: "Parent group (EN)", type: "text" },
       { key: "hero_headline_ar", label: "عنوان الهيرو (AR)", type: "text" },
+      { key: "hero_headline_en", label: "Hero headline (EN)", type: "text" },
       { key: "hero_sub_ar", label: "العنوان الفرعي للهيرو (AR)", type: "textarea" },
-      { key: "whatsapp_number", label: "رقم واتساب", type: "text" },
-      { key: "email", label: "البريد الإلكتروني", type: "text" },
-      { key: "address_ar", label: "العنوان (AR)", type: "textarea" },
+      { key: "hero_sub_en", label: "Hero subtitle (EN)", type: "textarea" },
+      { key: "whatsapp_number", label: "رقم واتساب / الهاتف", type: "text", hint: "المصدر الوحيد لرقم واتساب في كل الموقع (بدون +967)." },
+      { key: "email", label: "البريد الإلكتروني", type: "text", hint: "المصدر الوحيد للبريد في كل الموقع. لعدة عناوين افصل بينها بفاصلة (,)." },
+      { key: "address_ar", label: "العنوان المعروض (AR)", type: "textarea", hint: "المصدر الوحيد لعنوان المقر في صفحة التواصل والتذييل." },
+      { key: "address_en", label: "Displayed address (EN)", type: "textarea" },
       { key: "logo_asset_id", label: "الشعار", type: "asset" },
     ],
   },

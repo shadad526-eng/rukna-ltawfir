@@ -121,6 +121,7 @@ type RefMaps = {
   products: Record<string, string>;
   articles: Record<string, string>;
   navItems: Record<string, string>;
+  certifications: Record<string, string>;
   assetUrls: Record<string, string>;
   assetInfo: Record<string, { name: string; mime: string | null }>;
 };
@@ -137,7 +138,7 @@ function EntityPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
+  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, certifications: {}, assetUrls: {}, assetInfo: {} });
   const [assetPickerFor, setAssetPickerFor] = useState<{ key: string; accept: "image" | "pdf" | "any" } | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -160,14 +161,15 @@ function EntityPage() {
 
   useEffect(() => { load(); setEditing(null); setPage(1); setQuery(""); }, [load, entity]);
 
-  // Load ref maps: brands, products, articles, nav items
+  // Load ref maps: brands, products, articles, nav items, certifications
   useEffect(() => {
     (async () => {
-      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }] = await Promise.all([
+      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }, { data: cs }] = await Promise.all([
         supabase.from("brands").select("id,name_ar").order("name_ar"),
         supabase.from("products").select("id,name_ar").order("name_ar").limit(500),
         supabase.from("insights").select("id,title_ar").order("title_ar").limit(500),
         supabase.from("navigation_items").select("id,label_ar,location").order("sort_order"),
+        supabase.from("certifications").select("id,name_ar").order("name_ar"),
       ]);
       const brands: Record<string, string> = {};
       (bs ?? []).forEach((b: any) => { brands[b.id] = b.name_ar; });
@@ -177,9 +179,28 @@ function EntityPage() {
       (arts ?? []).forEach((a: any) => { articles[a.id] = a.title_ar; });
       const navItems: Record<string, string> = {};
       (ns ?? []).forEach((n: any) => { navItems[n.id] = `${n.label_ar} · ${n.location}`; });
-      setRefs((r) => ({ ...r, brands, products, articles, navItems }));
+      const certifications: Record<string, string> = {};
+      (cs ?? []).forEach((c: any) => { certifications[c.id] = c.name_ar; });
+      setRefs((r) => ({ ...r, brands, products, articles, navItems, certifications }));
     })();
   }, []);
+
+  // Brand ⇄ certification links live in a join table; hydrate them into the form.
+  const editingId = editing && !Array.isArray(editing) ? (editing as any).id : null;
+  const editingCerts = editing ? (editing as any).__certifications : undefined;
+  useEffect(() => {
+    if (!cfg || cfg.table !== "brands" || !editingId || editingCerts !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("brand_certifications").select("certification_id").eq("brand_id", editingId);
+      if (cancelled) return;
+      setEditing((prev) => (prev && prev.id === editingId
+        ? { ...prev, __certifications: (data ?? []).map((r: any) => r.certification_id) }
+        : prev));
+    })();
+    return () => { cancelled = true; };
+  }, [cfg, editingId, editingCerts]);
+
 
 
   // Which asset columns show images?
@@ -240,6 +261,8 @@ function EntityPage() {
     const payload: Record<string, any> = {};
     for (const f of cfg!.fields) {
       if (f.hidden) continue;
+      // Relationship stored in a join table, not a column on this row.
+      if (f.type === "certification_multi_ref") continue;
       let v = row[f.key];
 
       // Normalize empty → null
@@ -265,6 +288,12 @@ function EntityPage() {
         v = Array.isArray(v) ? v : asStringArray(v);
         if ((v as string[]).length === 0) v = null;
       }
+      // Language list is a NOT NULL array column — never send null.
+      if (f.type === "lang_multi") {
+        const langs = (Array.isArray(v) ? v : asStringArray(v)).filter((l) => l === "ar" || l === "en");
+        v = langs.length ? langs : ["ar"];
+      }
+
       if (f.type === "json" && typeof v === "string") {
         try { v = v.trim() ? JSON.parse(v) : null; }
         catch { errors[f.key] = "JSON غير صالح"; continue; }
@@ -325,6 +354,28 @@ function EntityPage() {
         setErr(msg); toast.error(msg);
         return;
       }
+
+      // Sync the brand ⇄ certification join table after the row itself is saved.
+      if (cfg!.fields.some((f) => f.type === "certification_multi_ref")) {
+        const brandId = (data[0] as any)[pk] ?? row[pk];
+        const wanted = asStringArray(row.__certifications);
+        const { data: existing, error: readErr } = await supabase
+          .from("brand_certifications").select("id,certification_id").eq("brand_id", brandId);
+        if (readErr) { setErr(readErr.message); toast.error(readErr.message); return; }
+        const have = new Set((existing ?? []).map((r: any) => r.certification_id));
+        const toAdd = wanted.filter((id) => !have.has(id));
+        const toRemove = (existing ?? []).filter((r: any) => !wanted.includes(r.certification_id)).map((r: any) => r.id);
+        if (toRemove.length) {
+          const { error } = await supabase.from("brand_certifications").delete().in("id", toRemove);
+          if (error) { setErr(error.message); toast.error(error.message); return; }
+        }
+        if (toAdd.length) {
+          const { error } = await supabase.from("brand_certifications")
+            .insert(toAdd.map((certification_id) => ({ brand_id: brandId, certification_id })));
+          if (error) { setErr(error.message); toast.error(error.message); return; }
+        }
+      }
+
       toast.success(isNew ? "تم إنشاء العنصر بنجاح" : "تم حفظ التغييرات");
       setEditing(null);
       load();
@@ -695,11 +746,30 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
       </label>
     );
   }
-  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref") {
+  if (field.type === "lang_multi") {
+    const current: string[] = asStringArray(value).filter((l) => l === "ar" || l === "en");
+    const toggle = (l: string) =>
+      onChange(current.includes(l) ? current.filter((x) => x !== l) : [...current, l]);
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className="flex gap-4 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
+          {[{ v: "ar", l: "العربية" }, { v: "en", l: "English" }].map((o) => (
+            <label key={o.v} className="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input type="checkbox" checked={current.includes(o.v)} onChange={() => toggle(o.v)} className="accent-emerald-500 w-4 h-4" />
+              {o.l}
+            </label>
+          ))}
+        </div>
+        {hintEl}
+      </div>
+    );
+  }
+  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref" || field.type === "certification_multi_ref") {
     const source =
       field.type === "brand_multi_ref" ? refs.brands
         : field.type === "product_multi_ref" ? refs.products
-          : refs.articles;
+          : field.type === "certification_multi_ref" ? refs.certifications
+            : refs.articles;
     const current = asStringArray(value);
     const remaining = Object.entries(source).filter(([id]) => !current.includes(id));
     return (

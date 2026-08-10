@@ -306,19 +306,7 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
         f("cards.emailHint", "وصف بطاقة البريد", "contact.cards.emailHint"),
         f("cards.addressTitle", "عنوان بطاقة المقر", "contact.cards.addressT"),
         f("cards.addressHint", "وصف بطاقة المقر", "contact.cards.addressHint"),
-        rich("cards.address", "نص العنوان المعروض", "", "عنوان المقر كما يظهر في البطاقة."),
       ],
-    },
-    {
-      key: "emails", label: "عناوين البريد الرسمية",
-      repeater: {
-        key: "emails.items", label: "قائمة البريد الإلكتروني",
-        hint: "تظهر داخل بطاقة البريد الإلكتروني في صفحة التواصل، وكل عنوان يفتح مباشرة عبر mailto.",
-        itemFields: [
-          { key: "label", label: "الوصف", ui: "text", bilingual: true },
-          { key: "value", label: "البريد الإلكتروني", ui: "text", bilingual: false },
-        ],
-      },
     },
     {
       key: "branches", label: "قسم الفروع",
@@ -450,10 +438,9 @@ export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageC
   out["form.subjects"] = SUBJECT_KEYS.map((k) => ({
     label_ar: dig(AR, `contact.subjects.${k}`), label_en: dig(EN, `contact.subjects.${k}`),
   }));
-  out["emails.items"] = [
-    { label_ar: "البريد الرسمي", label_en: "Official email", value: "Info@algarademedpower.com" },
-    { label_ar: "إدارة العلاقات التجارية", label_en: "Business relations", value: "Mohammed@algarademedpower.com" },
-  ];
+  // Official emails and the headquarters address live in corporate identity —
+  // they are not duplicated as page content.
+
   out["branches.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
   out["branches.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
   out["branches.title_ar"] = BRANCHES_FALLBACK.title_ar;
@@ -487,10 +474,8 @@ export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageC
     out["hero.title_en"] = composeAboutTitle(seed?.legalNameEn ?? "", dig(EN, "about.titleSuffix"));
   }
 
-  if (slug === "contact") {
-    out["cards.address_ar"] = seed?.addressAr ?? "";
-    out["cards.address_en"] = seed?.addressEn ?? seed?.addressAr ?? "";
-  }
+
+
 
   // Only keep the keys that belong to this page.
   const allowed = new Set<string>();

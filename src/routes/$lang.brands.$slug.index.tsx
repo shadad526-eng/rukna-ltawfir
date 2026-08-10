@@ -362,8 +362,8 @@ function BrandDetail() {
             <h1 className="mt-4 font-arabic text-4xl font-bold leading-[1.05] text-foreground md:text-6xl">{brandName}</h1>
             <div className="mt-1 text-sm font-medium uppercase tracking-[0.18em] text-ink-600">{isAr ? brand.name_en : brand.name_ar}</div>
             <div className="mt-6 h-px w-24 prem-divider" />
-            {brand.tagline_ar ? (
-              <p className="mt-5 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">{brand.tagline_ar}</p>
+            {(isAr ? brand.tagline_ar : brand.tagline_en || brand.tagline_ar) ? (
+              <p className="mt-5 max-w-2xl text-base leading-loose text-ink-600 md:text-lg">{isAr ? brand.tagline_ar : brand.tagline_en || brand.tagline_ar}</p>
             ) : null}
             <div className="mt-7 flex flex-wrap gap-3">
               <WhatsAppCTA
@@ -385,7 +385,7 @@ function BrandDetail() {
         </div>
       </section>
 
-      {brand.description_ar ? (
+      {(isAr ? brand.description_ar : brand.description_en || brand.description_ar) ? (
         <section className="border-y border-border bg-card">
           <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-20">
             <div className="hq-eyebrow">{t("brand.storyEyebrow")}</div>
@@ -394,7 +394,7 @@ function BrandDetail() {
             </h2>
             <div className="mt-4 h-px w-16 prem-divider" />
             <p className="mt-6 text-[15px] leading-loose text-foreground/85 md:text-base">
-              {brand.description_ar}
+              {isAr ? brand.description_ar : brand.description_en || brand.description_ar}
             </p>
           </div>
         </section>

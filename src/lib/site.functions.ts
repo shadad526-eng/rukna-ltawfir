@@ -7,11 +7,13 @@ export type CorporateIdentity = {
   legal_name_ar: string;
   legal_name_en: string;
   parent_group_ar: string | null;
+  parent_group_en: string | null;
   hero_headline_ar: string;
   hero_sub_ar: string;
   whatsapp_number: string;
   email: string | null;
   address_ar: string | null;
+  address_en: string | null;
   logo_url: string | null;
 };
 
@@ -21,7 +23,9 @@ export type BrandSummary = {
   name_ar: string;
   name_en: string;
   tagline_ar: string | null;
+  tagline_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
   is_partner: boolean;
   sort_order: number;
   brand_tokens: Record<string, string>;
@@ -72,7 +76,10 @@ export type CatalogSummary = {
   id: string;
   slug: string;
   title_ar: string;
+  title_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
+  languages: string[];
   year: number | null;
   visibility: "public" | "restricted" | "b2b_only";
   brand_slug: string | null;
@@ -108,7 +115,7 @@ export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("corporate_identity")
       .select(
-        "legal_name_ar, legal_name_en, parent_group_ar, hero_headline_ar, hero_sub_ar, whatsapp_number, email, address_ar, logo_asset_id",
+        "legal_name_ar, legal_name_en, parent_group_ar, parent_group_en, hero_headline_ar, hero_sub_ar, whatsapp_number, email, address_ar, address_en, logo_asset_id",
       )
       .eq("id", 1)
       .single();
@@ -118,11 +125,13 @@ export const getCorporateIdentity = createServerFn({ method: "GET" }).handler(
       legal_name_ar: data.legal_name_ar,
       legal_name_en: data.legal_name_en,
       parent_group_ar: data.parent_group_ar,
+      parent_group_en: (data as any).parent_group_en ?? null,
       hero_headline_ar: data.hero_headline_ar,
       hero_sub_ar: data.hero_sub_ar,
       whatsapp_number: data.whatsapp_number,
       email: data.email,
       address_ar: data.address_ar,
+      address_en: (data as any).address_en ?? null,
       logo_url,
     };
   },
@@ -134,7 +143,7 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("brands")
       .select(
-        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
+        "id, slug, name_ar, name_en, tagline_ar, tagline_en, description_ar, description_en, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
       )
       .eq("status", "active")
       .order("sort_order", { ascending: true });
@@ -152,7 +161,9 @@ export const listBrands = createServerFn({ method: "GET" }).handler(
           name_ar: row.name_ar as string,
           name_en: row.name_en as string,
           tagline_ar: (row.tagline_ar as string | null) ?? null,
+          tagline_en: (row.tagline_en as string | null) ?? null,
           description_ar: (row.description_ar as string | null) ?? null,
+          description_en: (row.description_en as string | null) ?? null,
           is_partner: row.is_partner as boolean,
           sort_order: row.sort_order as number,
           brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
@@ -173,7 +184,7 @@ export const getBrandBySlug = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("brands")
       .select(
-        "id, slug, name_ar, name_en, tagline_ar, description_ar, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
+        "id, slug, name_ar, name_en, tagline_ar, tagline_en, description_ar, description_en, is_partner, sort_order, brand_tokens, logo_asset_id, hero_asset_id",
       )
       .eq("slug", data.slug)
       .eq("status", "active")
@@ -190,7 +201,9 @@ export const getBrandBySlug = createServerFn({ method: "GET" })
       name_ar: row.name_ar,
       name_en: row.name_en,
       tagline_ar: row.tagline_ar,
+      tagline_en: (row as any).tagline_en ?? null,
       description_ar: row.description_ar,
+      description_en: (row as any).description_en ?? null,
       is_partner: row.is_partner,
       sort_order: row.sort_order,
       brand_tokens: (row.brand_tokens as Record<string, string>) ?? {},
@@ -432,7 +445,7 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
   const { data, error } = await supabase
     .from("catalogs")
     .select(
-      "id, slug, title_ar, description_ar, year, visibility, cover_asset_id, pdf_asset_id, sort_order, brand:brand_id ( slug, name_ar )",
+      "id, slug, title_ar, title_en, description_ar, description_en, languages, year, visibility, cover_asset_id, pdf_asset_id, sort_order, brand:brand_id ( slug, name_ar )",
     )
     .eq("is_published", true)
     .order("sort_order", { ascending: true });
@@ -452,7 +465,10 @@ export const listCatalogs = createServerFn({ method: "GET" }).handler(async (): 
         id: c.id as string,
         slug: c.slug as string,
         title_ar: c.title_ar as string,
+        title_en: (c.title_en as string | null) ?? null,
         description_ar: (c.description_ar as string | null) ?? null,
+        description_en: (c.description_en as string | null) ?? null,
+        languages: ((c.languages as string[] | null) ?? []).filter(Boolean),
         year: (c.year as number | null) ?? null,
         visibility: c.visibility as CatalogSummary["visibility"],
         brand_slug: brand?.slug ?? null,
