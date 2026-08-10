@@ -7,11 +7,13 @@ export type CorporateIdentity = {
   legal_name_ar: string;
   legal_name_en: string;
   parent_group_ar: string | null;
+  parent_group_en: string | null;
   hero_headline_ar: string;
   hero_sub_ar: string;
   whatsapp_number: string;
   email: string | null;
   address_ar: string | null;
+  address_en: string | null;
   logo_url: string | null;
 };
 
@@ -21,7 +23,9 @@ export type BrandSummary = {
   name_ar: string;
   name_en: string;
   tagline_ar: string | null;
+  tagline_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
   is_partner: boolean;
   sort_order: number;
   brand_tokens: Record<string, string>;
@@ -72,7 +76,10 @@ export type CatalogSummary = {
   id: string;
   slug: string;
   title_ar: string;
+  title_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
+  languages: string[];
   year: number | null;
   visibility: "public" | "restricted" | "b2b_only";
   brand_slug: string | null;
