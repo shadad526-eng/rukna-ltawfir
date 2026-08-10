@@ -19,6 +19,8 @@ export type FieldType =
   | "brand_multi_ref"
   | "product_multi_ref"
   | "article_multi_ref"
+  | "certification_multi_ref"
+  | "lang_multi"
   | "page_fields";
 
 
@@ -88,14 +90,18 @@ export const ENTITIES: EntityConfig[] = [
       { key: "name_en", label: "Name (EN)", type: "text", required: true },
       { key: "slug", label: "المعرّف (Slug)", type: "slug", slugFrom: "name_en", required: true, hint: "يُستخدم في رابط الصفحة. يُولَّد تلقائياً من الاسم الإنجليزي." },
       { key: "tagline_ar", label: "الشعار الفرعي (AR)", type: "text" },
+      { key: "tagline_en", label: "Tagline (EN)", type: "text" },
       { key: "description_ar", label: "الوصف (AR)", type: "textarea" },
+      { key: "description_en", label: "Description (EN)", type: "textarea" },
       { key: "is_partner", label: "علامة شريكة", type: "boolean" },
-      { key: "sort_order", label: "ترتيب العرض", type: "number" },
+      { key: "is_umbrella", label: "علامة مظلّة (Umbrella)", type: "boolean" },
+      { key: "sort_order", label: "ترتيب العرض", type: "number", hint: "يتحكّم بترتيب العلامة في كل الصفحات (الرئيسية، من نحن، العلامات)." },
       { key: "status", label: "الحالة", type: "select", options: [
         { value: "active", label: "منشور" }, { value: "draft", label: "مسودة" }, { value: "archived", label: "مؤرشف" },
       ] },
       { key: "logo_asset_id", label: "شعار العلامة", type: "asset" },
       { key: "hero_asset_id", label: "صورة الهيرو", type: "asset" },
+      { key: "__certifications", label: "الشهادات المرتبطة", type: "certification_multi_ref", hint: "تُدار من جدول الشهادات ويتم ربطها بالعلامة هنا." },
       { key: "brand_tokens", label: "متغيرات العلامة (JSON)", type: "json", advanced: true, hint: "إعدادات فنية متقدمة (ألوان مخصصة)." },
     ],
   },
