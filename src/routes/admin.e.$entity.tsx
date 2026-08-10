@@ -138,7 +138,7 @@ function EntityPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, assetUrls: {}, assetInfo: {} });
+  const [refs, setRefs] = useState<RefMaps>({ brands: {}, products: {}, articles: {}, navItems: {}, certifications: {}, assetUrls: {}, assetInfo: {} });
   const [assetPickerFor, setAssetPickerFor] = useState<{ key: string; accept: "image" | "pdf" | "any" } | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -161,14 +161,15 @@ function EntityPage() {
 
   useEffect(() => { load(); setEditing(null); setPage(1); setQuery(""); }, [load, entity]);
 
-  // Load ref maps: brands, products, articles, nav items
+  // Load ref maps: brands, products, articles, nav items, certifications
   useEffect(() => {
     (async () => {
-      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }] = await Promise.all([
+      const [{ data: bs }, { data: ps }, { data: arts }, { data: ns }, { data: cs }] = await Promise.all([
         supabase.from("brands").select("id,name_ar").order("name_ar"),
         supabase.from("products").select("id,name_ar").order("name_ar").limit(500),
         supabase.from("insights").select("id,title_ar").order("title_ar").limit(500),
         supabase.from("navigation_items").select("id,label_ar,location").order("sort_order"),
+        supabase.from("certifications").select("id,name_ar").order("name_ar"),
       ]);
       const brands: Record<string, string> = {};
       (bs ?? []).forEach((b: any) => { brands[b.id] = b.name_ar; });
@@ -178,9 +179,28 @@ function EntityPage() {
       (arts ?? []).forEach((a: any) => { articles[a.id] = a.title_ar; });
       const navItems: Record<string, string> = {};
       (ns ?? []).forEach((n: any) => { navItems[n.id] = `${n.label_ar} · ${n.location}`; });
-      setRefs((r) => ({ ...r, brands, products, articles, navItems }));
+      const certifications: Record<string, string> = {};
+      (cs ?? []).forEach((c: any) => { certifications[c.id] = c.name_ar; });
+      setRefs((r) => ({ ...r, brands, products, articles, navItems, certifications }));
     })();
   }, []);
+
+  // Brand ⇄ certification links live in a join table; hydrate them into the form.
+  const editingId = editing && !Array.isArray(editing) ? (editing as any).id : null;
+  const editingCerts = editing ? (editing as any).__certifications : undefined;
+  useEffect(() => {
+    if (!cfg || cfg.table !== "brands" || !editingId || editingCerts !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("brand_certifications").select("certification_id").eq("brand_id", editingId);
+      if (cancelled) return;
+      setEditing((prev) => (prev && prev.id === editingId
+        ? { ...prev, __certifications: (data ?? []).map((r: any) => r.certification_id) }
+        : prev));
+    })();
+    return () => { cancelled = true; };
+  }, [cfg, editingId, editingCerts]);
+
 
 
   // Which asset columns show images?
