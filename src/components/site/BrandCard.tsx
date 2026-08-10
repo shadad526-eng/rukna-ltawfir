@@ -93,9 +93,9 @@ export function BrandCard({
           ) : null}
         </div>
 
-        {brand.tagline_ar ? (
+        {(isAr ? brand.tagline_ar : brand.tagline_en || brand.tagline_ar) ? (
           <p className={`mt-3 text-[13px] leading-loose text-ink-600 ${compact ? "line-clamp-2" : "line-clamp-3"}`}>
-            {brand.tagline_ar}
+            {isAr ? brand.tagline_ar : brand.tagline_en || brand.tagline_ar}
           </p>
         ) : null}
 
