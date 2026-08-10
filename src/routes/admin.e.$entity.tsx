@@ -747,7 +747,7 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
     );
   }
   if (field.type === "lang_multi") {
-    const current = asStringArray(value).filter((l) => l === "ar" || l === "en");
+    const current: string[] = asStringArray(value).filter((l) => l === "ar" || l === "en");
     const toggle = (l: string) =>
       onChange(current.includes(l) ? current.filter((x) => x !== l) : [...current, l]);
     return (
