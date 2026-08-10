@@ -746,11 +746,30 @@ function FieldInput({ field, value, onChange, refs, onOpenAssetPicker, error, sp
       </label>
     );
   }
-  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref") {
+  if (field.type === "lang_multi") {
+    const current = asStringArray(value).filter((l) => l === "ar" || l === "en");
+    const toggle = (l: string) =>
+      onChange(current.includes(l) ? current.filter((x) => x !== l) : [...current, l]);
+    return (
+      <div className="block text-sm space-y-1">{labelEl}
+        <div className="flex gap-4 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
+          {[{ v: "ar", l: "العربية" }, { v: "en", l: "English" }].map((o) => (
+            <label key={o.v} className="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input type="checkbox" checked={current.includes(o.v)} onChange={() => toggle(o.v)} className="accent-emerald-500 w-4 h-4" />
+              {o.l}
+            </label>
+          ))}
+        </div>
+        {hintEl}
+      </div>
+    );
+  }
+  if (field.type === "brand_multi_ref" || field.type === "product_multi_ref" || field.type === "article_multi_ref" || field.type === "certification_multi_ref") {
     const source =
       field.type === "brand_multi_ref" ? refs.brands
         : field.type === "product_multi_ref" ? refs.products
-          : refs.articles;
+          : field.type === "certification_multi_ref" ? refs.certifications
+            : refs.articles;
     const current = asStringArray(value);
     const remaining = Object.entries(source).filter(([id]) => !current.includes(id));
     return (
