@@ -187,6 +187,7 @@ export const ENTITIES: EntityConfig[] = [
       { key: "title_en", label: "Title (EN)", type: "text" },
       { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true, hint: "يُولَّد تلقائياً من العنوان." },
       { key: "excerpt_ar", label: "المقتطف (AR)", type: "textarea" },
+      { key: "excerpt_en", label: "Excerpt (EN)", type: "textarea" },
       { key: "body_ar", label: "المحتوى (AR)", type: "textarea" },
       { key: "body_en", label: "Body (EN)", type: "textarea" },
       { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
