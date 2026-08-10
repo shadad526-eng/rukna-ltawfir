@@ -385,7 +385,7 @@ function BrandDetail() {
         </div>
       </section>
 
-      {brand.description_ar ? (
+      {(isAr ? brand.description_ar : brand.description_en || brand.description_ar) ? (
         <section className="border-y border-border bg-card">
           <div className="mx-auto max-w-4xl px-4 py-16 md:px-8 md:py-20">
             <div className="hq-eyebrow">{t("brand.storyEyebrow")}</div>
@@ -394,7 +394,7 @@ function BrandDetail() {
             </h2>
             <div className="mt-4 h-px w-16 prem-divider" />
             <p className="mt-6 text-[15px] leading-loose text-foreground/85 md:text-base">
-              {brand.description_ar}
+              {isAr ? brand.description_ar : brand.description_en || brand.description_ar}
             </p>
           </div>
         </section>
