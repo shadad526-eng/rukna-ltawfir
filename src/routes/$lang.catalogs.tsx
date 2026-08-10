@@ -52,7 +52,8 @@ function CatalogsErrorState({ message }: { message: string }) {
 }
 
 function CatalogsHub() {
-  const { t } = useLocale();
+  const { t, lang } = useLocale();
+  const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const ident = useLocalizedIdentity(id);
