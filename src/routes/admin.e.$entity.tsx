@@ -354,6 +354,28 @@ function EntityPage() {
         setErr(msg); toast.error(msg);
         return;
       }
+
+      // Sync the brand ⇄ certification join table after the row itself is saved.
+      if (cfg!.fields.some((f) => f.type === "certification_multi_ref")) {
+        const brandId = (data[0] as any)[pk] ?? row[pk];
+        const wanted = asStringArray(row.__certifications);
+        const { data: existing, error: readErr } = await supabase
+          .from("brand_certifications").select("id,certification_id").eq("brand_id", brandId);
+        if (readErr) { setErr(readErr.message); toast.error(readErr.message); return; }
+        const have = new Set((existing ?? []).map((r: any) => r.certification_id));
+        const toAdd = wanted.filter((id) => !have.has(id));
+        const toRemove = (existing ?? []).filter((r: any) => !wanted.includes(r.certification_id)).map((r: any) => r.id);
+        if (toRemove.length) {
+          const { error } = await supabase.from("brand_certifications").delete().in("id", toRemove);
+          if (error) { setErr(error.message); toast.error(error.message); return; }
+        }
+        if (toAdd.length) {
+          const { error } = await supabase.from("brand_certifications")
+            .insert(toAdd.map((certification_id) => ({ brand_id: brandId, certification_id })));
+          if (error) { setErr(error.message); toast.error(error.message); return; }
+        }
+      }
+
       toast.success(isNew ? "تم إنشاء العنصر بنجاح" : "تم حفظ التغييرات");
       setEditing(null);
       load();
