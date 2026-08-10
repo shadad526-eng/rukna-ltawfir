@@ -438,10 +438,9 @@ export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageC
   out["form.subjects"] = SUBJECT_KEYS.map((k) => ({
     label_ar: dig(AR, `contact.subjects.${k}`), label_en: dig(EN, `contact.subjects.${k}`),
   }));
-  out["emails.items"] = [
-    { label_ar: "البريد الرسمي", label_en: "Official email", value: "Info@algarademedpower.com" },
-    { label_ar: "إدارة العلاقات التجارية", label_en: "Business relations", value: "Mohammed@algarademedpower.com" },
-  ];
+  // Official emails and the headquarters address live in corporate identity —
+  // they are not duplicated as page content.
+
   out["branches.eyebrow_ar"] = BRANCHES_FALLBACK.eyebrow_ar;
   out["branches.eyebrow_en"] = BRANCHES_FALLBACK.eyebrow_en;
   out["branches.title_ar"] = BRANCHES_FALLBACK.title_ar;
