@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const { cookie, accept } = await getLocaleHints();
     const lang = pickLocale(cookie, accept);
-    throw redirect({ to: "/$lang", params: { lang }, search: {}, replace: true });
+    throw redirect({ to: "/$lang", params: { lang }, search: { hp_lang: undefined, hp_preview: undefined }, replace: true });
   },
   component: () => null,
 });
