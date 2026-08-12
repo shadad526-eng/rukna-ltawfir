@@ -7,7 +7,7 @@ export const Route = createFileRoute("/$lang/admin/seo")({
     try {
       await requireSeoAdmin();
     } catch {
-      throw redirect({ to: "/$lang", params: { lang: params.lang }, search: (prev) => prev });
+      throw redirect({ to: "/$lang", params: { lang: params.lang }, search: { hp_lang: undefined, hp_preview: undefined } });
     }
   },
   head: () => ({
