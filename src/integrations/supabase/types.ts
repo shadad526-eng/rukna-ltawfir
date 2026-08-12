@@ -1704,6 +1704,7 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
+      save_product: { Args: { payload: Json }; Returns: string }
       user_manages_brand_path: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
