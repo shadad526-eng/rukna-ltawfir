@@ -260,41 +260,40 @@ export function validateProduct(d: ProductDraft): Record<string, string> {
   return errors;
 }
 
-/** Replaces the child rows of a product without creating duplicates. */
-async function syncChildren(
-  table: string,
-  productId: string,
-  rows: Array<Record<string, any> & { id?: string }>,
-) {
-  const keepIds = rows.map((r) => r.id).filter(Boolean) as string[];
-  let del = db.from(table).delete().eq("product_id", productId);
-  if (keepIds.length) del = del.not("id", "in", `(${keepIds.map((i) => `"${i}"`).join(",")})`);
-  const { error: delErr } = await del.select("id");
-  if (delErr) throw delErr;
-
-  if (!rows.length) return;
-  const payload = rows.map((r, index) => ({ ...r, product_id: productId, sort_order: index }));
-  const withId = payload.filter((r) => r.id);
-  const withoutId = payload.map((r) => { const { id, ...rest } = r; return r.id ? null : rest; }).filter(Boolean) as any[];
-
-  if (withId.length) {
-    const { data, error } = await db.from(table).upsert(withId, { onConflict: "id" }).select("id");
-    if (error) throw error;
-    if (!data || data.length !== withId.length) throw new Error(`تعذّر التحقق من حفظ بيانات ${table}`);
-  }
-  if (withoutId.length) {
-    const { data, error } = await db.from(table).insert(withoutId).select("id");
-    if (error) throw error;
-    if (!data || data.length !== withoutId.length) throw new Error(`تعذّر التحقق من إضافة بيانات ${table}`);
-  }
-}
-
-/** Creates or updates the product plus every related section. Returns the id. */
+/**
+ * Creates or updates the product plus every related section in ONE database
+ * transaction (`public.save_product`). Either the whole intended state is
+ * stored, or nothing changes and an error is thrown — no partial saves.
+ */
 export async function saveProduct(d: ProductDraft): Promise<string> {
-  const base = {
+  const slug = slugify(d.slug) || slugify(d.name_en) || slugify(d.name_ar);
+
+  // product_assets holds the cover caption row first (when a cover exists),
+  // followed by the gallery rows in their edited order.
+  const assets = [
+    ...(d.cover_asset_id
+      ? [{
+          ...(d.cover_row_id ? { id: d.cover_row_id } : {}),
+          asset_id: d.cover_asset_id,
+          caption_ar: nullable(d.cover_caption_ar),
+          caption_en: nullable(d.cover_caption_en),
+        }]
+      : []),
+    ...d.gallery
+      .filter((g) => g.asset_id && g.asset_id !== d.cover_asset_id)
+      .map((g) => ({
+        ...(g.id && g.id !== d.cover_row_id ? { id: g.id } : {}),
+        asset_id: g.asset_id,
+        caption_ar: nullable(g.caption_ar),
+        caption_en: nullable(g.caption_en),
+      })),
+  ];
+
+  const payload = {
+    ...(d.id ? { id: d.id } : {}),
     brand_id: d.brand_id || null,
     category_id: d.category_id || null,
-    slug: slugify(d.slug) || slugify(d.name_en) || slugify(d.name_ar),
+    slug,
     name_ar: str(d.name_ar).trim(),
     name_en: str(d.name_en).trim(),
     short_description_ar: nullable(d.short_description_ar),
@@ -312,27 +311,9 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
     seo_title_en: nullable(d.seo_title_en),
     seo_description_ar: nullable(d.seo_description_ar),
     seo_description_en: nullable(d.seo_description_en),
-  };
-
-  let productId = d.id;
-  if (productId) {
-    const { data, error } = await db.from("products").update(base).eq("id", productId).select("id").maybeSingle();
-    if (error) throw error;
-    if (!data) throw new Error("لم يتم حفظ المنتج — تحقّق من صلاحيات الحساب");
-  } else {
-    const { data, error } = await db.from("products").insert(base).select("id").single();
-    if (error) throw error;
-    productId = data.id as string;
-  }
-
-  if (!productId) throw new Error("تعذّر تحديد المنتج بعد الحفظ");
-
-  await syncChildren(
-    "product_variants",
-    productId,
-    d.variants.map((v, i) => ({
+    variants: d.variants.map((v, i) => ({
       ...(v.id ? { id: v.id } : {}),
-      slug: slugify(v.slug) || `${base.slug}-${i + 1}`,
+      slug: slugify(v.slug) || `${slug}-${i + 1}`,
       name_ar: str(v.name_ar).trim(),
       name_en: str(v.name_en).trim() || str(v.name_ar).trim(),
       variant_type: nullable(v.variant_type) ?? "size",
@@ -344,39 +325,8 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
       cover_asset_id: v.cover_asset_id || null,
       is_published: !!v.is_published,
     })),
-  );
-
-  // product_assets holds the cover caption row first (when a cover exists),
-  // followed by the gallery rows in their edited order.
-  const coverRow = d.cover_asset_id
-    ? [{
-        ...(d.cover_row_id ? { id: d.cover_row_id } : {}),
-        asset_id: d.cover_asset_id,
-        caption_ar: nullable(d.cover_caption_ar),
-        caption_en: nullable(d.cover_caption_en),
-      }]
-    : [];
-  await syncChildren(
-    "product_assets",
-    productId,
-    [
-      ...coverRow,
-      ...d.gallery
-        .filter((g) => g.asset_id && g.asset_id !== d.cover_asset_id)
-        .map((g) => ({
-          ...(g.id && g.id !== d.cover_row_id ? { id: g.id } : {}),
-          asset_id: g.asset_id,
-          caption_ar: nullable(g.caption_ar),
-          caption_en: nullable(g.caption_en),
-        })),
-    ],
-
-  );
-
-  await syncChildren(
-    "product_ingredients",
-    productId,
-    d.ingredients
+    assets,
+    ingredients: d.ingredients
       .filter((i) => str(i.name_ar).trim())
       .map((i) => ({
         ...(i.id ? { id: i.id } : {}),
@@ -388,12 +338,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
         notes_ar: nullable(i.notes_ar),
         notes_en: nullable(i.notes_en),
       })),
-  );
-
-  await syncChildren(
-    "product_nutrition",
-    productId,
-    d.nutrition
+    nutrition: d.nutrition
       .filter((n) => str(n.label_ar).trim())
       .map((n) => ({
         ...(n.id ? { id: n.id } : {}),
@@ -402,12 +347,7 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
         value: str(n.value).trim(),
         unit: nullable(n.unit),
       })),
-  );
-
-  await syncChildren(
-    "product_faqs",
-    productId,
-    d.faqs
+    faqs: d.faqs
       .filter((f) => str(f.question_ar).trim())
       .map((f) => ({
         ...(f.id ? { id: f.id } : {}),
@@ -416,7 +356,12 @@ export async function saveProduct(d: ProductDraft): Promise<string> {
         question_en: nullable(f.question_en),
         answer_en: nullable(f.answer_en),
       })),
-  );
+  };
 
-  return productId;
+  const { data, error } = await db.rpc("save_product", { payload });
+  if (error) throw new Error(error.message || "فشل حفظ المنتج");
+  const productId = typeof data === "string" ? data : (data as any)?.id;
+  if (!productId) throw new Error("لم يتم حفظ المنتج — تحقّق من صلاحيات الحساب");
+  return productId as string;
 }
+
