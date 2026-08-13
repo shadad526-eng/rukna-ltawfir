@@ -800,16 +800,39 @@ export const listNavigation = createServerFn({ method: "GET" }).handler(
 
 // ---------- Public site settings (keys prefixed with `public_`) ----------
 
-export const getPublicSiteSettings = createServerFn({ method: "GET" }).handler(
-  async (): Promise<Record<string, unknown>> => {
+export type PublicSocialLinks = {
+  instagram: string | null;
+  facebook: string | null;
+  tiktok: string | null;
+  youtube: string | null;
+  x: string | null;
+  linkedin: string | null;
+};
+
+export const getPublicSocialLinks = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicSocialLinks> => {
     const supabase = getPublicDataClient();
+    const empty: PublicSocialLinks = {
+      instagram: null, facebook: null, tiktok: null, youtube: null, x: null, linkedin: null,
+    };
     const { data, error } = await supabase
       .from("site_settings")
-      .select("key, value")
-      .like("key", "public\\_%");
-    if (error) return {};
-    const out: Record<string, unknown> = {};
-    for (const row of data ?? []) out[row.key] = row.value;
-    return out;
+      .select("value")
+      .eq("key", "public_social_links")
+      .maybeSingle();
+    if (error || !data) return empty;
+    const raw = (data.value ?? {}) as Record<string, unknown>;
+    const pick = (k: string) => {
+      const v = raw[k];
+      return typeof v === "string" && v.trim() ? v.trim() : null;
+    };
+    return {
+      instagram: pick("instagram"),
+      facebook: pick("facebook"),
+      tiktok: pick("tiktok"),
+      youtube: pick("youtube"),
+      x: pick("x"),
+      linkedin: pick("linkedin"),
+    };
   },
 );
