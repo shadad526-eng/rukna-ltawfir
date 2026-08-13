@@ -1,4 +1,7 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { getPublicSocialLinks, type PublicSocialLinks } from "@/lib/site.functions";
 
 type Social = {
   name: string;
@@ -7,7 +10,7 @@ type Social = {
   icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 };
 
-const buildSocials = (whatsappNumber?: string): Social[] => {
+const buildSocials = (whatsappNumber?: string, managed?: PublicSocialLinks | null): Social[] => {
   const list: Social[] = [];
   if (whatsappNumber) {
     const digits = whatsappNumber.replace(/\D/g, "");
@@ -56,6 +59,24 @@ const buildSocials = (whatsappNumber?: string): Social[] => {
       ),
     },
   );
+  // Admin → إعدادات الموقع → `public_social_links` is the source of truth.
+  // An explicitly empty value hides the network; a missing value keeps the
+  // built-in official account link.
+  if (managed) {
+    const overrides: Record<string, string | null> = {
+      Instagram: managed.instagram,
+      Facebook: managed.facebook,
+      TikTok: managed.tiktok,
+    };
+    return list.filter((s) => {
+      if (!(s.name in overrides)) return true;
+      const v = overrides[s.name];
+      if (v === null || v === undefined) return true;
+      if (!v) return false;
+      s.href = v;
+      return true;
+    });
+  }
   return list;
 };
 
@@ -72,7 +93,12 @@ export function SocialLinks({
   variant = "header",
   whatsappNumber,
 }: SocialLinksProps) {
-  const socials = buildSocials(whatsappNumber);
+  const { data: managed } = useQuery({
+    queryKey: ["public-social-links"],
+    queryFn: () => getPublicSocialLinks(),
+    staleTime: 60_000,
+  });
+  const socials = buildSocials(whatsappNumber, managed);
   const iconSize = size === "sm" ? "size-[15px]" : "size-[17px]";
   const padding = size === "sm" ? "p-1.5" : "p-2";
 
