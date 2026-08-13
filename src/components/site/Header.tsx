@@ -6,6 +6,7 @@ import { SocialLinks } from "./SocialLinks";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { listBrands } from "@/lib/site.functions";
 import { useLocale } from "@/i18n/LocaleProvider";
+import { useSiteNav, type SiteNavItem } from "@/lib/site-nav";
 
 type Props = {
   legalName: string;
@@ -25,19 +26,20 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
     staleTime: 60_000,
   });
 
-  const navItems = useMemo(
+  const fallbackNav = useMemo<SiteNavItem[]>(
     () => [
-      { to: "/$lang/", label: t("nav.home"), exact: true },
-      { to: "/$lang/brands", label: t("nav.brands"), hasMega: true },
-      { to: "/$lang/catalogs", label: t("nav.catalogs") },
-      { to: "/$lang/about", label: t("nav.about") },
-      { to: "/$lang/partners", label: t("nav.partners") },
-      { to: "/$lang/branches", label: t("nav.branches") },
-      { to: "/$lang/contact", label: t("nav.contact") },
-
+      { key: "home", to: `/${lang}/`, label: t("nav.home"), exact: true },
+      { key: "brands", to: `/${lang}/brands`, label: t("nav.brands"), hasMega: true },
+      { key: "catalogs", to: `/${lang}/catalogs`, label: t("nav.catalogs") },
+      { key: "about", to: `/${lang}/about`, label: t("nav.about") },
+      { key: "partners", to: `/${lang}/partners`, label: t("nav.partners") },
+      { key: "branches", to: `/${lang}/branches`, label: t("nav.branches") },
+      { key: "contact", to: `/${lang}/contact`, label: t("nav.contact") },
     ],
-    [t],
+    [t, lang],
   );
+  // Admin → قوائم التنقل is the source of truth when it has header rows.
+  const navItems = useSiteNav("header", fallbackNav);
 
   return (
     <header className="sticky top-0 z-40 glass">
@@ -62,22 +64,33 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
         <nav className="hidden items-center gap-1 text-[13px] font-semibold text-ink-600 lg:flex">
           {navItems.map((n) => (
             <div
-              key={n.to}
+              key={n.key}
               className="relative"
               onMouseEnter={() => n.hasMega && setMegaOpen(true)}
               onMouseLeave={() => n.hasMega && setMegaOpen(false)}
             >
-              <LLink
-                to={n.to}
-                activeProps={{ className: "text-trust-700 bg-trust-50" }}
-                activeOptions={{ exact: !!n.exact }}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-colors hover:bg-secondary hover:text-trust-700"
-              >
-                {n.label}
-                {n.hasMega ? (
-                  <span aria-hidden className="text-[10px] opacity-60">▾</span>
-                ) : null}
-              </LLink>
+              {n.external ? (
+                <a
+                  href={n.to}
+                  target={n.newTab ? "_blank" : undefined}
+                  rel={n.newTab ? "noopener noreferrer" : undefined}
+                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-colors hover:bg-secondary hover:text-trust-700"
+                >
+                  {n.label}
+                </a>
+              ) : (
+                <LLink
+                  to={n.to}
+                  activeProps={{ className: "text-trust-700 bg-trust-50" }}
+                  activeOptions={{ exact: !!n.exact }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition-colors hover:bg-secondary hover:text-trust-700"
+                >
+                  {n.label}
+                  {n.hasMega ? (
+                    <span aria-hidden className="text-[10px] opacity-60">▾</span>
+                  ) : null}
+                </LLink>
+              )}
               {n.hasMega && megaOpen && brands && brands.length > 0 ? (
                 <div className="absolute right-0 top-full pt-3">
                   <div className="w-[640px] overflow-hidden rounded-2xl border border-border bg-card premium-shadow prem-fade-up">
@@ -148,16 +161,27 @@ export function SiteHeader({ legalName, parentGroup, whatsappNumber, logoUrl }: 
           <nav className="mx-auto max-w-7xl px-4 py-3">
             <ul className="grid gap-1">
               {navItems.map((n) => (
-                <li key={n.to}>
-                  <LLink
-                    to={n.to}
-                    onClick={() => setMobileOpen(false)}
-                    activeProps={{ className: "bg-trust-50 text-trust-700" }}
-                    activeOptions={{ exact: !!n.exact }}
-                    className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
-                  >
-                    {n.label}
-                  </LLink>
+                <li key={n.key}>
+                  {n.external ? (
+                    <a
+                      href={n.to}
+                      target={n.newTab ? "_blank" : undefined}
+                      rel={n.newTab ? "noopener noreferrer" : undefined}
+                      className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      {n.label}
+                    </a>
+                  ) : (
+                    <LLink
+                      to={n.to}
+                      onClick={() => setMobileOpen(false)}
+                      activeProps={{ className: "bg-trust-50 text-trust-700" }}
+                      activeOptions={{ exact: !!n.exact }}
+                      className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      {n.label}
+                    </LLink>
+                  )}
                 </li>
               ))}
             </ul>
