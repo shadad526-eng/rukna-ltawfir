@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { assetUrl, getPublicDataClient, paragraphs, richBodyHtml, signedUrl } from "./site-public-data.server";
+import { toPlainText } from "./rich-html";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -536,8 +537,8 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
@@ -576,8 +577,8 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
@@ -609,8 +610,8 @@ export const getInsightBySlug = createServerFn({ method: "GET" })
         slug: row.slug,
         title_ar: row.title_ar,
         title_en: row.title_en,
-        excerpt_ar: row.excerpt_ar,
-        excerpt_en: row.excerpt_en,
+        excerpt_ar: toPlainText(row.excerpt_ar) || null,
+        excerpt_en: toPlainText(row.excerpt_en) || null,
         cover_url: coverUrl,
         published_at: row.published_at ?? row.created_at,
         tags: (row.tags as string[] | null) ?? [],
@@ -645,8 +646,8 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
@@ -763,3 +764,75 @@ export const getSitePage = createServerFn({ method: "GET" })
       content: (extra?.content && typeof extra.content === "object" ? extra.content : {}) as Record<string, any>,
     };
   });
+
+// ---------- Navigation (managed in Admin → قوائم التنقل) ----------
+
+export type NavItemPublic = {
+  id: string;
+  location: string;
+  label_ar: string;
+  label_en: string | null;
+  url: string;
+  open_in_new_tab: boolean;
+  sort_order: number;
+};
+
+export const listNavigation = createServerFn({ method: "GET" }).handler(
+  async (): Promise<NavItemPublic[]> => {
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
+      .from("navigation_items")
+      .select("id, location, label_ar, label_en, url, open_in_new_tab, sort_order")
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      location: r.location,
+      label_ar: r.label_ar,
+      label_en: r.label_en,
+      url: r.url,
+      open_in_new_tab: !!r.open_in_new_tab,
+      sort_order: r.sort_order ?? 0,
+    }));
+  },
+);
+
+// ---------- Public site settings (keys prefixed with `public_`) ----------
+
+export type PublicSocialLinks = {
+  instagram: string | null;
+  facebook: string | null;
+  tiktok: string | null;
+  youtube: string | null;
+  x: string | null;
+  linkedin: string | null;
+};
+
+export const getPublicSocialLinks = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicSocialLinks> => {
+    const supabase = getPublicDataClient();
+    const empty: PublicSocialLinks = {
+      instagram: null, facebook: null, tiktok: null, youtube: null, x: null, linkedin: null,
+    };
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "public_social_links")
+      .maybeSingle();
+    if (error || !data) return empty;
+    const raw = (data.value ?? {}) as Record<string, unknown>;
+    const pick = (k: string) => {
+      const v = raw[k];
+      return typeof v === "string" && v.trim() ? v.trim() : null;
+    };
+    return {
+      instagram: pick("instagram"),
+      facebook: pick("facebook"),
+      tiktok: pick("tiktok"),
+      youtube: pick("youtube"),
+      x: pick("x"),
+      linkedin: pick("linkedin"),
+    };
+  },
+);

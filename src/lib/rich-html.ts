@@ -183,3 +183,20 @@ export function toRichHtml(input: unknown): string {
   if (!looksLikeHtml(s)) return plainToHtml(s);
   return sanitizeRichHtml(s);
 }
+
+/**
+ * Strip markup/entities from admin-authored values so excerpts, previews and
+ * meta descriptions never leak raw HTML tags to visitors or to search engines.
+ */
+export function toPlainText(input: unknown): string {
+  if (input == null) return "";
+  if (Array.isArray(input)) return input.map((i) => toPlainText(i)).filter(Boolean).join(" ");
+  if (typeof input !== "string") return "";
+  let s = input;
+  if (!looksLikeHtml(s) && /&lt;\/?[a-zA-Z]/.test(s)) s = decodeEntities(s);
+  s = s.replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, "");
+  s = s.replace(/<\s*(br|\/p|\/div|\/li|\/h[1-6])\s*\/?>/gi, " ");
+  s = s.replace(/<[^>]*>/g, "");
+  s = decodeEntities(s).replace(/&nbsp;/gi, " ");
+  return s.replace(/\s+/g, " ").trim();
+}

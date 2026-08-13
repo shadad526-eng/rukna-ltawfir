@@ -1,9 +1,12 @@
+import { useMemo } from "react";
+
 import { LLink } from "@/i18n/LLink";
 import { WhatsAppCTA } from "./WhatsAppCTA";
 import { SocialLinks } from "./SocialLinks";
-import { useT } from "@/i18n/LocaleProvider";
+import { useLocale, useT } from "@/i18n/LocaleProvider";
+import { useSiteNav, type SiteNavItem } from "@/lib/site-nav";
 import { useQuery } from "@tanstack/react-query";
-import { getCorporateIdentity } from "@/lib/site.functions";
+import { getCorporateIdentity, listBrands } from "@/lib/site.functions";
 import { RichText } from "@/components/site/RichText";
 
 type Props = {
@@ -17,6 +20,27 @@ type Props = {
 
 export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, address, logoUrl }: Props) {
   const t = useT();
+  const { lang } = useLocale();
+  const fallbackNav = useMemo<SiteNavItem[]>(
+    () => [
+      { key: "home", to: `/${lang}/`, label: t("nav.home") },
+      { key: "brands", to: `/${lang}/brands`, label: t("nav.brands") },
+      { key: "catalogs", to: `/${lang}/catalogs`, label: t("nav.catalogs") },
+      { key: "sugar", to: `/${lang}/sugar-alternatives`, label: lang === "ar" ? "بدائل السكر" : "Sugar alternatives" },
+      { key: "about", to: `/${lang}/about`, label: t("nav.about") },
+      { key: "partners", to: `/${lang}/partners`, label: t("nav.partners") },
+      { key: "branches", to: `/${lang}/branches`, label: t("nav.branches") },
+      { key: "contact", to: `/${lang}/contact`, label: t("nav.contact") },
+    ],
+    [t, lang],
+  );
+  // Admin → قوائم التنقل (موقع: التذييل) is the source of truth when set.
+  const navItems = useSiteNav("footer", fallbackNav);
+  const { data: brands } = useQuery({
+    queryKey: ["brands"],
+    queryFn: () => listBrands(),
+    staleTime: 60_000,
+  });
   const { data } = useQuery({
     queryKey: ["corporate-identity"],
     queryFn: () => getCorporateIdentity(),
@@ -48,25 +72,35 @@ export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, addr
                 <div className="opacity-80">+967 {whatsappNumber}</div>
               </div>
             </div>
-            <div className="mt-7 text-[11px] font-medium tracking-[0.22em] opacity-70">
-              NO CAL · STEVIOLA · MONIVO · BABY TAWFIR · BAMBO · Y-KELIN · iSiS · SEKEM
-            </div>
+            {brands && brands.length > 0 ? (
+              <div className="mt-7 text-[11px] font-medium tracking-[0.22em] opacity-70">
+                {brands.map((b) => b.name_en || b.name_ar).join(" · ")}
+              </div>
+            ) : null}
           </div>
 
           <div className="md:col-span-3">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.navColumn")}</div>
             <ul className="space-y-2 text-sm opacity-90">
-              <li><LLink to="/$lang/" className="hover:text-leaf-300">{t("nav.home")}</LLink></li>
-              <li><LLink to="/$lang/brands" className="hover:text-leaf-300">{t("nav.brands")}</LLink></li>
-              <li><LLink to="/$lang/catalogs" className="hover:text-leaf-300">{t("nav.catalogs")}</LLink></li>
-              <li><LLink to="/$lang/sugar-alternatives" className="hover:text-leaf-300">بدائل السكر</LLink></li>
-              <li><LLink to="/$lang/about" className="hover:text-leaf-300">{t("nav.about")}</LLink></li>
-              <li><LLink to="/$lang/partners" className="hover:text-leaf-300">{t("nav.partners")}</LLink></li>
-              <li><LLink to="/$lang/branches" className="hover:text-leaf-300">{t("nav.branches")}</LLink></li>
-              <li><LLink to="/$lang/contact" className="hover:text-leaf-300">{t("nav.contact")}</LLink></li>
-
+              {navItems.map((n) => (
+                <li key={n.key}>
+                  {n.external ? (
+                    <a
+                      href={n.to}
+                      target={n.newTab ? "_blank" : undefined}
+                      rel={n.newTab ? "noopener noreferrer" : undefined}
+                      className="hover:text-leaf-300"
+                    >
+                      {n.label}
+                    </a>
+                  ) : (
+                    <LLink to={n.to} className="hover:text-leaf-300">{n.label}</LLink>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
+
 
           <div className="md:col-span-4">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.contactColumn")}</div>

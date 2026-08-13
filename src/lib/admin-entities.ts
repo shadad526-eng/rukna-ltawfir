@@ -198,33 +198,6 @@ export const ENTITIES: EntityConfig[] = [
     ],
   },
   {
-    key: "topic_hubs", label: "المحاور المعرفية", table: "topic_hubs", group: "المحتوى",
-    listColumns: [
-      { key: "title_ar", label: "العنوان", type: "text" },
-      { key: "slug", label: "المعرّف", type: "text" },
-      { key: "is_published", label: "منشور", type: "boolean" },
-      { key: "sort_order", label: "الترتيب", type: "number" },
-    ],
-    searchColumns: ["title_ar", "slug"],
-    labelColumn: "title_ar",
-    orderBy: { column: "sort_order", ascending: true },
-    fields: [
-      { key: "title_ar", label: "العنوان (AR)", type: "text", required: true },
-      { key: "title_en", label: "Title (EN)", type: "text" },
-      { key: "slug", label: "المعرّف", type: "slug", slugFrom: "title_en", required: true },
-      { key: "intro_ar", label: "المقدمة (AR)", type: "textarea" },
-      { key: "intro_en", label: "Intro (EN)", type: "textarea" },
-      { key: "cover_asset_id", label: "صورة الغلاف", type: "asset" },
-      { key: "seo_title", label: "عنوان SEO", type: "text", advanced: true },
-      { key: "seo_description", label: "وصف SEO", type: "textarea", advanced: true },
-      { key: "related_brand_ids", label: "العلامات المرتبطة", type: "brand_multi_ref" },
-      { key: "related_product_ids", label: "المنتجات المرتبطة", type: "product_multi_ref" },
-      { key: "related_article_ids", label: "المقالات المرتبطة", type: "article_multi_ref" },
-      { key: "is_published", label: "منشور", type: "boolean" },
-      { key: "sort_order", label: "الترتيب", type: "number" },
-    ],
-  },
-  {
     key: "pages", label: "صفحات الموقع", table: "pages", group: "المحتوى",
     listColumns: [
       { key: "title_ar", label: "العنوان", type: "text" },
@@ -374,30 +347,6 @@ export const ENTITIES: EntityConfig[] = [
     ],
   },
   {
-    key: "homepage_sections", label: "أقسام الصفحة الرئيسية", table: "homepage_sections", group: "المحتوى",
-    listColumns: [
-      { key: "section_key", label: "المفتاح", type: "text" },
-      { key: "title_ar", label: "العنوان", type: "text" },
-      { key: "sort_order", label: "الترتيب", type: "number" },
-      { key: "is_enabled", label: "مفعّل", type: "boolean" },
-    ],
-    searchColumns: ["section_key", "title_ar"],
-    labelColumn: "section_key",
-    orderBy: { column: "sort_order", ascending: true },
-    fields: [
-      { key: "section_key", label: "مفتاح القسم", type: "text", required: true, hint: "معرّف تقني للقسم — لا يظهر للزوار." },
-      { key: "title_ar", label: "العنوان (AR)", type: "text" },
-      { key: "subtitle_ar", label: "العنوان الفرعي (AR)", type: "text" },
-      { key: "body_ar", label: "النص (AR)", type: "textarea" },
-      { key: "cta_label_ar", label: "نص الزر (AR)", type: "text" },
-      { key: "cta_url", label: "رابط الزر", type: "text" },
-      { key: "media_asset_id", label: "صورة القسم", type: "asset" },
-      { key: "sort_order", label: "الترتيب", type: "number" },
-      { key: "is_enabled", label: "مفعّل", type: "boolean" },
-      { key: "extra", label: "بيانات إضافية (JSON)", type: "json", advanced: true },
-    ],
-  },
-  {
     key: "inquiries", label: "طلبات التواصل", table: "inquiries", group: "الطلبات",
     listColumns: [
       { key: "name", label: "الاسم", type: "text" },
@@ -490,8 +439,9 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["key"],
     labelColumn: "key",
     fields: [
-      { key: "key", label: "المفتاح (مثلاً brand.colors)", type: "text", required: true },
-      { key: "value", label: "القيمة (JSON)", type: "json", required: true, hint: "أي كائن JSON يُستهلك حسب المفتاح" },
+      { key: "key", label: "المفتاح", type: "text", required: true, hint: 'المفاتيح التي تبدأ بـ public_ تظهر في الموقع العام. مثال: public_social_links' },
+      { key: "value", label: "القيمة (JSON)", type: "json", required: true, hint: 'مثال لروابط التواصل: {"instagram":"https://…","facebook":"https://…","tiktok":"https://…"}' },
+
     ],
   },
   {
