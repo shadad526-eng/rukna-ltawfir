@@ -439,8 +439,9 @@ export const ENTITIES: EntityConfig[] = [
     searchColumns: ["key"],
     labelColumn: "key",
     fields: [
-      { key: "key", label: "المفتاح (مثلاً brand.colors)", type: "text", required: true },
-      { key: "value", label: "القيمة (JSON)", type: "json", required: true, hint: "أي كائن JSON يُستهلك حسب المفتاح" },
+      { key: "key", label: "المفتاح", type: "text", required: true, hint: 'المفاتيح التي تبدأ بـ public_ تظهر في الموقع العام. مثال: public_social_links' },
+      { key: "value", label: "القيمة (JSON)", type: "json", required: true, hint: 'مثال لروابط التواصل: {"instagram":"https://…","facebook":"https://…","tiktok":"https://…"}' },
+
     ],
   },
   {
