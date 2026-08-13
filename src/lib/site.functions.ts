@@ -764,3 +764,52 @@ export const getSitePage = createServerFn({ method: "GET" })
       content: (extra?.content && typeof extra.content === "object" ? extra.content : {}) as Record<string, any>,
     };
   });
+
+// ---------- Navigation (managed in Admin → قوائم التنقل) ----------
+
+export type NavItemPublic = {
+  id: string;
+  location: string;
+  label_ar: string;
+  label_en: string | null;
+  url: string;
+  open_in_new_tab: boolean;
+  sort_order: number;
+};
+
+export const listNavigation = createServerFn({ method: "GET" }).handler(
+  async (): Promise<NavItemPublic[]> => {
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
+      .from("navigation_items")
+      .select("id, location, label_ar, label_en, url, open_in_new_tab, sort_order")
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      location: r.location,
+      label_ar: r.label_ar,
+      label_en: r.label_en,
+      url: r.url,
+      open_in_new_tab: !!r.open_in_new_tab,
+      sort_order: r.sort_order ?? 0,
+    }));
+  },
+);
+
+// ---------- Public site settings (keys prefixed with `public_`) ----------
+
+export const getPublicSiteSettings = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Record<string, unknown>> => {
+    const supabase = getPublicDataClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .like("key", "public\\_%");
+    if (error) return {};
+    const out: Record<string, unknown> = {};
+    for (const row of data ?? []) out[row.key] = row.value;
+    return out;
+  },
+);
