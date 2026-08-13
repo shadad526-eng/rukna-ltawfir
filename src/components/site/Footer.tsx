@@ -56,17 +56,25 @@ export function SiteFooter({ legalName, parentGroup, whatsappNumber, email, addr
           <div className="md:col-span-3">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.navColumn")}</div>
             <ul className="space-y-2 text-sm opacity-90">
-              <li><LLink to="/$lang/" className="hover:text-leaf-300">{t("nav.home")}</LLink></li>
-              <li><LLink to="/$lang/brands" className="hover:text-leaf-300">{t("nav.brands")}</LLink></li>
-              <li><LLink to="/$lang/catalogs" className="hover:text-leaf-300">{t("nav.catalogs")}</LLink></li>
-              <li><LLink to="/$lang/sugar-alternatives" className="hover:text-leaf-300">بدائل السكر</LLink></li>
-              <li><LLink to="/$lang/about" className="hover:text-leaf-300">{t("nav.about")}</LLink></li>
-              <li><LLink to="/$lang/partners" className="hover:text-leaf-300">{t("nav.partners")}</LLink></li>
-              <li><LLink to="/$lang/branches" className="hover:text-leaf-300">{t("nav.branches")}</LLink></li>
-              <li><LLink to="/$lang/contact" className="hover:text-leaf-300">{t("nav.contact")}</LLink></li>
-
+              {navItems.map((n) => (
+                <li key={n.key}>
+                  {n.external ? (
+                    <a
+                      href={n.to}
+                      target={n.newTab ? "_blank" : undefined}
+                      rel={n.newTab ? "noopener noreferrer" : undefined}
+                      className="hover:text-leaf-300"
+                    >
+                      {n.label}
+                    </a>
+                  ) : (
+                    <LLink to={n.to} className="hover:text-leaf-300">{n.label}</LLink>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
+
 
           <div className="md:col-span-4">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] opacity-70">{t("footer.contactColumn")}</div>
