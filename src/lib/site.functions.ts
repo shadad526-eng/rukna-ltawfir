@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { assetUrl, getPublicDataClient, paragraphs, richBodyHtml, signedUrl } from "./site-public-data.server";
+import { toPlainText } from "./rich-html";
 
 // ---------- Types ----------
 export type CorporateIdentity = {
@@ -536,8 +537,8 @@ export const listInsights = createServerFn({ method: "GET" }).handler(
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
@@ -576,8 +577,8 @@ export const listInsightsBySlugs = createServerFn({ method: "GET" })
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
@@ -609,8 +610,8 @@ export const getInsightBySlug = createServerFn({ method: "GET" })
         slug: row.slug,
         title_ar: row.title_ar,
         title_en: row.title_en,
-        excerpt_ar: row.excerpt_ar,
-        excerpt_en: row.excerpt_en,
+        excerpt_ar: toPlainText(row.excerpt_ar) || null,
+        excerpt_en: toPlainText(row.excerpt_en) || null,
         cover_url: coverUrl,
         published_at: row.published_at ?? row.created_at,
         tags: (row.tags as string[] | null) ?? [],
@@ -645,8 +646,8 @@ export const listRelatedInsights = createServerFn({ method: "GET" })
         slug: r.slug,
         title_ar: r.title_ar,
         title_en: r.title_en,
-        excerpt_ar: r.excerpt_ar,
-        excerpt_en: r.excerpt_en,
+        excerpt_ar: toPlainText(r.excerpt_ar) || null,
+        excerpt_en: toPlainText(r.excerpt_en) || null,
         cover_url: await assetUrl(r.cover_asset_id),
         published_at: r.published_at ?? r.created_at,
         tags: (r.tags as string[] | null) ?? [],
