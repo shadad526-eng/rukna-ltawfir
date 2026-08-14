@@ -100,16 +100,58 @@ export const adminResetPassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Throws when the action would leave the system without any active super admin. */
+async function assertNotLastSuperAdmin(admin: any, userId: string) {
+  const { data: isSuper } = await admin
+    .from("user_roles")
+    .select("user_id")
+    .eq("user_id", userId)
+    .eq("role", "super_admin")
+    .limit(1);
+  if (!isSuper || isSuper.length === 0) return;
+  const { data: others } = await admin
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "super_admin")
+    .neq("user_id", userId)
+    .limit(1);
+  if (!others || others.length === 0) {
+    throw new Error("لا يمكن تعطيل أو حذف آخر مدير عام (Super Admin) في النظام");
+  }
+}
+
+async function audit(
+  admin: any,
+  actor: string,
+  action: string,
+  entity_type: string,
+  entity_id: string | null,
+  meta?: { before?: any; after?: any },
+) {
+  try {
+    await admin.from("audit_log").insert({
+      actor_user_id: actor,
+      action,
+      entity_type,
+      entity_id,
+      before: meta?.before ?? null,
+      after: meta?.after ?? null,
+    });
+  } catch { /* auditing must never break the operation */ }
+}
+
 export const adminToggleUserEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { user_id: string; enabled: boolean }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!data.enabled) await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       ban_duration: data.enabled ? "none" : "8760h",
     } as any);
     if (error) throw error;
+    await audit(supabaseAdmin, context.userId, data.enabled ? "user.enable" : "user.disable", "auth.users", data.user_id);
     return { ok: true };
   });
 
@@ -119,10 +161,16 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.user_id === context.userId) throw new Error("لا يمكنك حذف حسابك الحالي");
+    await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
+    // Roles first so the deferred last-super-admin DB guard can evaluate.
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw error;
+    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id);
     return { ok: true };
   });
+
 
 export const adminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
