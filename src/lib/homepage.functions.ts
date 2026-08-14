@@ -208,39 +208,39 @@ function pickSettings(row: any, snapshot?: any): any {
   return src ?? {};
 }
 
-async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
+async function buildHomepageConfig(
+  row: any,
+  slides: { main: PublicSlide[]; hero: PublicSlide[] },
+): Promise<HomepageConfig> {
   const imageCfg = (row.hero_image_config ?? {}) as HeroImageConfig;
   const customCfg = (row.hero_custom_config ?? {}) as HeroCustomConfig;
 
-  const [mainSlides, heroSlides] = await Promise.all([
-    slidesFor("main"),
-    slidesFor("hero"),
-  ]);
-
   const [imgDesktop, imgMobile, bgImg, mainImg, logoImg] = await Promise.all([
-    assetUrl(imageCfg.desktop_asset_id ?? null),
-    assetUrl(imageCfg.mobile_asset_id ?? null),
-    assetUrl(customCfg.bg_image_asset_id ?? null),
-    assetUrl(customCfg.main_image_asset_id ?? null),
-    assetUrl(customCfg.logo_asset_id ?? null),
+    assetUrl(imageCfg.desktop_asset_id ?? null).catch(() => null),
+    assetUrl(imageCfg.mobile_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.bg_image_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.main_image_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.logo_asset_id ?? null).catch(() => null),
   ]);
 
   return {
     main_slider: {
       enabled: !!row.main_slider_enabled,
-      position: (row.main_slider_position ?? "before_hero") as
-        | "before_hero"
-        | "after_hero",
+      position: (row.main_slider_position === "after_hero"
+        ? "after_hero"
+        : "before_hero") as "before_hero" | "after_hero",
       config: { ...DEFAULT_SLIDER, ...(row.main_slider_config ?? {}) },
-      slides: mainSlides,
+      slides: slides.main,
     },
     hero: {
       enabled: !!row.hero_enabled,
-      type: (row.hero_type ?? "image") as "image" | "slider" | "custom",
+      type: (["image", "slider", "custom"].includes(row.hero_type)
+        ? row.hero_type
+        : "image") as "image" | "slider" | "custom",
       image: { ...imageCfg, desktop_url: imgDesktop, mobile_url: imgMobile },
       slider: {
         config: { ...DEFAULT_SLIDER, ...(row.hero_slider_config ?? {}) },
-        slides: heroSlides,
+        slides: slides.hero,
       },
       custom: {
         ...customCfg,
@@ -252,17 +252,29 @@ async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
   };
 }
 
+const EMPTY_CONFIG_ROW = {};
+
 export const getHomepageConfig = createServerFn({ method: "GET" }).handler(
   async (): Promise<HomepageConfig> => {
-    const client = getPublicDataClient() as any;
-    const { data } = await client
-      .from("homepage_settings")
-      .select(
-        "id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config",
-      )
-      .eq("id", 1)
-      .maybeSingle();
-    return buildHomepageConfig(data ?? {});
+    try {
+      const client = getPublicDataClient() as any;
+      const { data } = await client
+        .from("homepage_settings")
+        .select(
+          "id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config, published_slides",
+        )
+        .eq("id", 1)
+        .maybeSingle();
+      const row = data ?? EMPTY_CONFIG_ROW;
+      const [main, hero] = await Promise.all([
+        publishedSlidesFor(row, "main").catch(() => [] as PublicSlide[]),
+        publishedSlidesFor(row, "hero").catch(() => [] as PublicSlide[]),
+      ]);
+      return buildHomepageConfig(row, { main, hero });
+    } catch {
+      // Public homepage must never fail because of homepage-config state.
+      return buildHomepageConfig(EMPTY_CONFIG_ROW, { main: [], hero: [] });
+    }
   },
 );
 
@@ -286,8 +298,13 @@ export const getHomepageDraftConfig = createServerFn({ method: "GET" })
       .eq("id", 1)
       .maybeSingle();
     const row = pickSettings(data ?? {}, (data as any)?.draft_settings);
-    return buildHomepageConfig(row);
+    const [main, hero] = await Promise.all([
+      draftSlidesFor("main", supabase).catch(() => [] as PublicSlide[]),
+      draftSlidesFor("hero", supabase).catch(() => [] as PublicSlide[]),
+    ]);
+    return buildHomepageConfig(row, { main, hero });
   });
+
 
 export type HomepagePublishStatus = {
   has_draft: boolean;
