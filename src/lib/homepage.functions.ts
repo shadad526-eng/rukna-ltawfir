@@ -127,32 +127,58 @@ export type HomepageConfig = {
   };
 };
 
-async function slidesFor(group: "main" | "hero"): Promise<PublicSlide[]> {
-  const client = getPublicDataClient() as any;
-  const { data } = await client
+function normalizeSlideRow(r: any): any | null {
+  if (!r || typeof r !== "object" || !r.id) return null;
+  return r;
+}
+
+async function mapSlides(rows: any[]): Promise<PublicSlide[]> {
+  const safe = rows.map(normalizeSlideRow).filter(Boolean) as any[];
+  return await Promise.all(
+    safe.map(async (r) => ({
+      id: String(r.id),
+      desktop_url: await assetUrl(r.desktop_asset_id ?? null).catch(() => null),
+      mobile_url: await assetUrl(r.mobile_asset_id ?? null).catch(() => null),
+      title_ar: r.title_ar ?? null,
+      title_en: r.title_en ?? null,
+      description_ar: r.description_ar ?? null,
+      description_en: r.description_en ?? null,
+      alt_ar: r.alt_ar ?? null,
+      alt_en: r.alt_en ?? null,
+      cta1: (r.cta1 ?? {}) as HomepageCTA,
+      cta2: (r.cta2 ?? {}) as HomepageCTA,
+    })),
+  );
+}
+
+/** Live (draft) slides straight from the working table — admin preview only. */
+async function draftSlidesFor(
+  group: "main" | "hero",
+  client?: any,
+): Promise<PublicSlide[]> {
+  const db = client ?? (getPublicDataClient() as any);
+  const { data } = await db
     .from("homepage_slides")
     .select("*")
     .eq("slider_group", group)
     .eq("is_published", true)
     .eq("is_visible", true)
     .order("sort_order", { ascending: true });
-  const rows = (data ?? []) as any[];
-  return await Promise.all(
-    rows.map(async (r) => ({
-      id: r.id,
-      desktop_url: await assetUrl(r.desktop_asset_id),
-      mobile_url: await assetUrl(r.mobile_asset_id),
-      title_ar: r.title_ar,
-      title_en: r.title_en,
-      description_ar: r.description_ar,
-      description_en: r.description_en,
-      alt_ar: r.alt_ar,
-      alt_en: r.alt_en,
-      cta1: (r.cta1 ?? {}) as HomepageCTA,
-      cta2: (r.cta2 ?? {}) as HomepageCTA,
-    })),
-  );
+  return mapSlides((data ?? []) as any[]);
 }
+
+/** Published slides come from the immutable snapshot stored at publish time. */
+async function publishedSlidesFor(row: any, group: "main" | "hero"): Promise<PublicSlide[]> {
+  const snap = row?.published_slides;
+  if (snap && typeof snap === "object") {
+    const arr = Array.isArray((snap as any)[group]) ? (snap as any)[group] : [];
+    return mapSlides(arr);
+  }
+  // Never published yet (legacy state): fall back to the live table so existing
+  // production content keeps rendering exactly as before.
+  return draftSlidesFor(group);
+}
+
 
 const DEFAULT_SLIDER: SliderConfig = {
   autoplay: true,
