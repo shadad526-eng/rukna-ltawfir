@@ -127,32 +127,58 @@ export type HomepageConfig = {
   };
 };
 
-async function slidesFor(group: "main" | "hero"): Promise<PublicSlide[]> {
-  const client = getPublicDataClient() as any;
-  const { data } = await client
+function normalizeSlideRow(r: any): any | null {
+  if (!r || typeof r !== "object" || !r.id) return null;
+  return r;
+}
+
+async function mapSlides(rows: any[]): Promise<PublicSlide[]> {
+  const safe = rows.map(normalizeSlideRow).filter(Boolean) as any[];
+  return await Promise.all(
+    safe.map(async (r) => ({
+      id: String(r.id),
+      desktop_url: await assetUrl(r.desktop_asset_id ?? null).catch(() => null),
+      mobile_url: await assetUrl(r.mobile_asset_id ?? null).catch(() => null),
+      title_ar: r.title_ar ?? null,
+      title_en: r.title_en ?? null,
+      description_ar: r.description_ar ?? null,
+      description_en: r.description_en ?? null,
+      alt_ar: r.alt_ar ?? null,
+      alt_en: r.alt_en ?? null,
+      cta1: (r.cta1 ?? {}) as HomepageCTA,
+      cta2: (r.cta2 ?? {}) as HomepageCTA,
+    })),
+  );
+}
+
+/** Live (draft) slides straight from the working table — admin preview only. */
+async function draftSlidesFor(
+  group: "main" | "hero",
+  client?: any,
+): Promise<PublicSlide[]> {
+  const db = client ?? (getPublicDataClient() as any);
+  const { data } = await db
     .from("homepage_slides")
     .select("*")
     .eq("slider_group", group)
     .eq("is_published", true)
     .eq("is_visible", true)
     .order("sort_order", { ascending: true });
-  const rows = (data ?? []) as any[];
-  return await Promise.all(
-    rows.map(async (r) => ({
-      id: r.id,
-      desktop_url: await assetUrl(r.desktop_asset_id),
-      mobile_url: await assetUrl(r.mobile_asset_id),
-      title_ar: r.title_ar,
-      title_en: r.title_en,
-      description_ar: r.description_ar,
-      description_en: r.description_en,
-      alt_ar: r.alt_ar,
-      alt_en: r.alt_en,
-      cta1: (r.cta1 ?? {}) as HomepageCTA,
-      cta2: (r.cta2 ?? {}) as HomepageCTA,
-    })),
-  );
+  return mapSlides((data ?? []) as any[]);
 }
+
+/** Published slides come from the immutable snapshot stored at publish time. */
+async function publishedSlidesFor(row: any, group: "main" | "hero"): Promise<PublicSlide[]> {
+  const snap = row?.published_slides;
+  if (snap && typeof snap === "object") {
+    const arr = Array.isArray((snap as any)[group]) ? (snap as any)[group] : [];
+    return mapSlides(arr);
+  }
+  // Never published yet (legacy state): fall back to the live table so existing
+  // production content keeps rendering exactly as before.
+  return draftSlidesFor(group);
+}
+
 
 const DEFAULT_SLIDER: SliderConfig = {
   autoplay: true,
@@ -182,39 +208,39 @@ function pickSettings(row: any, snapshot?: any): any {
   return src ?? {};
 }
 
-async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
+async function buildHomepageConfig(
+  row: any,
+  slides: { main: PublicSlide[]; hero: PublicSlide[] },
+): Promise<HomepageConfig> {
   const imageCfg = (row.hero_image_config ?? {}) as HeroImageConfig;
   const customCfg = (row.hero_custom_config ?? {}) as HeroCustomConfig;
 
-  const [mainSlides, heroSlides] = await Promise.all([
-    slidesFor("main"),
-    slidesFor("hero"),
-  ]);
-
   const [imgDesktop, imgMobile, bgImg, mainImg, logoImg] = await Promise.all([
-    assetUrl(imageCfg.desktop_asset_id ?? null),
-    assetUrl(imageCfg.mobile_asset_id ?? null),
-    assetUrl(customCfg.bg_image_asset_id ?? null),
-    assetUrl(customCfg.main_image_asset_id ?? null),
-    assetUrl(customCfg.logo_asset_id ?? null),
+    assetUrl(imageCfg.desktop_asset_id ?? null).catch(() => null),
+    assetUrl(imageCfg.mobile_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.bg_image_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.main_image_asset_id ?? null).catch(() => null),
+    assetUrl(customCfg.logo_asset_id ?? null).catch(() => null),
   ]);
 
   return {
     main_slider: {
       enabled: !!row.main_slider_enabled,
-      position: (row.main_slider_position ?? "before_hero") as
-        | "before_hero"
-        | "after_hero",
+      position: (row.main_slider_position === "after_hero"
+        ? "after_hero"
+        : "before_hero") as "before_hero" | "after_hero",
       config: { ...DEFAULT_SLIDER, ...(row.main_slider_config ?? {}) },
-      slides: mainSlides,
+      slides: slides.main,
     },
     hero: {
       enabled: !!row.hero_enabled,
-      type: (row.hero_type ?? "image") as "image" | "slider" | "custom",
+      type: (["image", "slider", "custom"].includes(row.hero_type)
+        ? row.hero_type
+        : "image") as "image" | "slider" | "custom",
       image: { ...imageCfg, desktop_url: imgDesktop, mobile_url: imgMobile },
       slider: {
         config: { ...DEFAULT_SLIDER, ...(row.hero_slider_config ?? {}) },
-        slides: heroSlides,
+        slides: slides.hero,
       },
       custom: {
         ...customCfg,
@@ -226,17 +252,29 @@ async function buildHomepageConfig(row: any): Promise<HomepageConfig> {
   };
 }
 
+const EMPTY_CONFIG_ROW = {};
+
 export const getHomepageConfig = createServerFn({ method: "GET" }).handler(
   async (): Promise<HomepageConfig> => {
-    const client = getPublicDataClient() as any;
-    const { data } = await client
-      .from("homepage_settings")
-      .select(
-        "id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config",
-      )
-      .eq("id", 1)
-      .maybeSingle();
-    return buildHomepageConfig(data ?? {});
+    try {
+      const client = getPublicDataClient() as any;
+      const { data } = await client
+        .from("homepage_settings")
+        .select(
+          "id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config, published_slides",
+        )
+        .eq("id", 1)
+        .maybeSingle();
+      const row = data ?? EMPTY_CONFIG_ROW;
+      const [main, hero] = await Promise.all([
+        publishedSlidesFor(row, "main").catch(() => [] as PublicSlide[]),
+        publishedSlidesFor(row, "hero").catch(() => [] as PublicSlide[]),
+      ]);
+      return buildHomepageConfig(row, { main, hero });
+    } catch {
+      // Public homepage must never fail because of homepage-config state.
+      return buildHomepageConfig(EMPTY_CONFIG_ROW, { main: [], hero: [] });
+    }
   },
 );
 
@@ -260,8 +298,13 @@ export const getHomepageDraftConfig = createServerFn({ method: "GET" })
       .eq("id", 1)
       .maybeSingle();
     const row = pickSettings(data ?? {}, (data as any)?.draft_settings);
-    return buildHomepageConfig(row);
+    const [main, hero] = await Promise.all([
+      draftSlidesFor("main", supabase).catch(() => [] as PublicSlide[]),
+      draftSlidesFor("hero", supabase).catch(() => [] as PublicSlide[]),
+    ]);
+    return buildHomepageConfig(row, { main, hero });
   });
+
 
 export type HomepagePublishStatus = {
   has_draft: boolean;
@@ -306,15 +349,14 @@ export const publishHomepageDraft = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context as any;
     await assertSuperAdmin(supabase, userId);
-    const { data: cur } = await supabase
+    const { data: cur, error: readErr } = await supabase
       .from("homepage_settings")
       .select("*")
       .eq("id", 1)
       .maybeSingle();
+    if (readErr) throw new Error(readErr.message);
     const row = (cur ?? {}) as any;
     const draft = (row.draft_settings ?? {}) as any;
-    // Snapshot of what's currently live BEFORE overwriting = the new
-    // "published snapshot" used by Restore Last Published.
     const merged = {
       main_slider_enabled:
         draft.main_slider_enabled ?? row.main_slider_enabled ?? false,
@@ -329,19 +371,77 @@ export const publishHomepageDraft = createServerFn({ method: "POST" })
       hero_custom_config:
         draft.hero_custom_config ?? row.hero_custom_config ?? {},
     };
+    // Fail closed on incoherent draft state.
+    if (!["before_hero", "after_hero"].includes(merged.main_slider_position))
+      throw new Error("موضع السلايدر غير صالح");
+    if (!["image", "slider", "custom"].includes(merged.hero_type))
+      throw new Error("نوع الهيرو غير صالح");
+
+    // Freeze the slide state belonging to this draft so config + slides go
+    // live together in one atomic row update.
+    const { data: slideRows, error: slidesErr } = await supabase
+      .from("homepage_slides")
+      .select("*")
+      .eq("is_published", true)
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true });
+    if (slidesErr) throw new Error(slidesErr.message);
+    const rows = (slideRows ?? []) as any[];
+    const publishedSlides = {
+      main: rows.filter((r) => r.slider_group === "main"),
+      hero: rows.filter((r) => r.slider_group === "hero"),
+    };
+
     const snapshot: HomepageSettingsSnapshot = { ...merged } as any;
+    const publishedAt = new Date().toISOString();
     const { error } = await supabase
       .from("homepage_settings")
       .update({
         ...merged,
         draft_settings: null,
         published_snapshot: snapshot,
-        last_published_at: new Date().toISOString(),
+        published_slides: publishedSlides,
+        last_published_at: publishedAt,
       })
       .eq("id", 1);
     if (error) throw new Error(error.message);
-    return { ok: true, published_at: new Date().toISOString() };
+
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("audit_log").insert({
+        actor_user_id: userId,
+        action: "homepage.publish",
+        entity_type: "homepage_settings",
+        before: {
+          settings: {
+            main_slider_enabled: row.main_slider_enabled,
+            main_slider_position: row.main_slider_position,
+            hero_enabled: row.hero_enabled,
+            hero_type: row.hero_type,
+          },
+          slides_count: {
+            main: Array.isArray(row.published_slides?.main) ? row.published_slides.main.length : null,
+            hero: Array.isArray(row.published_slides?.hero) ? row.published_slides.hero.length : null,
+          },
+        },
+        after: {
+          settings: {
+            main_slider_enabled: merged.main_slider_enabled,
+            main_slider_position: merged.main_slider_position,
+            hero_enabled: merged.hero_enabled,
+            hero_type: merged.hero_type,
+          },
+          slides_count: {
+            main: publishedSlides.main.length,
+            hero: publishedSlides.hero.length,
+          },
+        },
+      } as any);
+    } catch { /* audit must never break publishing */ }
+
+    return { ok: true, published_at: publishedAt };
   });
+
 
 export const restoreLastPublishedHomepage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

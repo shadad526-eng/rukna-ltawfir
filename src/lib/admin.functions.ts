@@ -76,16 +76,15 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
   .inputValidator((d: { user_id: string; roles: string[] }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
-    const unique = Array.from(new Set(data.roles));
-    if (unique.length) {
-      await supabaseAdmin.from("user_roles").insert(
-        unique.map((role) => ({ user_id: data.user_id, role: role as any })),
-      );
-    }
+    // Atomic + guarded (last-super-admin protection + audit) inside Postgres.
+    const { error } = await context.supabase.rpc("admin_set_user_roles", {
+      _user_id: data.user_id,
+      _roles: Array.from(new Set(data.roles)) as any,
+    });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -101,16 +100,58 @@ export const adminResetPassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Throws when the action would leave the system without any active super admin. */
+async function assertNotLastSuperAdmin(admin: any, userId: string) {
+  const { data: isSuper } = await admin
+    .from("user_roles")
+    .select("user_id")
+    .eq("user_id", userId)
+    .eq("role", "super_admin")
+    .limit(1);
+  if (!isSuper || isSuper.length === 0) return;
+  const { data: others } = await admin
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "super_admin")
+    .neq("user_id", userId)
+    .limit(1);
+  if (!others || others.length === 0) {
+    throw new Error("لا يمكن تعطيل أو حذف آخر مدير عام (Super Admin) في النظام");
+  }
+}
+
+async function audit(
+  admin: any,
+  actor: string,
+  action: string,
+  entity_type: string,
+  entity_id: string | null,
+  meta?: { before?: any; after?: any },
+) {
+  try {
+    await admin.from("audit_log").insert({
+      actor_user_id: actor,
+      action,
+      entity_type,
+      entity_id,
+      before: meta?.before ?? null,
+      after: meta?.after ?? null,
+    });
+  } catch { /* auditing must never break the operation */ }
+}
+
 export const adminToggleUserEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { user_id: string; enabled: boolean }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!data.enabled) await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       ban_duration: data.enabled ? "none" : "8760h",
     } as any);
     if (error) throw error;
+    await audit(supabaseAdmin, context.userId, data.enabled ? "user.enable" : "user.disable", "auth.users", data.user_id);
     return { ok: true };
   });
 
@@ -120,10 +161,16 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.user_id === context.userId) throw new Error("لا يمكنك حذف حسابك الحالي");
+    await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
+    // Roles first so the deferred last-super-admin DB guard can evaluate.
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw error;
+    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id);
     return { ok: true };
   });
+
 
 export const adminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -247,14 +294,37 @@ export const adminUploadStorage = createServerFn({ method: "POST" })
     return { ok: true, asset_id };
   });
 
-export const adminDeleteStorage = createServerFn({ method: "POST" })
+export const adminAssetUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { bucket: string; path: string }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { findAssetUsage } = await import("./asset-usage.server");
+    return findAssetUsage(supabaseAdmin, data.bucket, data.path);
+  });
+
+
+export const adminDeleteStorage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { bucket: string; path: string; force?: boolean }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { findAssetUsage } = await import("./asset-usage.server");
+    const usage = await findAssetUsage(supabaseAdmin, data.bucket, data.path);
+
+    if (usage.used_by.length > 0 && !data.force) {
+      throw new Error(
+        `لا يمكن حذف هذا الملف لأنه مستخدم في: ${usage.used_by.join("، ")}. أزل الارتباط أولاً.`,
+      );
+    }
     const { error } = await supabaseAdmin.storage.from(data.bucket).remove([data.path]);
     if (error) throw error;
     await supabaseAdmin.from("assets").delete().eq("storage_bucket", data.bucket).eq("storage_path", data.path);
+    await audit(supabaseAdmin, context.userId, "media.delete", "assets", usage.asset_id, {
+      before: { bucket: data.bucket, path: data.path, used_by: usage.used_by },
+    });
     return { ok: true };
   });
+

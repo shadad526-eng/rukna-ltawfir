@@ -152,8 +152,8 @@ function HomepageManagerPage() {
     } as HomepageSettingsSnapshot;
   }
 
-  async function saveDraft(showToast = true) {
-    if (!settings) return;
+  async function saveDraft(showToast = true): Promise<boolean> {
+    if (!settings) return false;
     setBusy("draft");
     try {
       await saveDraftFn({ data: { snapshot: snapshotFromSettings(settings) } });
@@ -161,23 +161,35 @@ function HomepageManagerPage() {
       setStatus((s) => (s ? { ...s, has_draft: true } : s));
       if (showToast) toast.success("تم حفظ المسودة");
       refreshPreview();
-    } catch (e: any) { toast.error(e.message ?? "فشل حفظ المسودة"); }
+      return true;
+    } catch (e: any) {
+      toast.error(e?.message ?? "فشل حفظ المسودة");
+      return false;
+    }
     finally { setBusy(""); }
   }
 
   async function publish() {
     if (!settings) return;
-    if (dirty) await saveDraft(false);
     if (!confirm("نشر التغييرات على الصفحة الرئيسية العامة؟")) return;
+    // Fail closed: never publish on top of a draft that failed to save.
+    if (dirty) {
+      const saved = await saveDraft(false);
+      if (!saved) {
+        toast.error("تم إيقاف النشر: فشل حفظ المسودة. الصفحة المنشورة لم تتغير.");
+        return;
+      }
+    }
     setBusy("publish");
     try {
       await publishFn();
       toast.success("تم النشر بنجاح");
       await load();
       refreshPreview();
-    } catch (e: any) { toast.error(e.message ?? "فشل النشر"); }
+    } catch (e: any) { toast.error(e.message ?? "فشل النشر — الصفحة المنشورة السابقة لم تتغير"); }
     finally { setBusy(""); }
   }
+
 
   async function restoreLastPublished() {
     if (!confirm("استعادة آخر نسخة منشورة كمسودة حالية؟ سيتم استبدال المسودة الحالية.")) return;
