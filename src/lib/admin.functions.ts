@@ -79,7 +79,7 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
     // Atomic + guarded (last-super-admin protection + audit) inside Postgres.
     const { error } = await context.supabase.rpc("admin_set_user_roles", {
       _user_id: data.user_id,
-      _roles: Array.from(new Set(data.roles)),
+      _roles: Array.from(new Set(data.roles)) as any,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
