@@ -641,6 +641,7 @@ export type Database = {
           main_slider_config: Json
           main_slider_enabled: boolean
           main_slider_position: string
+          published_slides: Json | null
           published_snapshot: Json | null
           updated_at: string
         }
@@ -657,6 +658,7 @@ export type Database = {
           main_slider_config?: Json
           main_slider_enabled?: boolean
           main_slider_position?: string
+          published_slides?: Json | null
           published_snapshot?: Json | null
           updated_at?: string
         }
@@ -673,6 +675,7 @@ export type Database = {
           main_slider_config?: Json
           main_slider_enabled?: boolean
           main_slider_position?: string
+          published_slides?: Json | null
           published_snapshot?: Json | null
           updated_at?: string
         }
@@ -1687,6 +1690,13 @@ export type Database = {
       }
     }
     Functions: {
+      admin_set_user_roles: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: Json
+      }
       has_brand_role: {
         Args: {
           _brand_id: string
