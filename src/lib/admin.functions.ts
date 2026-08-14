@@ -294,14 +294,80 @@ export const adminUploadStorage = createServerFn({ method: "POST" })
     return { ok: true, asset_id };
   });
 
-export const adminDeleteStorage = createServerFn({ method: "POST" })
+/** Tables/columns that reference assets.id and would break if the file vanished. */
+const ASSET_REFS: { table: string; column: string; label: string }[] = [
+  { table: "brands", column: "logo_asset_id", label: "علامة تجارية (شعار)" },
+  { table: "brands", column: "hero_asset_id", label: "علامة تجارية (غلاف)" },
+  { table: "products", column: "cover_asset_id", label: "منتج (غلاف)" },
+  { table: "product_variants", column: "cover_asset_id", label: "عبوة منتج" },
+  { table: "product_assets", column: "asset_id", label: "صورة منتج" },
+  { table: "product_categories", column: "icon_asset_id", label: "تصنيف" },
+  { table: "insights", column: "cover_asset_id", label: "مقال" },
+  { table: "pages", column: "cover_asset_id", label: "صفحة" },
+  { table: "catalogs", column: "cover_asset_id", label: "كتالوج (غلاف)" },
+  { table: "catalogs", column: "pdf_asset_id", label: "كتالوج (PDF)" },
+  { table: "certifications", column: "logo_asset_id", label: "شهادة" },
+  { table: "corporate_identity", column: "logo_asset_id", label: "الهوية المؤسسية" },
+  { table: "topic_hubs", column: "cover_asset_id", label: "محور معرفي" },
+  { table: "homepage_sections", column: "media_asset_id", label: "قسم الصفحة الرئيسية" },
+  { table: "homepage_slides", column: "desktop_asset_id", label: "شريحة (سطح المكتب)" },
+  { table: "homepage_slides", column: "mobile_asset_id", label: "شريحة (جوال)" },
+];
+
+export const adminAssetUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { bucket: string; path: string }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return findAssetUsage(supabaseAdmin, data.bucket, data.path);
+  });
+
+async function findAssetUsage(admin: any, bucket: string, path: string) {
+  const { data: asset } = await admin
+    .from("assets")
+    .select("id")
+    .eq("storage_bucket", bucket)
+    .eq("storage_path", path)
+    .maybeSingle();
+  const assetId = (asset as any)?.id as string | undefined;
+  if (!assetId) return { asset_id: null, used_by: [] as string[] };
+  const used: string[] = [];
+  for (const ref of ASSET_REFS) {
+    const { count } = await admin
+      .from(ref.table)
+      .select("*", { count: "exact", head: true })
+      .eq(ref.column, assetId);
+    if ((count ?? 0) > 0) used.push(`${ref.label} (${count})`);
+  }
+  // Also protect assets frozen inside the published homepage snapshot.
+  const { data: hp } = await admin
+    .from("homepage_settings")
+    .select("published_slides, hero_image_config, hero_custom_config")
+    .eq("id", 1)
+    .maybeSingle();
+  if (hp && JSON.stringify(hp).includes(assetId)) used.push("الصفحة الرئيسية المنشورة");
+  return { asset_id: assetId, used_by: used };
+}
+
+export const adminDeleteStorage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { bucket: string; path: string; force?: boolean }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const usage = await findAssetUsage(supabaseAdmin, data.bucket, data.path);
+    if (usage.used_by.length > 0 && !data.force) {
+      throw new Error(
+        `لا يمكن حذف هذا الملف لأنه مستخدم في: ${usage.used_by.join("، ")}. أزل الارتباط أولاً.`,
+      );
+    }
     const { error } = await supabaseAdmin.storage.from(data.bucket).remove([data.path]);
     if (error) throw error;
     await supabaseAdmin.from("assets").delete().eq("storage_bucket", data.bucket).eq("storage_path", data.path);
+    await audit(supabaseAdmin, context.userId, "media.delete", "assets", usage.asset_id, {
+      before: { bucket: data.bucket, path: data.path, used_by: usage.used_by },
+    });
     return { ok: true };
   });
+
