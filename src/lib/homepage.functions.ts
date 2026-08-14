@@ -349,15 +349,14 @@ export const publishHomepageDraft = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context as any;
     await assertSuperAdmin(supabase, userId);
-    const { data: cur } = await supabase
+    const { data: cur, error: readErr } = await supabase
       .from("homepage_settings")
       .select("*")
       .eq("id", 1)
       .maybeSingle();
+    if (readErr) throw new Error(readErr.message);
     const row = (cur ?? {}) as any;
     const draft = (row.draft_settings ?? {}) as any;
-    // Snapshot of what's currently live BEFORE overwriting = the new
-    // "published snapshot" used by Restore Last Published.
     const merged = {
       main_slider_enabled:
         draft.main_slider_enabled ?? row.main_slider_enabled ?? false,
@@ -372,19 +371,77 @@ export const publishHomepageDraft = createServerFn({ method: "POST" })
       hero_custom_config:
         draft.hero_custom_config ?? row.hero_custom_config ?? {},
     };
+    // Fail closed on incoherent draft state.
+    if (!["before_hero", "after_hero"].includes(merged.main_slider_position))
+      throw new Error("موضع السلايدر غير صالح");
+    if (!["image", "slider", "custom"].includes(merged.hero_type))
+      throw new Error("نوع الهيرو غير صالح");
+
+    // Freeze the slide state belonging to this draft so config + slides go
+    // live together in one atomic row update.
+    const { data: slideRows, error: slidesErr } = await supabase
+      .from("homepage_slides")
+      .select("*")
+      .eq("is_published", true)
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true });
+    if (slidesErr) throw new Error(slidesErr.message);
+    const rows = (slideRows ?? []) as any[];
+    const publishedSlides = {
+      main: rows.filter((r) => r.slider_group === "main"),
+      hero: rows.filter((r) => r.slider_group === "hero"),
+    };
+
     const snapshot: HomepageSettingsSnapshot = { ...merged } as any;
+    const publishedAt = new Date().toISOString();
     const { error } = await supabase
       .from("homepage_settings")
       .update({
         ...merged,
         draft_settings: null,
         published_snapshot: snapshot,
-        last_published_at: new Date().toISOString(),
+        published_slides: publishedSlides,
+        last_published_at: publishedAt,
       })
       .eq("id", 1);
     if (error) throw new Error(error.message);
-    return { ok: true, published_at: new Date().toISOString() };
+
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("audit_log").insert({
+        actor_user_id: userId,
+        action: "homepage.publish",
+        entity_type: "homepage_settings",
+        before: {
+          settings: {
+            main_slider_enabled: row.main_slider_enabled,
+            main_slider_position: row.main_slider_position,
+            hero_enabled: row.hero_enabled,
+            hero_type: row.hero_type,
+          },
+          slides_count: {
+            main: Array.isArray(row.published_slides?.main) ? row.published_slides.main.length : null,
+            hero: Array.isArray(row.published_slides?.hero) ? row.published_slides.hero.length : null,
+          },
+        },
+        after: {
+          settings: {
+            main_slider_enabled: merged.main_slider_enabled,
+            main_slider_position: merged.main_slider_position,
+            hero_enabled: merged.hero_enabled,
+            hero_type: merged.hero_type,
+          },
+          slides_count: {
+            main: publishedSlides.main.length,
+            hero: publishedSlides.hero.length,
+          },
+        },
+      } as any);
+    } catch { /* audit must never break publishing */ }
+
+    return { ok: true, published_at: publishedAt };
   });
+
 
 export const restoreLastPublishedHomepage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
