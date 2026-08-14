@@ -311,7 +311,9 @@ export const adminDeleteStorage = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { findAssetUsage } = await import("./asset-usage.server");
     const usage = await findAssetUsage(supabaseAdmin, data.bucket, data.path);
+
     if (usage.used_by.length > 0 && !data.force) {
       throw new Error(
         `لا يمكن حذف هذا الملف لأنه مستخدم في: ${usage.used_by.join("، ")}. أزل الارتباط أولاً.`,
