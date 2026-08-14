@@ -76,16 +76,15 @@ export const adminUpdateUserRoles = createServerFn({ method: "POST" })
   .inputValidator((d: { user_id: string; roles: string[] }) => d)
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
-    const unique = Array.from(new Set(data.roles));
-    if (unique.length) {
-      await supabaseAdmin.from("user_roles").insert(
-        unique.map((role) => ({ user_id: data.user_id, role: role as any })),
-      );
-    }
+    // Atomic + guarded (last-super-admin protection + audit) inside Postgres.
+    const { error } = await context.supabase.rpc("admin_set_user_roles", {
+      _user_id: data.user_id,
+      _roles: Array.from(new Set(data.roles)),
+    });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
