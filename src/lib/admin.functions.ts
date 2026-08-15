@@ -307,24 +307,33 @@ export const adminAssetUsage = createServerFn({ method: "POST" })
 
 export const adminDeleteStorage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { bucket: string; path: string; force?: boolean }) => d)
+  .inputValidator((d: { bucket: string; path: string }) => ({ bucket: d.bucket, path: d.path }))
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { findAssetUsage } = await import("./asset-usage.server");
     const usage = await findAssetUsage(supabaseAdmin, data.bucket, data.path);
 
-    if (usage.used_by.length > 0 && !data.force) {
+    // No force/bypass path exists: referenced media can never be physically deleted.
+    if (usage.used_by.length > 0) {
       throw new Error(
         `لا يمكن حذف هذا الملف لأنه مستخدم في: ${usage.used_by.join("، ")}. أزل الارتباط أولاً.`,
       );
     }
+
+    // Delete the DB row FIRST — the BEFORE DELETE trigger on public.assets is the
+    // authoritative guard, so the storage object is only removed once the database
+    // confirms nothing references it.
+    if (usage.asset_id) {
+      const { error: dbErr } = await supabaseAdmin.from("assets").delete().eq("id", usage.asset_id);
+      if (dbErr) throw new Error(dbErr.message);
+    }
     const { error } = await supabaseAdmin.storage.from(data.bucket).remove([data.path]);
     if (error) throw error;
-    await supabaseAdmin.from("assets").delete().eq("storage_bucket", data.bucket).eq("storage_path", data.path);
     await audit(supabaseAdmin, context.userId, "media.delete", "assets", usage.asset_id, {
-      before: { bucket: data.bucket, path: data.path, used_by: usage.used_by },
+      before: { bucket: data.bucket, path: data.path, asset_id: usage.asset_id },
     });
     return { ok: true };
   });
+
 
