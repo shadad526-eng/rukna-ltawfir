@@ -163,13 +163,18 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.user_id === context.userId) throw new Error("لا يمكنك حذف حسابك الحالي");
     await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
-    // Roles first so the deferred last-super-admin DB guard can evaluate.
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
+    const { data: before } = await supabaseAdmin
+      .from("user_roles").select("role, brand_id").eq("user_id", data.user_id);
+    // Delete the auth user first: user_roles.user_id and profiles.id cascade on
+    // delete, so a failure here leaves the account fully intact with its roles.
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw error;
-    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id);
+    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id, {
+      before: { roles: before ?? [] },
+    });
     return { ok: true };
   });
+
 
 
 export const adminDashboardStats = createServerFn({ method: "GET" })
