@@ -67,7 +67,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     if (error) throw error;
     if (data.role && created.user) {
       // Explicit, audited grant only — no automatic elevation anywhere.
-      const { error: rErr } = await supabaseAdmin.rpc("admin_set_user_roles", {
+      const { error: rErr } = await context.supabase.rpc("admin_set_user_roles", {
         _user_id: created.user.id,
         _roles: [data.role] as any,
       });
