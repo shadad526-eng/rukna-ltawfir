@@ -158,7 +158,11 @@ export const adminToggleUserEnabled = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!data.enabled && data.user_id === context.userId) {
+      throw new Error("لا يمكنك تعطيل حسابك الحالي");
+    }
     if (!data.enabled) await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
+
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       ban_duration: data.enabled ? "none" : "8760h",
     } as any);
