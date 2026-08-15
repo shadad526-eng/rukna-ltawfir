@@ -66,9 +66,21 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     });
     if (error) throw error;
     if (data.role && created.user) {
-      await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role as any });
+      // Explicit, audited grant only — no automatic elevation anywhere.
+      const { error: rErr } = await context.supabase.rpc("admin_set_user_roles", {
+        _user_id: created.user.id,
+        _roles: [data.role] as any,
+      });
+      if (rErr) {
+        await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+        throw new Error(rErr.message);
+      }
     }
+    await audit(supabaseAdmin, context.userId, "user.create", "auth.users", created.user?.id ?? null, {
+      after: { email: data.email, role: data.role ?? null },
+    });
     return { id: created.user?.id };
+
   });
 
 export const adminUpdateUserRoles = createServerFn({ method: "POST" })
@@ -146,7 +158,11 @@ export const adminToggleUserEnabled = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!data.enabled && data.user_id === context.userId) {
+      throw new Error("لا يمكنك تعطيل حسابك الحالي");
+    }
     if (!data.enabled) await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
+
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
       ban_duration: data.enabled ? "none" : "8760h",
     } as any);
@@ -163,13 +179,18 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.user_id === context.userId) throw new Error("لا يمكنك حذف حسابك الحالي");
     await assertNotLastSuperAdmin(supabaseAdmin, data.user_id);
-    // Roles first so the deferred last-super-admin DB guard can evaluate.
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
+    const { data: before } = await supabaseAdmin
+      .from("user_roles").select("role, brand_id").eq("user_id", data.user_id);
+    // Delete the auth user first: user_roles.user_id and profiles.id cascade on
+    // delete, so a failure here leaves the account fully intact with its roles.
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw error;
-    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id);
+    await audit(supabaseAdmin, context.userId, "user.delete", "auth.users", data.user_id, {
+      before: { roles: before ?? [] },
+    });
     return { ok: true };
   });
+
 
 
 export const adminDashboardStats = createServerFn({ method: "GET" })
@@ -307,24 +328,33 @@ export const adminAssetUsage = createServerFn({ method: "POST" })
 
 export const adminDeleteStorage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { bucket: string; path: string; force?: boolean }) => d)
+  .inputValidator((d: { bucket: string; path: string }) => ({ bucket: d.bucket, path: d.path }))
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { findAssetUsage } = await import("./asset-usage.server");
     const usage = await findAssetUsage(supabaseAdmin, data.bucket, data.path);
 
-    if (usage.used_by.length > 0 && !data.force) {
+    // No force/bypass path exists: referenced media can never be physically deleted.
+    if (usage.used_by.length > 0) {
       throw new Error(
         `لا يمكن حذف هذا الملف لأنه مستخدم في: ${usage.used_by.join("، ")}. أزل الارتباط أولاً.`,
       );
     }
+
+    // Delete the DB row FIRST — the BEFORE DELETE trigger on public.assets is the
+    // authoritative guard, so the storage object is only removed once the database
+    // confirms nothing references it.
+    if (usage.asset_id) {
+      const { error: dbErr } = await supabaseAdmin.from("assets").delete().eq("id", usage.asset_id);
+      if (dbErr) throw new Error(dbErr.message);
+    }
     const { error } = await supabaseAdmin.storage.from(data.bucket).remove([data.path]);
     if (error) throw error;
-    await supabaseAdmin.from("assets").delete().eq("storage_bucket", data.bucket).eq("storage_path", data.path);
     await audit(supabaseAdmin, context.userId, "media.delete", "assets", usage.asset_id, {
-      before: { bucket: data.bucket, path: data.path, used_by: usage.used_by },
+      before: { bucket: data.bucket, path: data.path, asset_id: usage.asset_id },
     });
     return { ok: true };
   });
+
 
