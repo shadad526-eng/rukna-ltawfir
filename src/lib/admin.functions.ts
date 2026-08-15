@@ -66,9 +66,21 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     });
     if (error) throw error;
     if (data.role && created.user) {
-      await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role as any });
+      // Explicit, audited grant only — no automatic elevation anywhere.
+      const { error: rErr } = await supabaseAdmin.rpc("admin_set_user_roles", {
+        _user_id: created.user.id,
+        _roles: [data.role] as any,
+      });
+      if (rErr) {
+        await supabaseAdmin.auth.admin.deleteUser(created.user.id);
+        throw new Error(rErr.message);
+      }
     }
+    await audit(supabaseAdmin, context.userId, "user.create", "auth.users", created.user?.id ?? null, {
+      after: { email: data.email, role: data.role ?? null },
+    });
     return { id: created.user?.id };
+
   });
 
 export const adminUpdateUserRoles = createServerFn({ method: "POST" })
