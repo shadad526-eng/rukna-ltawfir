@@ -1,0 +1,2 @@
+REVOKE SELECT ON public.homepage_settings FROM anon;
+GRANT SELECT (id, main_slider_enabled, main_slider_position, main_slider_config, hero_enabled, hero_type, hero_image_config, hero_slider_config, hero_custom_config, published_slides, last_published_at, created_at, updated_at) ON public.homepage_settings TO anon;
