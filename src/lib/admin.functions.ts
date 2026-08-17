@@ -437,3 +437,46 @@ export const adminCleanupArticleInline = createServerFn({ method: "POST" })
     }
     return { removed: removed.length };
   });
+
+/* ============ Homepage sections (post-hero managed content) ============ */
+
+export const adminListHomepageSections = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperAdmin(context);
+    const { data, error } = await context.supabase
+      .from("homepage_sections")
+      .select("section_key, title_ar, title_en, subtitle_ar, subtitle_en, body_ar, body_en, cta_label_ar, cta_url, sort_order, is_enabled, extra");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const adminSaveHomepageSections = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { rows: any[] }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    for (const r of data.rows ?? []) {
+      if (!r?.section_key) continue;
+      const payload = {
+        section_key: r.section_key,
+        title_ar: r.title_ar ?? null,
+        title_en: r.title_en ?? null,
+        subtitle_ar: r.subtitle_ar ?? null,
+        subtitle_en: r.subtitle_en ?? null,
+        body_ar: r.body_ar ?? null,
+        body_en: r.body_en ?? null,
+        cta_label_ar: r.cta_label_ar ?? null,
+        cta_url: r.cta_url ?? null,
+        sort_order: Number(r.sort_order ?? 0),
+        is_enabled: r.is_enabled !== false,
+        extra: r.extra ?? {},
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = await context.supabase
+        .from("homepage_sections")
+        .upsert(payload, { onConflict: "section_key" });
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
