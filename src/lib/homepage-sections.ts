@@ -247,7 +247,7 @@ export function mergeSection(key: string, dbRow?: Partial<HomepageSectionRow> | 
   const base = defaultRow(key);
   if (!dbRow) return base;
   const pick = (v: unknown, fallback: string | null) =>
-    typeof v === "string" && v.trim() !== "" ? v : v === null || v === undefined ? fallback : fallback;
+    typeof v === "string" && v.trim() !== "" ? v : fallback;
   const extra = { ...(base.extra ?? {}), ...((dbRow.extra as SectionExtra) ?? {}) };
   if (!Array.isArray(extra.items) || extra.items.length === 0) extra.items = base.extra?.items;
   return {
