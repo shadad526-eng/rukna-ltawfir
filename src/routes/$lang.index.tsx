@@ -8,7 +8,8 @@ import {
   listCatalogs,
   listInsights,
 } from "@/lib/site.functions";
-import { getHomepageConfig, getHomepageDraftConfig } from "@/lib/homepage.functions";
+import { getHomepageConfig, getHomepageDraftConfig, listHomepageSections } from "@/lib/homepage.functions";
+import { itemText, orderedUnits, sectionText, type HomepageSectionsMap } from "@/lib/homepage-sections";
 import { HomepageMainSlider, HomepageManagerHero } from "@/components/site/HomepageManager";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/site/Header";
@@ -34,6 +35,10 @@ const featuredQO = queryOptions({
 const catalogsQO = queryOptions({ queryKey: ["catalogs"], queryFn: () => listCatalogs() });
 const insightsQO = queryOptions({ queryKey: ["insights"], queryFn: () => listInsights() });
 const homepageQO = queryOptions({ queryKey: ["homepage-config"], queryFn: () => getHomepageConfig() });
+const sectionsQO = queryOptions({
+  queryKey: ["homepage-sections"],
+  queryFn: () => listHomepageSections(),
+});
 
 export const Route = createFileRoute("/$lang/")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -167,6 +172,7 @@ export const Route = createFileRoute("/$lang/")({
       context.queryClient.ensureQueryData(catalogsQO),
       context.queryClient.ensureQueryData(insightsQO),
       context.queryClient.ensureQueryData(homepageQO),
+      context.queryClient.ensureQueryData(sectionsQO),
     ]);
   },
   component: Home,
@@ -181,6 +187,7 @@ function Home() {
   const { data: catalogs } = useSuspenseQuery(catalogsQO);
   const { data: insights } = useSuspenseQuery(insightsQO);
   const { data: publishedHomepage } = useSuspenseQuery(homepageQO);
+  const { data: sections } = useSuspenseQuery(sectionsQO) as { data: HomepageSectionsMap };
   const search = Route.useSearch();
   const previewMode = search.hp_preview === 1;
   const draftQ = useQuery({
@@ -206,19 +213,33 @@ function Home() {
   const ident = useLocalizedIdentity(id);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  const WHY_CARDS = [
-    { i: "◆", t: t("home.why.exclusive"), d: t("home.why.exclusiveDesc") },
-    { i: "✦", t: t("home.why.authentic"), d: t("home.why.authenticDesc") },
-    { i: "✺", t: t("home.why.global"), d: t("home.why.globalDesc") },
-    { i: "✪", t: t("home.why.national"), d: t("home.why.nationalDesc") },
-    { i: "❖", t: t("home.why.partnerships"), d: t("home.why.partnershipsDesc") },
-    { i: "✧", t: t("home.why.support"), d: t("home.why.supportDesc") },
-  ];
+  // ---- CMS-managed section content (falls back to the built-in copy) ----
+  const L = isAr ? ("ar" as const) : ("en" as const);
+  const S = (key: string, field: Parameters<typeof sectionText>[1]) =>
+    sectionText(sections?.[key], field, L);
+  const on = (key: string) => sections?.[key]?.is_enabled !== false;
+  const items = (key: string) => sections?.[key]?.extra?.items ?? [];
+  const url = (key: string, fallback: string) => {
+    const u = sections?.[key]?.cta_url?.trim();
+    return u && u.length ? u : fallback;
+  };
+
+  const FEATURE_ITEMS = items("features").map((it) => ({
+    icon: it.icon,
+    title: itemText(it, "title", L),
+    desc: itemText(it, "desc", L),
+  }));
+
+  const WHY_CARDS = items("why").map((it, i) => ({
+    i: it.icon || ["◆", "✦", "✺", "✪", "❖", "✧"][i % 6],
+    t: itemText(it, "title", L),
+    d: itemText(it, "desc", L),
+  }));
 
   const NEWS_CARDS = insights.map((n) => ({
     slug: n.slug,
     cover: n.cover_url ?? "",
-    eyebrow: (n.tags && n.tags[0]) || t("home.knowledgeEyebrow"),
+    eyebrow: (n.tags && n.tags[0]) || sectionText(sections?.["knowledge"], "eyebrow", isAr ? "ar" : "en"),
     title: (isAr ? n.title_ar : n.title_en || n.title_ar),
     body: (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "",
     date: n.published_at,
@@ -266,163 +287,24 @@ function Home() {
       homepage.hero.type === "custom" ||
       (homepage.hero.type === "slider" && homepage.hero.slider.slides.length > 0));
 
-  return (
-    <div className="min-h-screen bg-background">
-      <SiteHeader
-        legalName={ident.legalName}
-        parentGroup={ident.parentGroup}
-        whatsappNumber={id.whatsapp_number}
-        logoUrl={id.logo_url}
-      />
-
-      {showMainSliderBefore && <HomepageMainSlider config={homepage.main_slider} />}
-      {useManagedHero ? <HomepageManagerHero config={homepage.hero} /> : (
-
-
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background:
-            "radial-gradient(120% 80% at 100% 0%, oklch(0.86 0.07 245) 0%, transparent 55%), radial-gradient(90% 70% at 0% 100%, oklch(0.96 0.025 138) 0%, transparent 55%), linear-gradient(180deg, #F6FAFE 0%, #EAF2FB 55%, #DCE8F5 100%)",
-        }}
-      >
-        <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
-          <defs>
-            <linearGradient id="heroCurve1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.10" />
-              <stop offset="100%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.35" />
-            </linearGradient>
-            <linearGradient id="heroCurve2" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.04" />
-            </linearGradient>
-            <pattern id="heroDots" width="22" height="22" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="oklch(0.46 0.16 245 / 0.10)" />
-            </pattern>
-          </defs>
-          <rect width="1440" height="900" fill="url(#heroDots)" opacity="0.55" />
-          <path d="M0 720 C 320 620, 540 760, 820 660 S 1280 540, 1440 620 L 1440 900 L 0 900 Z" fill="url(#heroCurve1)" />
-          <path d="M1440 0 C 1180 120, 1240 320, 1080 420 S 800 540, 720 460 L 720 0 Z" fill="url(#heroCurve2)" />
-          <path d="M0 80 C 200 40, 380 160, 540 120" stroke="oklch(0.46 0.16 245 / 0.18)" strokeWidth="1" fill="none" />
-        </svg>
-
-        <span className="leaf-drift absolute right-[6%] top-[14%] text-4xl text-leaf-500/80 md:text-5xl" aria-hidden>🍃</span>
-        <span className="leaf-drift absolute left-[6%] top-[55%] text-3xl text-leaf-500/70 md:text-4xl" style={{ animationDelay: "1.8s" }} aria-hidden>🍃</span>
-        <span className="leaf-drift absolute left-[14%] bottom-[28%] text-2xl text-leaf-500/60 md:text-3xl" style={{ animationDelay: "3.2s" }} aria-hidden>🍃</span>
-
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pt-14 pb-32 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-14 md:px-8 md:pt-24 md:pb-48">
-          <div className="prem-fade-up order-2 md:order-1">
-            <div
-              className="inline-flex items-center gap-2 rounded-full border border-trust-300/60 px-5 py-2 text-[11px] font-semibold tracking-wider text-trust-700 md:text-xs"
-              style={{
-                background: "linear-gradient(180deg, oklch(1 0 0 / 0.92), oklch(0.97 0.018 245 / 0.78))",
-                boxShadow: "0 10px 24px -10px oklch(0.32 0.13 245 / 0.28), inset 0 1px 0 oklch(1 0 0 / 0.95)",
-              }}
-            >
-              <span className="size-1.5 rounded-full bg-leaf-500 shadow-[0_0_0_4px_oklch(0.68_0.17_138/0.18)]" />
-              {t("home.heroBadge")}
-            </div>
-
-            <h1
-              className="mt-7 font-black tracking-tight"
-              style={{ fontFamily: 'var(--font-brand)', fontWeight: 900 }}
-            >
-              <span className="sr-only">
-                {isAr
-                  ? "ركن التوفير كوزمتك للتجارة — الموزّع الرائد لعلامات الصحة والجمال والعناية بالأطفال في اليمن"
-                  : "Rukn Al-Tawfir Cosmetic for Trade — Leading Health, Beauty & Baby-Care Brands Distributor in Yemen"}
-              </span>
-              <span
-                aria-hidden
-                className="block text-[2.2rem] md:text-[3.4rem] lg:text-[4.1rem]"
-                style={{
-                  lineHeight: 1.45,
-                  paddingBlock: "0.15em",
-                  background: "linear-gradient(180deg, oklch(0.32 0.13 245) 0%, oklch(0.42 0.15 245) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                {t("home.heroTitleLine1")}
-              </span>
-              <span
-                aria-hidden
-                className="mt-3 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
-                style={{
-                  lineHeight: 1.45,
-                  paddingBlock: "0.15em",
-                  background: "linear-gradient(180deg, oklch(0.62 0.17 138) 0%, oklch(0.50 0.16 138) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                {t("home.heroTitleLine2")}
-              </span>
-            </h1>
-
-            <div className="mt-6 flex items-center gap-3">
-              <span className="h-px w-14 bg-gradient-to-l from-transparent to-trust-700/60" />
-              <span className="size-1.5 rounded-full bg-leaf-500" />
-              <span className="h-px w-24 bg-gradient-to-r from-transparent via-trust-700/40 to-transparent" />
-            </div>
-
-            <p className="mt-6 max-w-xl text-base leading-loose text-ink-600 md:text-lg">
-              {t("home.heroSubtitle")}
-            </p>
-
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <LLink
-                to="/$lang/brands"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 md:text-[15px]"
-                style={{
-                  background: "linear-gradient(180deg, oklch(0.56 0.16 245), oklch(0.38 0.15 245))",
-                  boxShadow:
-                    "0 22px 44px -16px oklch(0.32 0.13 245 / 0.65), 0 6px 14px -6px oklch(0.32 0.13 245 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.30), inset 0 -1px 0 oklch(0 0 0 / 0.12)",
-                }}
-              >
-                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 opacity-60"
-                  style={{ background: "linear-gradient(180deg, oklch(1 0 0 / 0.20), transparent)" }}
-                />
-                <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">{isAr ? "←" : "→"}</span>
-                <span className="relative">{t("home.heroCtaExplore")}</span>
-              </LLink>
-              <WhatsAppCTA number={id.whatsapp_number}>{t("home.heroCtaContact")}</WhatsAppCTA>
-            </div>
-          </div>
-
-          <div className="order-1 md:order-2">
-            <HeroLogoStage logoUrl={id.logo_url} />
-          </div>
-        </div>
-      </section>
-      )}
-      {showMainSliderAfter && <HomepageMainSlider config={homepage.main_slider} />}
-
-      <div
-        className={`relative z-30 mx-auto max-w-6xl px-4 md:px-8 ${
-          showMainSliderAfter ? "mt-4 md:mt-6" : "-mt-16 md:-mt-24"
-        }`}
-      >
-        <HeroBrandStrip brands={brands} />
-      </div>
-
-
-      <section className="relative z-10 bg-card pt-14 md:pt-20">
+  const unitNodes: Record<string, React.ReactNode> = {
+    features: on("features") ? (
+      <section key="features" className="relative z-10 bg-card pt-14 md:pt-20">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
-          <HeroFeaturesStrip />
+          <HeroFeaturesStrip items={FEATURE_ITEMS} />
         </div>
       </section>
+    ) : null,
 
-      <section className="bg-card pt-16 md:pt-20">
+    why: on("why") ? (
+      <section key="why" className="bg-card pt-16 md:pt-20">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="hq-eyebrow">{t("home.whyEyebrow")}</div>
+            <div className="hq-eyebrow">{S("why", "eyebrow")}</div>
             <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-5xl">
-              {t("home.whyTitle")}
+              {S("why", "title")}
             </h2>
-            <p className="mt-5 text-base leading-loose text-ink-600">{t("home.whySubtitle")}</p>
+            <p className="mt-5 text-base leading-loose text-ink-600">{S("why", "body")}</p>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {WHY_CARDS.map((c) => (
@@ -435,22 +317,24 @@ function Home() {
           </div>
         </div>
       </section>
+    ) : null,
 
-      <section id="ecosystem" className="relative border-t border-border">
+    ecosystem: on("ecosystem") ? (
+      <section key="ecosystem" id="ecosystem" className="relative border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
           <div className="mb-12 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <div className="hq-eyebrow">{t("home.ecosystemEyebrow")}</div>
+              <div className="hq-eyebrow">{S("ecosystem", "eyebrow")}</div>
               <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                {t("home.ecosystemTitle")}
+                {S("ecosystem", "title")}
               </h2>
-              <p className="mt-4 text-base leading-loose text-ink-600">{t("home.ecosystemDesc")}</p>
+              <p className="mt-4 text-base leading-loose text-ink-600">{S("ecosystem", "body")}</p>
             </div>
             <LLink
-              to="/$lang/brands"
+              to={`/$lang${url("ecosystem", "/brands")}`}
               className="inline-flex items-center gap-1.5 rounded-full border border-trust-700/20 bg-secondary px-4 py-2 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-sand-50"
             >
-              {t("home.ecosystemFullGuide")}
+              {S("ecosystem", "cta_label")}
             </LLink>
           </div>
 
@@ -461,59 +345,61 @@ function Home() {
           </div>
         </div>
       </section>
+    ) : null,
 
-      {featured.length > 0 ? (
-        <section className="border-y border-border bg-card">
-          <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
-            <div className="mb-10 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <div className="hq-eyebrow">{t("home.featuredEyebrow")}</div>
-                <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
-                  {t("home.featuredTitle")}
-                </h2>
-              </div>
-              <LLink to="/$lang/brands" className="text-sm font-semibold text-trust-700 hover:underline">
-                {t("home.featuredAll")}
-              </LLink>
+    featured: on("featured") && featured.length > 0 ? (
+      <section key="featured" className="border-y border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
+          <div className="mb-10 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="hq-eyebrow">{S("featured", "eyebrow")}</div>
+              <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                {S("featured", "title")}
+              </h2>
             </div>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {featured.map((p) => {
-                const pname = isAr ? p.name_ar : p.name_en;
-                return (
-                  <LLink
-                    key={p.id}
-                    to="/$lang/brands/$slug/$productSlug"
-                    params={{ slug: p.brand_slug, productSlug: p.slug }}
-                    className="prem-card group flex flex-col"
-                  >
-                    <div className="podium relative grid aspect-square place-items-center p-5">
-                      {p.cover_url ? (
-                        <img src={p.cover_url} alt={productAlt(p.brand_slug, p.brand_slug, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
-                      ) : (
-                        <span className="text-[11px] text-muted-foreground">{t("common.officialImage")}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 p-4">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-600">{p.brand_slug}</div>
-                      <div className="mt-1 font-arabic text-[13px] font-bold leading-tight text-foreground line-clamp-2">
-                        {pname}
-                      </div>
-                    </div>
-                  </LLink>
-                );
-              })}
-            </div>
+            <LLink to={`/$lang${url("featured", "/brands")}`} className="text-sm font-semibold text-trust-700 hover:underline">
+              {S("featured", "cta_label")}
+            </LLink>
           </div>
-        </section>
-      ) : null}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {featured.map((p) => {
+              const pname = isAr ? p.name_ar : p.name_en;
+              return (
+                <LLink
+                  key={p.id}
+                  to="/$lang/brands/$slug/$productSlug"
+                  params={{ slug: p.brand_slug, productSlug: p.slug }}
+                  className="prem-card group flex flex-col"
+                >
+                  <div className="podium relative grid aspect-square place-items-center p-5">
+                    {p.cover_url ? (
+                      <img src={p.cover_url} alt={productAlt(p.brand_slug, p.brand_slug, pname, isAr ? "ar" : "en")} className="max-h-full w-auto object-contain transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" loading="lazy" />
+                    ) : (
+                      <span className="text-[11px] text-muted-foreground">{t("common.officialImage")}</span>
+                    )}
+                  </div>
+                  <div className="flex-1 p-4">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-ink-600">{p.brand_slug}</div>
+                    <div className="mt-1 font-arabic text-[13px] font-bold leading-tight text-foreground line-clamp-2">
+                      {pname}
+                    </div>
+                  </div>
+                </LLink>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    ) : null,
 
-      <section className="border-b border-border bg-card">
+    knowledge: on("knowledge") ? (
+      <section key="knowledge" className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
           <div className="mb-10 flex flex-col items-start gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="hq-eyebrow">{t("home.knowledgeEyebrow")}</div>
+              <div className="hq-eyebrow">{S("knowledge", "eyebrow")}</div>
               <h2 className="mt-3 font-arabic text-3xl font-bold text-foreground md:text-4xl">
-                {t("home.knowledgeTitle")}
+                {S("knowledge", "title")}
               </h2>
             </div>
             {NEWS_CARDS.length > 1 && (
@@ -588,64 +474,69 @@ function Home() {
 
           <div className="mt-10 flex justify-center">
             <LLink
-              to="/$lang/news"
+              to={`/$lang${url("knowledge", "/news")}`}
               className="inline-flex items-center gap-2 rounded-full border border-trust-700 px-6 py-3 text-sm font-semibold text-trust-700 transition-colors hover:bg-trust-700 hover:text-white"
             >
-              {t("home.knowledgeViewAll")}
+              {S("knowledge", "cta_label")}
             </LLink>
           </div>
         </div>
       </section>
+    ) : null,
 
-
-      <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="premium-panel overflow-hidden p-8 md:p-10">
-            <div className="absolute -right-16 -top-16 size-56 rounded-full bg-trust-700/10 blur-3xl" aria-hidden />
-            <div className="hq-eyebrow">{t("home.catalogsEyebrow")}</div>
-            <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-              {t("home.catalogsTitle")}
-            </h3>
-            <p className="mt-3 max-w-md text-sm leading-loose text-ink-600">
-              {catalogs.length > 0
-                ? t("home.catalogsDescWithCount", { count: catalogs.length })
-                : t("home.catalogsDescEmpty")}
-            </p>
-            <LLink
-              to="/$lang/catalogs"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-trust-700 px-5 py-2.5 text-sm font-semibold text-sand-50 transition-transform hover:-translate-y-0.5"
-            >
-              {t("home.catalogsEnter")} <span aria-hidden>{isAr ? "←" : "→"}</span>
-            </LLink>
-          </div>
-          <div className="premium-panel overflow-hidden p-8 md:p-10">
-            <div className="absolute -left-16 -top-16 size-56 rounded-full bg-leaf-500/15 blur-3xl" aria-hidden />
-            <div className="hq-eyebrow" style={{ color: "var(--leaf-700)" }}>{t("home.partnersEyebrow")}</div>
-            <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
-              {t("home.partnersTitle")}
-            </h3>
-            <p className="mt-3 max-w-md text-sm leading-loose text-ink-600">{t("home.partnersDesc")}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
+    promos: on("catalogs") || on("partners") ? (
+      <section key="promos" className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-24">
+        <div className={`grid gap-6 ${on("catalogs") && on("partners") ? "md:grid-cols-2" : ""}`}>
+          {on("catalogs") ? (
+            <div className="premium-panel overflow-hidden p-8 md:p-10">
+              <div className="absolute -right-16 -top-16 size-56 rounded-full bg-trust-700/10 blur-3xl" aria-hidden />
+              <div className="hq-eyebrow">{S("catalogs", "eyebrow")}</div>
+              <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
+                {S("catalogs", "title")}
+              </h3>
+              <p className="mt-3 max-w-md text-sm leading-loose text-ink-600">
+                {S("catalogs", "body")}
+              </p>
               <LLink
-                to="/$lang/partners"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
+                to={`/$lang${url("catalogs", "/catalogs")}`}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-trust-700 px-5 py-2.5 text-sm font-semibold text-sand-50 transition-transform hover:-translate-y-0.5"
               >
-                {t("home.partnersPage")}
+                {S("catalogs", "cta_label")} <span aria-hidden>{isAr ? "←" : "→"}</span>
               </LLink>
-              <WhatsAppCTA number={id.whatsapp_number} message={t("home.partnersWaMsg")} variant="pill">
-                {t("home.partnersOpenChat")}
-              </WhatsAppCTA>
             </div>
-          </div>
+          ) : null}
+          {on("partners") ? (
+            <div className="premium-panel overflow-hidden p-8 md:p-10">
+              <div className="absolute -left-16 -top-16 size-56 rounded-full bg-leaf-500/15 blur-3xl" aria-hidden />
+              <div className="hq-eyebrow" style={{ color: "var(--leaf-700)" }}>{S("partners", "eyebrow")}</div>
+              <h3 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-3xl">
+                {S("partners", "title")}
+              </h3>
+              <p className="mt-3 max-w-md text-sm leading-loose text-ink-600">{S("partners", "body")}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <LLink
+                  to={`/$lang${url("partners", "/partners")}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
+                >
+                  {S("partners", "cta_label")}
+                </LLink>
+                <WhatsAppCTA number={id.whatsapp_number} message={S("partners", "wa_message")} variant="pill">
+                  {S("partners", "cta2_label")}
+                </WhatsAppCTA>
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
+    ) : null,
 
-      <section className="border-t border-border bg-card">
+    contact: on("contact") ? (
+      <section key="contact" className="border-t border-border bg-card">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 md:grid-cols-[1fr_auto] md:items-center md:px-8">
           <div>
-            <div className="hq-eyebrow">{t("home.contactEyebrow")}</div>
+            <div className="hq-eyebrow">{S("contact", "eyebrow")}</div>
             <h2 className="mt-3 font-arabic text-2xl font-bold text-foreground md:text-4xl">
-              {t("home.contactTitle")}
+              {S("contact", "title")}
             </h2>
             <div className="mt-5 grid gap-4 text-sm text-ink-600 sm:grid-cols-3">
               <div>
@@ -667,16 +558,161 @@ function Home() {
             </div>
           </div>
           <div className="flex flex-wrap gap-3 md:justify-end">
-            <WhatsAppCTA number={id.whatsapp_number}>{t("home.contactWaCta")}</WhatsAppCTA>
+            <WhatsAppCTA number={id.whatsapp_number}>{S("contact", "cta_label")}</WhatsAppCTA>
             <LLink
-              to="/$lang/contact"
+              to={`/$lang${url("contact", "/contact")}`}
               className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
             >
-              {t("home.contactFullPage")}
+              {S("contact", "cta2_label")}
             </LLink>
           </div>
         </div>
       </section>
+    ) : null,
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader
+        legalName={ident.legalName}
+        parentGroup={ident.parentGroup}
+        whatsappNumber={id.whatsapp_number}
+        logoUrl={id.logo_url}
+      />
+
+      {showMainSliderBefore && <HomepageMainSlider config={homepage.main_slider} />}
+      {useManagedHero ? <HomepageManagerHero config={homepage.hero} /> : (
+
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(120% 80% at 100% 0%, oklch(0.86 0.07 245) 0%, transparent 55%), radial-gradient(90% 70% at 0% 100%, oklch(0.96 0.025 138) 0%, transparent 55%), linear-gradient(180deg, #F6FAFE 0%, #EAF2FB 55%, #DCE8F5 100%)",
+        }}
+      >
+        <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
+          <defs>
+            <linearGradient id="heroCurve1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="oklch(0.46 0.16 245)" stopOpacity="0.35" />
+            </linearGradient>
+            <linearGradient id="heroCurve2" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="oklch(0.68 0.17 138)" stopOpacity="0.04" />
+            </linearGradient>
+            <pattern id="heroDots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="oklch(0.46 0.16 245 / 0.10)" />
+            </pattern>
+          </defs>
+          <rect width="1440" height="900" fill="url(#heroDots)" opacity="0.55" />
+          <path d="M0 720 C 320 620, 540 760, 820 660 S 1280 540, 1440 620 L 1440 900 L 0 900 Z" fill="url(#heroCurve1)" />
+          <path d="M1440 0 C 1180 120, 1240 320, 1080 420 S 800 540, 720 460 L 720 0 Z" fill="url(#heroCurve2)" />
+          <path d="M0 80 C 200 40, 380 160, 540 120" stroke="oklch(0.46 0.16 245 / 0.18)" strokeWidth="1" fill="none" />
+        </svg>
+
+        <span className="leaf-drift absolute right-[6%] top-[14%] text-4xl text-leaf-500/80 md:text-5xl" aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[6%] top-[55%] text-3xl text-leaf-500/70 md:text-4xl" style={{ animationDelay: "1.8s" }} aria-hidden>🍃</span>
+        <span className="leaf-drift absolute left-[14%] bottom-[28%] text-2xl text-leaf-500/60 md:text-3xl" style={{ animationDelay: "3.2s" }} aria-hidden>🍃</span>
+
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pt-14 pb-32 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-14 md:px-8 md:pt-24 md:pb-48">
+          <div className="prem-fade-up order-2 md:order-1">
+            <div
+              className="inline-flex items-center gap-2 rounded-full border border-trust-300/60 px-5 py-2 text-[11px] font-semibold tracking-wider text-trust-700 md:text-xs"
+              style={{
+                background: "linear-gradient(180deg, oklch(1 0 0 / 0.92), oklch(0.97 0.018 245 / 0.78))",
+                boxShadow: "0 10px 24px -10px oklch(0.32 0.13 245 / 0.28), inset 0 1px 0 oklch(1 0 0 / 0.95)",
+              }}
+            >
+              <span className="size-1.5 rounded-full bg-leaf-500 shadow-[0_0_0_4px_oklch(0.68_0.17_138/0.18)]" />
+              {S("fallback_hero", "badge")}
+            </div>
+
+            <h1
+              className="mt-7 font-black tracking-tight"
+              style={{ fontFamily: 'var(--font-brand)', fontWeight: 900 }}
+            >
+              <span className="sr-only">
+                {isAr
+                  ? "ركن التوفير كوزمتك للتجارة — الموزّع الرائد لعلامات الصحة والجمال والعناية بالأطفال في اليمن"
+                  : "Rukn Al-Tawfir Cosmetic for Trade — Leading Health, Beauty & Baby-Care Brands Distributor in Yemen"}
+              </span>
+              <span
+                aria-hidden
+                className="block text-[2.2rem] md:text-[3.4rem] lg:text-[4.1rem]"
+                style={{
+                  lineHeight: 1.45,
+                  paddingBlock: "0.15em",
+                  background: "linear-gradient(180deg, oklch(0.32 0.13 245) 0%, oklch(0.42 0.15 245) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {S("fallback_hero", "title")}
+              </span>
+              <span
+                aria-hidden
+                className="mt-3 block text-[2.1rem] md:text-[3.2rem] lg:text-[3.9rem]"
+                style={{
+                  lineHeight: 1.45,
+                  paddingBlock: "0.15em",
+                  background: "linear-gradient(180deg, oklch(0.62 0.17 138) 0%, oklch(0.50 0.16 138) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {S("fallback_hero", "subtitle")}
+              </span>
+            </h1>
+
+            <div className="mt-6 flex items-center gap-3">
+              <span className="h-px w-14 bg-gradient-to-l from-transparent to-trust-700/60" />
+              <span className="size-1.5 rounded-full bg-leaf-500" />
+              <span className="h-px w-24 bg-gradient-to-r from-transparent via-trust-700/40 to-transparent" />
+            </div>
+
+            <p className="mt-6 max-w-xl text-base leading-loose text-ink-600">
+              {S("fallback_hero", "body")}
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <LLink
+                to={`/$lang${url("fallback_hero", "/brands")}`}
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 md:text-[15px]"
+                style={{
+                  background: "linear-gradient(180deg, oklch(0.56 0.16 245), oklch(0.38 0.15 245))",
+                  boxShadow:
+                    "0 22px 44px -16px oklch(0.32 0.13 245 / 0.65), 0 6px 14px -6px oklch(0.32 0.13 245 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.30), inset 0 -1px 0 oklch(0 0 0 / 0.12)",
+                }}
+              >
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 opacity-60"
+                  style={{ background: "linear-gradient(180deg, oklch(1 0 0 / 0.20), transparent)" }}
+                />
+                <span aria-hidden className="relative transition-transform group-hover:-translate-x-0.5">{isAr ? "←" : "→"}</span>
+                <span className="relative">{S("fallback_hero", "cta_label")}</span>
+              </LLink>
+              <WhatsAppCTA number={id.whatsapp_number}>{S("fallback_hero", "cta2_label")}</WhatsAppCTA>
+            </div>
+          </div>
+
+          <div className="order-1 md:order-2">
+            <HeroLogoStage logoUrl={id.logo_url} />
+          </div>
+        </div>
+      </section>
+      )}
+      {showMainSliderAfter && <HomepageMainSlider config={homepage.main_slider} />}
+
+      <div
+        className={`relative z-30 mx-auto max-w-6xl px-4 md:px-8 ${
+          showMainSliderAfter ? "mt-4 md:mt-6" : "-mt-16 md:-mt-24"
+        }`}
+      >
+        <HeroBrandStrip brands={brands} />
+      </div>
+
+      {orderedUnits(sections).map((unit) => unitNodes[unit] ?? null)}
 
       <SiteFooter
         legalName={ident.legalName}
