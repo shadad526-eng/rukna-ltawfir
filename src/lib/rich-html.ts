@@ -19,7 +19,7 @@ const VOID_TAGS = new Set(["br", "hr", "img", "col"]);
 const GLOBAL_ATTRS = new Set(["dir", "align", "style", "class", "id", "lang"]);
 const TAG_ATTRS: Record<string, Set<string>> = {
   a: new Set(["href", "title", "target", "rel"]),
-  img: new Set(["src", "alt", "title", "width", "height", "loading", "data-asset-id"]),
+  img: new Set(["src", "alt", "title", "width", "height", "loading", "data-asset-id", "data-inline-image", "style"]),
   td: new Set(["colspan", "rowspan"]),
   th: new Set(["colspan", "rowspan", "scope"]),
   col: new Set(["span", "width"]),
