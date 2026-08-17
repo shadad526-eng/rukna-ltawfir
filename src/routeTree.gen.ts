@@ -42,6 +42,7 @@ import { Route as AdminProductsIdRouteImport } from './routes/admin.products.$id
 import { Route as AdminProductsNewRouteImport } from './routes/admin.products.new'
 import { Route as LangBrandsSlugIndexRouteImport } from './routes/$lang.brands.$slug.index'
 import { Route as LangBrandsSlugProductSlugRouteImport } from './routes/$lang.brands.$slug.$productSlug'
+import { Route as ApiPublicArticleMediaSplatRouteImport } from './routes/api/public/article-media.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -209,6 +210,12 @@ const LangBrandsSlugProductSlugRoute =
     path: '/$productSlug',
     getParentRoute: () => LangBrandsSlugRoute,
   } as any)
+const ApiPublicArticleMediaSplatRoute =
+  ApiPublicArticleMediaSplatRouteImport.update({
+    id: '/api/public/article-media/$',
+    path: '/api/public/article-media/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/$lang/news/': typeof LangNewsIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
+  '/api/public/article-media/$': typeof ApiPublicArticleMediaSplatRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
 }
 export interface FileRoutesByTo {
@@ -274,6 +282,7 @@ export interface FileRoutesByTo {
   '/$lang/news': typeof LangNewsIndexRoute
   '/admin/products': typeof AdminProductsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
+  '/api/public/article-media/$': typeof ApiPublicArticleMediaSplatRoute
   '/$lang/brands/$slug': typeof LangBrandsSlugIndexRoute
 }
 export interface FileRoutesById {
@@ -310,6 +319,7 @@ export interface FileRoutesById {
   '/$lang/news/': typeof LangNewsIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
   '/$lang/brands/$slug/$productSlug': typeof LangBrandsSlugProductSlugRoute
+  '/api/public/article-media/$': typeof ApiPublicArticleMediaSplatRoute
   '/$lang/brands/$slug/': typeof LangBrandsSlugIndexRoute
 }
 export interface FileRouteTypes {
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/$lang/news/'
     | '/admin/products/'
     | '/$lang/brands/$slug/$productSlug'
+    | '/api/public/article-media/$'
     | '/$lang/brands/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -378,6 +389,7 @@ export interface FileRouteTypes {
     | '/$lang/news'
     | '/admin/products'
     | '/$lang/brands/$slug/$productSlug'
+    | '/api/public/article-media/$'
     | '/$lang/brands/$slug'
   id:
     | '__root__'
@@ -413,6 +425,7 @@ export interface FileRouteTypes {
     | '/$lang/news/'
     | '/admin/products/'
     | '/$lang/brands/$slug/$productSlug'
+    | '/api/public/article-media/$'
     | '/$lang/brands/$slug/'
   fileRoutesById: FileRoutesById
 }
@@ -422,6 +435,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   SiteDotwebmanifestRoute: typeof SiteDotwebmanifestRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicArticleMediaSplatRoute: typeof ApiPublicArticleMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -657,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangBrandsSlugProductSlugRouteImport
       parentRoute: typeof LangBrandsSlugRoute
     }
+    '/api/public/article-media/$': {
+      id: '/api/public/article-media/$'
+      path: '/api/public/article-media/$'
+      fullPath: '/api/public/article-media/$'
+      preLoaderRoute: typeof ApiPublicArticleMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -758,6 +779,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   SiteDotwebmanifestRoute: SiteDotwebmanifestRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicArticleMediaSplatRoute: ApiPublicArticleMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

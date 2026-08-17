@@ -83,19 +83,16 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
       for (const file of Array.from(files)) {
         if (!(file.type || "").startsWith("image/")) continue;
         const base64 = await fileToBase64(file);
-        const bucket = "brand-assets";
-        const path = `articles/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const res: any = await uploadFn({
-          data: { bucket, path, base64, contentType: file.type || "image/jpeg", registerAsset: true },
+        const res: any = await uploadInlineFn({
+          data: { filename: file.name, base64, contentType: file.type || "image/jpeg" },
         });
-        const signed: any = await signUrls({ data: { items: [{ bucket, path }] } });
-        const url = signed?.[`${bucket}::${path}`] ?? "";
-        const assetId = res?.asset_id ?? "";
+        const url = res?.url ?? "";
+        if (!url) throw new Error("تعذّر رفع الصورة");
         restoreSelection();
         const alt = file.name.replace(/\.[a-zA-Z0-9]+$/, "").replace(/[<>"]/g, "");
         exec(
           "insertHTML",
-          `<img src="${url}"${assetId ? ` data-asset-id="${assetId}"` : ""} alt="${alt}" style="max-width:100%;height:auto" /><p><br /></p>`,
+          `<img src="${url}" data-inline-image="1" alt="${alt}" style="max-width:100%;height:auto" /><p><br /></p>`,
         );
         emit();
       }
@@ -106,6 +103,7 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
       setUploading(false);
     }
   }
+
 
   function insertLink() {
     const url = prompt("رابط:", "https://");
