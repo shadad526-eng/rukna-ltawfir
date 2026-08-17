@@ -32,11 +32,13 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
   const [colorOpen, setColorOpen] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const replaceRef = useRef<HTMLInputElement>(null);
   const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
-  const uploadFn = useServerFn(adminUploadStorage);
-  const signUrls = useServerFn(adminSignedUrls);
+  const [selectedImg, setSelectedImg] = useState<HTMLImageElement | null>(null);
+  const uploadInlineFn = useServerFn(adminUploadArticleInline);
   const [raw, setRaw] = useState(value ?? "");
+
 
   // Only inject initial value; don't clobber cursor on every keystroke.
   useEffect(() => {
