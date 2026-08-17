@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
+import { adminUploadArticleInline } from "@/lib/admin.functions";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { HEADING_COLOR_PRESETS } from "@/lib/page-content";
 import {
