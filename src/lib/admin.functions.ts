@@ -358,3 +358,82 @@ export const adminDeleteStorage = createServerFn({ method: "POST" })
   });
 
 
+
+/* ============ Article inline images (separate from Media Library) ============
+ * Inline body images live in the private `article-inline` bucket and are NEVER
+ * registered in `public.assets`, so they never show up in the Media Library or
+ * the asset pickers. They are served publicly through
+ * `/api/public/article-media/<path>`.
+ */
+
+export const ARTICLE_INLINE_BUCKET = "article-inline";
+
+export const adminUploadArticleInline = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { filename: string; base64: string; contentType: string }) => d)
+  .handler(async ({ context, data }) => {
+    await assertSuperAdmin(context);
+    if (!data.contentType.startsWith("image/")) throw new Error("الملف ليس صورة");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const safeName = (data.filename || "image")
+      .split("/").pop()!
+      .replace(/[^a-zA-Z0-9._-]/g, "_")
+      .slice(-60);
+    const path = `${new Date().toISOString().slice(0, 7)}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+    const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
+    const { error } = await supabaseAdmin.storage
+      .from(ARTICLE_INLINE_BUCKET)
+      .upload(path, bytes, { contentType: data.contentType, upsert: false });
+    if (error) throw new Error(error.message);
+    return { path, url: `/api/public/article-media/${path}` };
+  });
+
+/**
+ * Delete inline images that no article body references any more.
+ * Objects younger than 30 minutes are kept so an in-progress edit that has not
+ * been saved yet can never lose its freshly uploaded images.
+ */
+export const adminCleanupArticleInline = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const referenced = new Set<string>();
+    const collect = (html: unknown) => {
+      if (typeof html !== "string") return;
+      const re = /\/api\/public\/article-media\/([^"'\s>)]+)/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(html))) referenced.add(decodeURIComponent(m[1]));
+    };
+    const { data: articles } = await supabaseAdmin.from("insights").select("body_ar, body_en");
+    for (const a of (articles ?? []) as any[]) { collect(a.body_ar); collect(a.body_en); }
+    const { data: pages } = await supabaseAdmin.from("pages").select("body_ar, body_en, extra");
+    for (const p of (pages ?? []) as any[]) {
+      collect(p.body_ar); collect(p.body_en);
+      collect(p.extra ? JSON.stringify(p.extra) : null);
+    }
+
+    const cutoff = Date.now() - 30 * 60 * 1000;
+    const removed: string[] = [];
+    const { data: folders } = await supabaseAdmin.storage
+      .from(ARTICLE_INLINE_BUCKET)
+      .list("", { limit: 1000 });
+    for (const folder of (folders ?? []) as any[]) {
+      if (!folder?.name) continue;
+      const { data: files } = await supabaseAdmin.storage
+        .from(ARTICLE_INLINE_BUCKET)
+        .list(folder.name, { limit: 1000 });
+      for (const f of (files ?? []) as any[]) {
+        const full = `${folder.name}/${f.name}`;
+        if (referenced.has(full)) continue;
+        const created = f.created_at ? new Date(f.created_at).getTime() : Date.now();
+        if (created > cutoff) continue;
+        removed.push(full);
+      }
+    }
+    if (removed.length) {
+      await supabaseAdmin.storage.from(ARTICLE_INLINE_BUCKET).remove(removed);
+    }
+    return { removed: removed.length };
+  });
