@@ -25,7 +25,7 @@ function exec(cmd: string, arg?: string) {
   document.execCommand(cmd, false, arg);
 }
 
-export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", minHeight = 240, compact = false }: Props) {
+export function RichTextEditor({ value, onChange, dir = "auto", minHeight = 240, compact = false }: Props) {
 
   const ref = useRef<HTMLDivElement>(null);
   const [source, setSource] = useState(false);
