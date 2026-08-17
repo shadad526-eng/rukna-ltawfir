@@ -121,9 +121,41 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
   }
   function insertImage() {
     saveSelection();
-    if (onPickImage) return onPickImage();
+    // Inline body images always come from the device; the Media Library
+    // deliberately never holds them.
     fileRef.current?.click();
   }
+
+  async function replaceSelectedImage(files: FileList | null) {
+    const img = selectedImg;
+    const file = files?.[0];
+    if (!img || !file || !(file.type || "").startsWith("image/")) return;
+    setUploading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      const res: any = await uploadInlineFn({
+        data: { filename: file.name, base64, contentType: file.type || "image/jpeg" },
+      });
+      if (!res?.url) throw new Error("تعذّر رفع الصورة");
+      img.setAttribute("src", res.url);
+      img.setAttribute("data-inline-image", "1");
+      emit();
+      toast.success("تم استبدال الصورة");
+    } catch (e: any) {
+      toast.error(e?.message ?? "فشل استبدال الصورة");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeSelectedImage() {
+    if (!selectedImg) return;
+    selectedImg.remove();
+    setSelectedImg(null);
+    emit();
+    toast.success("تم حذف الصورة");
+  }
+
 
   const Btn = ({ onClick, title, children }: any) => (
     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onClick} title={title}
