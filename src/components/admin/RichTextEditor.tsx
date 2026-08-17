@@ -262,6 +262,31 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           if (fileRef.current) fileRef.current.value = "";
         }}
       />
+      <input
+        ref={replaceRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          replaceSelectedImage(e.target.files);
+          if (replaceRef.current) replaceRef.current.value = "";
+        }}
+      />
+
+      {!source && selectedImg && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-900/70 px-3 py-2 text-xs text-slate-300">
+          <span>الصورة المحددة:</span>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={() => replaceRef.current?.click()}
+            className="rounded bg-slate-800 px-2 py-1 hover:bg-slate-700">استبدال</button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={removeSelectedImage}
+            className="rounded bg-rose-900/60 px-2 py-1 text-rose-200 hover:bg-rose-800">حذف</button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setSelectedImg(null)}
+            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800">إلغاء التحديد</button>
+        </div>
+      )}
 
       {source ? (
         <textarea
@@ -281,6 +306,10 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           onBlur={() => { saveSelection(); emit(); }}
           onKeyUp={saveSelection}
           onMouseUp={saveSelection}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            setSelectedImg(target?.tagName === "IMG" ? (target as HTMLImageElement) : null);
+          }}
           onPaste={(e) => {
             const text = e.clipboardData.getData("text/plain");
             if (text && !e.clipboardData.getData("text/html")) {
@@ -294,5 +323,6 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
         />
       )}
     </div>
+
   );
 }
