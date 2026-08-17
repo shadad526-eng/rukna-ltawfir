@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { adminSignedUrls, adminUploadStorage } from "@/lib/admin.functions";
+import { adminUploadArticleInline } from "@/lib/admin.functions";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { HEADING_COLOR_PRESETS } from "@/lib/page-content";
 import {
@@ -25,18 +25,20 @@ function exec(cmd: string, arg?: string) {
   document.execCommand(cmd, false, arg);
 }
 
-export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", minHeight = 240, compact = false }: Props) {
+export function RichTextEditor({ value, onChange, dir = "auto", minHeight = 240, compact = false }: Props) {
 
   const ref = useRef<HTMLDivElement>(null);
   const [source, setSource] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const replaceRef = useRef<HTMLInputElement>(null);
   const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
-  const uploadFn = useServerFn(adminUploadStorage);
-  const signUrls = useServerFn(adminSignedUrls);
+  const [selectedImg, setSelectedImg] = useState<HTMLImageElement | null>(null);
+  const uploadInlineFn = useServerFn(adminUploadArticleInline);
   const [raw, setRaw] = useState(value ?? "");
+
 
   // Only inject initial value; don't clobber cursor on every keystroke.
   useEffect(() => {
@@ -83,19 +85,16 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
       for (const file of Array.from(files)) {
         if (!(file.type || "").startsWith("image/")) continue;
         const base64 = await fileToBase64(file);
-        const bucket = "brand-assets";
-        const path = `articles/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const res: any = await uploadFn({
-          data: { bucket, path, base64, contentType: file.type || "image/jpeg", registerAsset: true },
+        const res: any = await uploadInlineFn({
+          data: { filename: file.name, base64, contentType: file.type || "image/jpeg" },
         });
-        const signed: any = await signUrls({ data: { items: [{ bucket, path }] } });
-        const url = signed?.[`${bucket}::${path}`] ?? "";
-        const assetId = res?.asset_id ?? "";
+        const url = res?.url ?? "";
+        if (!url) throw new Error("تعذّر رفع الصورة");
         restoreSelection();
         const alt = file.name.replace(/\.[a-zA-Z0-9]+$/, "").replace(/[<>"]/g, "");
         exec(
           "insertHTML",
-          `<img src="${url}"${assetId ? ` data-asset-id="${assetId}"` : ""} alt="${alt}" style="max-width:100%;height:auto" /><p><br /></p>`,
+          `<img src="${url}" data-inline-image="1" alt="${alt}" style="max-width:100%;height:auto" /><p><br /></p>`,
         );
         emit();
       }
@@ -106,6 +105,7 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
       setUploading(false);
     }
   }
+
 
   function insertLink() {
     const url = prompt("رابط:", "https://");
@@ -121,9 +121,41 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
   }
   function insertImage() {
     saveSelection();
-    if (onPickImage) return onPickImage();
+    // Inline body images always come from the device; the Media Library
+    // deliberately never holds them.
     fileRef.current?.click();
   }
+
+  async function replaceSelectedImage(files: FileList | null) {
+    const img = selectedImg;
+    const file = files?.[0];
+    if (!img || !file || !(file.type || "").startsWith("image/")) return;
+    setUploading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      const res: any = await uploadInlineFn({
+        data: { filename: file.name, base64, contentType: file.type || "image/jpeg" },
+      });
+      if (!res?.url) throw new Error("تعذّر رفع الصورة");
+      img.setAttribute("src", res.url);
+      img.setAttribute("data-inline-image", "1");
+      emit();
+      toast.success("تم استبدال الصورة");
+    } catch (e: any) {
+      toast.error(e?.message ?? "فشل استبدال الصورة");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeSelectedImage() {
+    if (!selectedImg) return;
+    selectedImg.remove();
+    setSelectedImg(null);
+    emit();
+    toast.success("تم حذف الصورة");
+  }
+
 
   const Btn = ({ onClick, title, children }: any) => (
     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onClick} title={title}
@@ -230,6 +262,31 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           if (fileRef.current) fileRef.current.value = "";
         }}
       />
+      <input
+        ref={replaceRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          replaceSelectedImage(e.target.files);
+          if (replaceRef.current) replaceRef.current.value = "";
+        }}
+      />
+
+      {!source && selectedImg && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 bg-slate-900/70 px-3 py-2 text-xs text-slate-300">
+          <span>الصورة المحددة:</span>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={() => replaceRef.current?.click()}
+            className="rounded bg-slate-800 px-2 py-1 hover:bg-slate-700">استبدال</button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={removeSelectedImage}
+            className="rounded bg-rose-900/60 px-2 py-1 text-rose-200 hover:bg-rose-800">حذف</button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setSelectedImg(null)}
+            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800">إلغاء التحديد</button>
+        </div>
+      )}
 
       {source ? (
         <textarea
@@ -249,6 +306,10 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
           onBlur={() => { saveSelection(); emit(); }}
           onKeyUp={saveSelection}
           onMouseUp={saveSelection}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            setSelectedImg(target?.tagName === "IMG" ? (target as HTMLImageElement) : null);
+          }}
           onPaste={(e) => {
             const text = e.clipboardData.getData("text/plain");
             if (text && !e.clipboardData.getData("text/html")) {
@@ -262,5 +323,6 @@ export function RichTextEditor({ value, onChange, onPickImage, dir = "auto", min
         />
       )}
     </div>
+
   );
 }

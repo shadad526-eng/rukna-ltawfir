@@ -251,15 +251,33 @@ export function HeroBrandStrip({ brands }: { brands: BrandSummary[] }) {
 
 
 /* ─────────────── Dark blue features strip (under brand strip) ─────────────── */
-export function HeroFeaturesStrip() {
+const FEATURE_ICONS: Record<string, typeof ShieldCheck> = {
+  shield: ShieldCheck,
+  award: Award,
+  truck: Truck,
+  support: Headphones,
+};
+
+export function HeroFeaturesStrip({
+  items,
+}: {
+  /** CMS-managed items; falls back to the built-in copy when omitted. */
+  items?: { icon?: string; title: string; desc: string }[];
+}) {
   const t = useT();
   const { dir } = useLocale();
-  const FEATURES = [
-    { i: ShieldCheck, t: t("home.features.exclusive"), d: t("home.features.exclusiveDesc") },
-    { i: Award, t: t("home.features.quality"), d: t("home.features.qualityDesc") },
-    { i: Truck, t: t("home.features.distribution"), d: t("home.features.distributionDesc") },
-    { i: Headphones, t: t("home.features.service"), d: t("home.features.serviceDesc") },
-  ];
+  const FEATURES = (items && items.length
+    ? items.map((it, i) => ({
+        i: FEATURE_ICONS[it.icon ?? ""] ?? [ShieldCheck, Award, Truck, Headphones][i % 4],
+        t: it.title,
+        d: it.desc,
+      }))
+    : [
+        { i: ShieldCheck, t: t("home.features.exclusive"), d: t("home.features.exclusiveDesc") },
+        { i: Award, t: t("home.features.quality"), d: t("home.features.qualityDesc") },
+        { i: Truck, t: t("home.features.distribution"), d: t("home.features.distributionDesc") },
+        { i: Headphones, t: t("home.features.service"), d: t("home.features.serviceDesc") },
+      ]);
   return (
     <div
       className="relative overflow-hidden rounded-[28px] border border-white/10"

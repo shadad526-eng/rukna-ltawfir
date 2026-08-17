@@ -476,3 +476,23 @@ export const discardHomepageDraft = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+/* ===================== Managed homepage sections ===================== */
+
+export const listHomepageSections = createServerFn({ method: "GET" }).handler(
+  async (): Promise<import("./homepage-sections").HomepageSectionsMap> => {
+    const { buildSectionsMap } = await import("./homepage-sections");
+    try {
+      const client = getPublicDataClient() as any;
+      const { data } = await client
+        .from("homepage_sections")
+        .select(
+          "section_key, title_ar, title_en, subtitle_ar, subtitle_en, body_ar, body_en, cta_label_ar, cta_url, sort_order, is_enabled, extra",
+        );
+      return buildSectionsMap((data ?? []) as any[]);
+    } catch {
+      // Homepage must never fail because of section state.
+      return buildSectionsMap([]);
+    }
+  },
+);

@@ -14,6 +14,7 @@ import {
 } from "@/lib/homepage.functions";
 import { CURRENT_HERO_PRESET } from "@/lib/current-hero-preset";
 import { toast } from "sonner";
+import { HomepageSectionsPanel } from "@/components/admin/HomepageSectionsPanel";
 import { ImageSpecHint } from "@/components/admin/ImageSpecHint";
 import {
   Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff, ChevronUp, ChevronDown,
@@ -86,7 +87,7 @@ const DEFAULT_SLIDER_CFG: SliderCfg = {
 
 /* ============================== ROOT PAGE ============================== */
 function HomepageManagerPage() {
-  const [tab, setTab] = useState<"main" | "hero">("hero");
+  const [tab, setTab] = useState<"main" | "hero" | "sections">("hero");
   const [settings, setSettings] = useState<Settings | null>(null);
   const [mainSlides, setMainSlides] = useState<Slide[]>([]);
   const [heroSlides, setHeroSlides] = useState<Slide[]>([]);
@@ -291,6 +292,7 @@ function HomepageManagerPage() {
           <div className="flex gap-2 border-b border-slate-800">
             <TabBtn active={tab === "hero"} onClick={() => setTab("hero")} icon={<ImageIcon className="w-4 h-4" />} label="بناء الهيرو" />
             <TabBtn active={tab === "main"} onClick={() => setTab("main")} icon={<Layers className="w-4 h-4" />} label="السلايدر الرئيسي" />
+            <TabBtn active={tab === "sections"} onClick={() => setTab("sections")} icon={<Layers className="w-4 h-4" />} label="أقسام الصفحة" />
           </div>
 
           {tab === "hero" && (
@@ -309,7 +311,9 @@ function HomepageManagerPage() {
             </div>
           )}
 
-          {tab === "main" ? (
+          {tab === "sections" ? (
+            <HomepageSectionsPanel />
+          ) : tab === "main" ? (
             <MainSliderPanel settings={settings} slides={mainSlides} onSettingsChange={updateSettings} onSlidesChange={setMainSlides} reload={load} />
           ) : (
             <HeroPanel settings={settings} slides={heroSlides} onSettingsChange={updateSettings} onSlidesChange={setHeroSlides} reload={load} />
