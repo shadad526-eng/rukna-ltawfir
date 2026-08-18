@@ -17,7 +17,7 @@ import enDict from "@/i18n/locales/en.json";
 export type PageContent = Record<string, any>;
 
 /** How the field is edited in the dashboard. */
-export type ContentFieldUI = "text" | "textarea" | "rich" | "heading";
+export type ContentFieldUI = "text" | "textarea" | "rich" | "heading" | "toggle";
 
 export type ContentField = {
   /** Dotted key, stored as `${key}_ar` / `${key}_en` when bilingual. */
@@ -43,6 +43,8 @@ export type ContentGroup = {
   label: string;
   fields?: ContentField[];
   repeater?: ContentRepeater;
+  /** Additional repeatable lists rendered after `repeater`. */
+  repeaters?: ContentRepeater[];
 };
 
 export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact", "branches"] as const;
