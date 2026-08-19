@@ -47,19 +47,30 @@ export type ContentGroup = {
   repeaters?: ContentRepeater[];
 };
 
-export const CONTENT_PAGE_SLUGS = ["about", "partners", "contact", "branches"] as const;
+/** Corporate pages (about / partners / contact / branches). */
+export const CORPORATE_PAGE_SLUGS = ["about", "partners", "contact", "branches"] as const;
+export type CorporatePageSlug = (typeof CORPORATE_PAGE_SLUGS)[number];
+
+/** Every CMS-managed page: corporate pages + the specialised topic hubs. */
+export const CONTENT_PAGE_SLUGS = [...CORPORATE_PAGE_SLUGS, ...HUB_PAGE_SLUGS] as const;
 export type ContentPageSlug = (typeof CONTENT_PAGE_SLUGS)[number];
 
-export const CONTENT_PAGE_LABELS: Record<ContentPageSlug, string> = {
+export const CORPORATE_PAGE_LABELS: Record<CorporatePageSlug, string> = {
   about: "من نحن",
   partners: "الشراكات",
   contact: "تواصل معنا",
   branches: "الفروع والعناوين",
 };
 
+export const CONTENT_PAGE_LABELS: Record<ContentPageSlug, string> = {
+  ...CORPORATE_PAGE_LABELS,
+  ...HUB_PAGE_LABELS,
+};
+
 export function isContentPageSlug(slug: unknown): slug is ContentPageSlug {
   return typeof slug === "string" && (CONTENT_PAGE_SLUGS as readonly string[]).includes(slug);
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Styled headings                                                     */
