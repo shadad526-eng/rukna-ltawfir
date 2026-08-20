@@ -179,7 +179,7 @@ const VALUE_KEYS = ["trust", "quality", "partnership", "innovation", "responsibi
 const TIER_KEYS = ["wholesale", "pharma", "retail", "digital"] as const;
 const SUBJECT_KEYS = ["general", "product", "partnership", "catalog", "support"] as const;
 
-export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
+const CORPORATE_SCHEMAS: Record<CorporatePageSlug, ContentGroup[]> = {
   about: [
     {
       key: "hero", label: "المقدمة الرئيسية (Hero)",
