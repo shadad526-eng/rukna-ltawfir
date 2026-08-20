@@ -13,6 +13,14 @@
 
 import arDict from "@/i18n/locales/ar.json";
 import enDict from "@/i18n/locales/en.json";
+import {
+  HUB_DEFAULTS,
+  HUB_PAGE_LABELS,
+  HUB_PAGE_SLUGS,
+  HUB_SCHEMAS,
+  isHubPageSlug,
+} from "@/lib/hub-content";
+
 
 export type PageContent = Record<string, any>;
 
