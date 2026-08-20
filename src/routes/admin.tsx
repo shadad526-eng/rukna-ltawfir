@@ -2,7 +2,9 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ENTITIES } from "@/lib/admin-entities";
-import { CONTENT_PAGE_LABELS } from "@/lib/page-content";
+import { CORPORATE_PAGE_LABELS } from "@/lib/page-content";
+import { HUB_PAGE_LABELS } from "@/lib/hub-content";
+
 import ruknLogo from "@/assets/brands/rukn.json";
 import {
   LayoutDashboard, Users, Image as ImageIcon, LogOut,
@@ -104,16 +106,30 @@ function AdminShell() {
 
           <div className="mt-4">
             <div className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">صفحات الشركة</div>
-            {(Object.keys(CONTENT_PAGE_LABELS) as (keyof typeof CONTENT_PAGE_LABELS)[]).map((slug) => (
+            {(Object.keys(CORPORATE_PAGE_LABELS) as (keyof typeof CORPORATE_PAGE_LABELS)[]).map((slug) => (
               <SidebarLink
                 key={slug}
                 to="/admin/pages/$slug"
                 params={{ slug }}
                 icon={Globe}
-                label={CONTENT_PAGE_LABELS[slug]}
+                label={CORPORATE_PAGE_LABELS[slug]}
               />
             ))}
           </div>
+
+          <div className="mt-4">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">الصفحات المتخصصة</div>
+            {(Object.keys(HUB_PAGE_LABELS) as (keyof typeof HUB_PAGE_LABELS)[]).map((slug) => (
+              <SidebarLink
+                key={slug}
+                to="/admin/pages/$slug"
+                params={{ slug }}
+                icon={BookOpen}
+                label={HUB_PAGE_LABELS[slug]}
+              />
+            ))}
+          </div>
+
 
           {groups.map((g) => {
             const items = filteredEntities.filter((e) => e.group === g);

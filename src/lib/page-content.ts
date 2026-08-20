@@ -13,6 +13,14 @@
 
 import arDict from "@/i18n/locales/ar.json";
 import enDict from "@/i18n/locales/en.json";
+import {
+  HUB_DEFAULTS,
+  HUB_PAGE_LABELS,
+  HUB_PAGE_SLUGS,
+  HUB_SCHEMAS,
+  isHubPageSlug,
+} from "@/lib/hub-content";
+
 
 export type PageContent = Record<string, any>;
 
@@ -171,7 +179,7 @@ const VALUE_KEYS = ["trust", "quality", "partnership", "innovation", "responsibi
 const TIER_KEYS = ["wholesale", "pharma", "retail", "digital"] as const;
 const SUBJECT_KEYS = ["general", "product", "partnership", "catalog", "support"] as const;
 
-export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
+const CORPORATE_SCHEMAS: Record<CorporatePageSlug, ContentGroup[]> = {
   about: [
     {
       key: "hero", label: "المقدمة الرئيسية (Hero)",
@@ -382,6 +390,14 @@ export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
   ],
 };
 
+/** Every editable page schema: corporate pages + specialised topic hubs. */
+export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
+  ...CORPORATE_SCHEMAS,
+  ...HUB_SCHEMAS,
+};
+
+
+
 
 /** Original published copy for the branches page (also used as public fallback). */
 export const BRANCHES_FALLBACK = {
@@ -414,7 +430,10 @@ const TRUST_COLOR = "oklch(0.46 0.16 245)";
 
 /** Default values seeded from the current published copy. */
 export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageContent {
+  // Topic hubs carry their published copy verbatim in `hub-content`.
+  if (isHubPageSlug(slug)) return HUB_DEFAULTS[slug]();
   const out: PageContent = {};
+
   for (const g of PAGE_SCHEMAS[slug]) {
     for (const fl of g.fields ?? []) {
       if (fl.bilingual === false) {
@@ -665,4 +684,20 @@ export function itemRich(row: any, key: string, lang: "ar" | "en"): string {
   const ar = asText(row[`${key}_ar`]);
   if (ar.trim()) return ar;
   return typeof row[key] === "string" ? row[key] : "";
+}
+
+/**
+ * Reads a section visibility toggle. Sections are visible unless the
+ * administrator explicitly turned them off.
+ */
+export function pickFlag(content: PageContent | null | undefined, key: string): boolean {
+  const v = content?.[key];
+  if (v === false || v === "false" || v === 0) return false;
+  return true;
+}
+
+/** Localized non-translated item value (e.g. an anchor or URL) inside a row. */
+export function itemPlain(row: any, key: string): string {
+  const v = row?.[key];
+  return typeof v === "string" ? v : "";
 }
