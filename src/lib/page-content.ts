@@ -430,7 +430,10 @@ const TRUST_COLOR = "oklch(0.46 0.16 245)";
 
 /** Default values seeded from the current published copy. */
 export function defaultContent(slug: ContentPageSlug, seed?: DefaultSeed): PageContent {
+  // Topic hubs carry their published copy verbatim in `hub-content`.
+  if (isHubPageSlug(slug)) return HUB_DEFAULTS[slug]();
   const out: PageContent = {};
+
   for (const g of PAGE_SCHEMAS[slug]) {
     for (const fl of g.fields ?? []) {
       if (fl.bilingual === false) {
