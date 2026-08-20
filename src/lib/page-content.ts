@@ -390,6 +390,14 @@ const CORPORATE_SCHEMAS: Record<CorporatePageSlug, ContentGroup[]> = {
   ],
 };
 
+/** Every editable page schema: corporate pages + specialised topic hubs. */
+export const PAGE_SCHEMAS: Record<ContentPageSlug, ContentGroup[]> = {
+  ...CORPORATE_SCHEMAS,
+  ...HUB_SCHEMAS,
+};
+
+
+
 
 /** Original published copy for the branches page (also used as public fallback). */
 export const BRANCHES_FALLBACK = {
