@@ -685,3 +685,19 @@ export function itemRich(row: any, key: string, lang: "ar" | "en"): string {
   if (ar.trim()) return ar;
   return typeof row[key] === "string" ? row[key] : "";
 }
+
+/**
+ * Reads a section visibility toggle. Sections are visible unless the
+ * administrator explicitly turned them off.
+ */
+export function pickFlag(content: PageContent | null | undefined, key: string): boolean {
+  const v = content?.[key];
+  if (v === false || v === "false" || v === 0) return false;
+  return true;
+}
+
+/** Localized non-translated item value (e.g. an anchor or URL) inside a row. */
+export function itemPlain(row: any, key: string): string {
+  const v = row?.[key];
+  return typeof v === "string" ? v : "";
+}
