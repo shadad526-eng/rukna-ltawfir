@@ -17,6 +17,7 @@ import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
 import { productAlt, brandLogoAlt } from "@/lib/seo-alt";
 import {
+  itemRich,
   itemText,
   pickFlag,
   pickHeading,
@@ -242,7 +243,7 @@ function OralCareHub() {
             {faqs.map((f, i) => (
               <details key={i} className="group py-4">
                 <summary className="cursor-pointer list-none text-sm font-bold text-foreground">{itemText(f, "q", lang)}</summary>
-                <RichText className="mt-2 text-sm leading-loose text-ink-700" value={itemText(f, "a", lang)} />
+                <RichText className="mt-2 text-sm leading-loose text-ink-700" value={itemRich(f, "a", lang)} />
               </details>
             ))}
           </div>
