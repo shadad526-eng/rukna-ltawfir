@@ -41,7 +41,7 @@ export const Route = createFileRoute("/$lang/oral-care")({
   head: ({ params, loaderData }) => {
     const isAr = params.lang === "ar";
     const lang = isAr ? "ar" : "en";
-    const c: PageContent = loaderData?.content ?? withDefaults(SLUG, null);
+    const c: PageContent = (loaderData as any)?.content ?? withDefaults(SLUG, null);
     const url = `${BASE}/${params.lang}/oral-care`;
     const title = pickText(c, "seo.title", lang, "");
     const desc = pickText(c, "seo.desc", lang, "");
