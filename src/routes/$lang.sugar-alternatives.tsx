@@ -168,7 +168,7 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
   component: SugarAlternativesHub,
 });
 
-function SectionHeading({ eyebrow, heading, html }: { eyebrow: string; heading: HeadingValue; html: string }) {
+function SectionHeading({ eyebrow, heading, html }: { eyebrow: string; heading: HeadingValue | null; html: string }) {
   return (
     <div>
       <div className="hq-eyebrow">{eyebrow}</div>
