@@ -73,7 +73,7 @@ export const Route = createFileRoute("/$lang/immunity-vitamin-c")({
         { "@type": "Thing", name: isAr ? "أقراص استحلاب" : "Lozenges" },
         { "@type": "Thing", name: isAr ? "خالٍ من السكر" : "Sugar-free" },
       ],
-      mentions: [{ "@type": "Brand", name: "Monivo", url: `${BASE}/${params.lang}/brands/y-kelin` }],
+      mentions: [{ "@type": "Brand", name: "Monivo", url: `${BASE}/${params.lang}/brands/monivo` }],
     };
 
     const itemList = {
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/$lang/immunity-vitamin-c")({
       "@type": "ItemList",
       name: isAr ? "منتجات Monivo لفيتامين C ودعم المناعة" : "Monivo vitamin C & immunity products",
       itemListElement: [
-        { "@type": "ListItem", position: 1, item: { "@type": "Brand", name: "Monivo", url: `${BASE}/${params.lang}/brands/y-kelin` } },
+        { "@type": "ListItem", position: 1, item: { "@type": "Brand", name: "Monivo", url: `${BASE}/${params.lang}/brands/monivo` } },
       ],
     };
 
