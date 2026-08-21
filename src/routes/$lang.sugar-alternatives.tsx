@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
   getBrandBySlug,
   getCorporateIdentity,
+  getSitePage,
   listBrandProducts,
   listInsightsBySlugs,
 } from "@/lib/site.functions";
@@ -10,30 +11,31 @@ import { SiteHeader } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/Footer";
 import { WhatsAppCTA } from "@/components/site/WhatsAppCTA";
 import { StickyWhatsApp } from "@/components/site/StickyWhatsApp";
+import { RichText, StyledHeading } from "@/components/site/RichText";
 import { LLink } from "@/i18n/LLink";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useLocalizedIdentity } from "@/i18n/identity";
+import {
+  itemRich,
+  itemText,
+  pickFlag,
+  pickHeading,
+  pickList,
+  pickRich,
+  pickText,
+  withDefaults,
+  type HeadingValue,
+  type PageContent,
+} from "@/lib/page-content";
 
-const identityQO = queryOptions({
-  queryKey: ["corporate-identity"],
-  queryFn: () => getCorporateIdentity(),
-});
-const nocalQO = queryOptions({
-  queryKey: ["brand", "nocal"],
-  queryFn: () => getBrandBySlug({ data: { slug: "nocal" } }),
-});
-const steviolaQO = queryOptions({
-  queryKey: ["brand", "steviola"],
-  queryFn: () => getBrandBySlug({ data: { slug: "steviola" } }),
-});
-const nocalProductsQO = queryOptions({
-  queryKey: ["brand-products", "nocal"],
-  queryFn: () => listBrandProducts({ data: { brandSlug: "nocal" } }),
-});
-const steviolaProductsQO = queryOptions({
-  queryKey: ["brand-products", "steviola"],
-  queryFn: () => listBrandProducts({ data: { brandSlug: "steviola" } }),
-});
+const SLUG = "sugar-alternatives" as const;
+
+const identityQO = queryOptions({ queryKey: ["corporate-identity"], queryFn: () => getCorporateIdentity() });
+const pageQO = queryOptions({ queryKey: ["site-page", SLUG], queryFn: () => getSitePage({ data: SLUG }) });
+const nocalQO = queryOptions({ queryKey: ["brand", "nocal"], queryFn: () => getBrandBySlug({ data: { slug: "nocal" } }) });
+const steviolaQO = queryOptions({ queryKey: ["brand", "steviola"], queryFn: () => getBrandBySlug({ data: { slug: "steviola" } }) });
+const nocalProductsQO = queryOptions({ queryKey: ["brand-products", "nocal"], queryFn: () => listBrandProducts({ data: { brandSlug: "nocal" } }) });
+const steviolaProductsQO = queryOptions({ queryKey: ["brand-products", "steviola"], queryFn: () => listBrandProducts({ data: { brandSlug: "steviola" } }) });
 const relatedArticlesQO = queryOptions({
   queryKey: ["insights-by-slugs", "natural-sweeteners-daily-health"],
   queryFn: () => listInsightsBySlugs({ data: { slugs: ["natural-sweeteners-daily-health"] } }),
@@ -41,148 +43,22 @@ const relatedArticlesQO = queryOptions({
 
 const BASE = "https://ruknaltawfer.com";
 
-type FAQ = { q: { ar: string; en: string }; a: { ar: string; en: string } };
-
-const FAQS: FAQ[] = [
-  {
-    q: {
-      ar: "ما هي أفضل بدائل السكر المتوفرة في اليمن؟",
-      en: "What are the best sugar alternatives available in Yemen?",
-    },
-    a: {
-      ar: "أفضل بدائل السكر المتوفرة في اليمن عبر ركن التوفير كوزمتك للتجارة هي Steviola (ستيفيولا) المعتمدة على ستيفيا الطبيعية بنسبة 100%، و NO CAL (نوكال) كمحلٍّ منخفض السعرات. كلا الخيارين يأتيان بصيغ عملية (نقط، أقراص، أكياس، أحجام عائلية) تناسب المشروبات الساخنة والباردة والخبز والطهي.",
-      en: "The best sugar alternatives available in Yemen through Rukn Al-Tawfir are Steviola, based on 100% natural stevia, and NO CAL, a low-calorie sweetener. Both come in practical formats (drops, tablets, sachets, family-size) for drinks, baking and cooking.",
-    },
-  },
-  {
-    q: {
-      ar: "هل بدائل السكر آمنة لمرضى السكري؟",
-      en: "Are sugar alternatives safe for diabetics?",
-    },
-    a: {
-      ar: "نعم. محليات الستيفيا الطبيعية مثل Steviola لا ترفع مستوى السكر في الدم بشكل ملحوظ، وهي مدرجة ضمن الخيارات المقبولة لمرضى السكري والمتبعين لأنظمة غذائية منخفضة الكربوهيدرات. يفضّل دائمًا قراءة الملصق الغذائي ومراجعة الطبيب المختص في الحالات الخاصة.",
-      en: "Yes. Natural stevia sweeteners like Steviola do not meaningfully raise blood sugar and are considered acceptable for diabetics and low-carb diets. Always read the nutrition label and consult a physician for special cases.",
-    },
-  },
-  {
-    q: {
-      ar: "ما الفرق بين Steviola و NO CAL؟",
-      en: "What is the difference between Steviola and NO CAL?",
-    },
-    a: {
-      ar: "Steviola محلٍّ طبيعي بنسبة 100% مستخلص من أوراق نبتة ستيفيا، خالٍ من السعرات الحرارية ومن طعم المرارة. NO CAL محلٍّ منخفض السعرات الحرارية بتركيبة عملية للاستخدام اليومي، متوفر بأحجام عائلية مناسبة للخبز والطهي، وخالٍ من الأسبارتام في الحجم العائلي.",
-      en: "Steviola is a 100% natural stevia-based sweetener, zero-calorie and free of bitter aftertaste. NO CAL is a low-calorie sweetener with a practical everyday formula, available in family-size packs suitable for baking and cooking, and aspartame-free in the family size.",
-    },
-  },
-  {
-    q: {
-      ar: "هل تحتوي بدائل السكر على أسبارتام؟",
-      en: "Do sugar alternatives contain aspartame?",
-    },
-    a: {
-      ar: "محليات Steviola طبيعية بالكامل وخالية من الأسبارتام. أما NO CAL في الحجم العائلي فهو أيضًا خالٍ من الأسبارتام. ننصح دائمًا بقراءة قائمة المكونات على العبوة لتأكيد التركيبة المناسبة لاحتياجك.",
-      en: "Steviola sweeteners are fully natural and aspartame-free. NO CAL family-size is also aspartame-free. We always recommend reading the ingredient list on the pack to confirm the formula that fits your needs.",
-    },
-  },
-  {
-    q: {
-      ar: "هل يمكن استخدام بدائل السكر في الخبز والطهي؟",
-      en: "Can sugar alternatives be used for baking and cooking?",
-    },
-    a: {
-      ar: "نعم. الأحجام العائلية من Steviola و NO CAL مصمّمة خصيصًا للخبز والطهي وتُحافظ على ثباتها الحراري في درجات الحرارة العالية، وتمنح المذاق الحلو دون السعرات الحرارية للسكر التقليدي.",
-      en: "Yes. The family-size Steviola and NO CAL packs are designed specifically for baking and cooking, are heat-stable at high temperatures, and deliver sweetness without the calories of regular sugar.",
-    },
-  },
-  {
-    q: {
-      ar: "كيف أطلب بدائل السكر في اليمن؟",
-      en: "How do I order sugar alternatives in Yemen?",
-    },
-    a: {
-      ar: "جميع الطلبات والاستفسارات تتم حصريًا عبر واتساب الأعمال على الرقم +967 774040383. ركن التوفير كوزمتك للتجارة هو الوكيل الحصري في الجمهورية اليمنية لعلامتي Steviola و NO CAL وعدد من العلامات الصحية العالمية.",
-      en: "All orders and inquiries are handled exclusively via WhatsApp Business at +967 774040383. Rukn Al-Tawfir Cosmetic for Trade is the exclusive agent in the Republic of Yemen for Steviola, NO CAL and several international health brands.",
-    },
-  },
-  {
-    q: {
-      ar: "ما هي ستيفيا وما مصدرها؟",
-      en: "What is stevia and where does it come from?",
-    },
-    a: {
-      ar: "ستيفيا (Stevia rebaudiana) نبتة طبيعية تُستخلص من أوراقها مركبات حلوة (الستيفيوسيد والريباوديوسيد) تبلغ حلاوتها أضعاف حلاوة السكر العادي مع صفر سعرات حرارية تقريبًا، ولا ترفع مؤشر السكر في الدم.",
-      en: "Stevia (Stevia rebaudiana) is a natural plant whose leaves yield sweet compounds (stevioside and rebaudioside) that are many times sweeter than regular sugar, with near-zero calories and no meaningful blood-sugar impact.",
-    },
-  },
-  {
-    q: {
-      ar: "هل بدائل السكر مناسبة للأطفال؟",
-      en: "Are sugar alternatives suitable for children?",
-    },
-    a: {
-      ar: "يمكن استخدامها بكميات معتدلة ضمن نظام غذائي متوازن للأطفال فوق سن معينة، مع الالتزام بالكميات الموصى بها على العبوة. ننصح بمراجعة طبيب الأطفال لتحديد الكميات المناسبة لكل عمر.",
-      en: "They can be used in moderation as part of a balanced diet for children above a certain age, sticking to the serving sizes on the pack. We recommend consulting a pediatrician to determine age-appropriate amounts.",
-    },
-  },
-  {
-    q: {
-      ar: "ما هو أفضل بديل للسكر في اليمن لمتّبعي حمية الكيتو؟",
-      en: "What is the best sugar substitute in Yemen for keto dieters?",
-    },
-    a: {
-      ar: "Steviola هو الخيار الأول لمتّبعي حمية الكيتو لأنه طبيعي 100%، صفر سعرات، ولا يرفع مستوى الإنسولين. أما NO CAL فيُعدّ بديلًا منخفض الكربوهيدرات يدعم نمط الكيتو، خاصةً في الحجم العائلي للخبز والطهي.",
-      en: "Steviola is the first choice for keto dieters because it is 100% natural, zero-calorie, and does not spike insulin. NO CAL is a low-carb alternative that supports keto, especially the family-size pack for baking and cooking.",
-    },
-  },
-  {
-    q: {
-      ar: "هل ستيفيا تسبب ارتفاع ضغط الدم؟",
-      en: "Does stevia raise blood pressure?",
-    },
-    a: {
-      ar: "على العكس، تشير الدراسات السريرية إلى أن ستيفيا قد تساهم في خفض ضغط الدم بشكل طفيف لدى بعض الأشخاص. تبقى الاستشارة الطبية ضرورية لمن يتناولون أدوية ضغط الدم.",
-      en: "On the contrary, clinical studies suggest stevia may help slightly lower blood pressure in some people. Medical consultation remains essential for those taking blood pressure medication.",
-    },
-  },
-  {
-    q: {
-      ar: "هل يمكن استخدام Steviola و NO CAL أثناء الحمل والرضاعة؟",
-      en: "Can Steviola and NO CAL be used during pregnancy and breastfeeding?",
-    },
-    a: {
-      ar: "تُعتبر مستخلصات الستيفيا النقية (الموجودة في Steviola) ضمن قائمة GRAS الآمنة عمومًا. مع ذلك، نوصي بالاعتدال واستشارة الطبيب أو أخصائي التغذية خلال الحمل والرضاعة.",
-      en: "Pure stevia extracts (in Steviola) are on the GRAS list of generally recognized as safe ingredients. Still, we recommend moderation and consulting a doctor or dietitian during pregnancy and breastfeeding.",
-    },
-  },
-  {
-    q: {
-      ar: "هل بدائل السكر تساعد في إنقاص الوزن؟",
-      en: "Do sugar alternatives help with weight loss?",
-    },
-    a: {
-      ar: "نعم، استبدال السكر التقليدي ببدائل خالية أو منخفضة السعرات مثل Steviola و NO CAL يقلّل السعرات اليومية، وعند دمجه مع نظام غذائي متوازن ونشاط بدني منتظم يدعم خسارة الوزن.",
-      en: "Yes. Swapping regular sugar for zero or low-calorie alternatives like Steviola and NO CAL reduces daily calorie intake, and when combined with a balanced diet and regular exercise it supports weight loss.",
-    },
-  },
-];
-
 export const Route = createFileRoute("/$lang/sugar-alternatives")({
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const isAr = params.lang === "ar";
+    const lang = isAr ? "ar" : "en";
+    const c: PageContent = (loaderData as any)?.content ?? withDefaults(SLUG, null);
     const url = `${BASE}/${params.lang}/sugar-alternatives`;
-    const title = isAr
-      ? "بدائل السكر في اليمن — Steviola و NO CAL | ركن التوفير"
-      : "Sugar Alternatives in Yemen — Steviola & NO CAL | Rukn Al-Tawfir";
-    const desc = isAr
-      ? "دليل بدائل السكر الصحية في اليمن: ستيفيا طبيعية، محليات خالية من السعرات لمرضى السكري، ودليل التحويل بين الستيفيا والسكر."
-      : "Healthy sugar alternatives in Yemen: natural stevia, zero-calorie sweeteners for diabetics, plus a stevia-to-sugar conversion guide.";
+    const title = pickText(c, "seo.title", lang, "");
+    const desc = pickText(c, "seo.desc", lang, "");
+    const keywords = pickText(c, "seo.keywords", lang, "");
 
     const breadcrumb = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: isAr ? "الرئيسية" : "Home", item: `${BASE}/${params.lang}` },
-        { "@type": "ListItem", position: 2, name: isAr ? "بدائل السكر" : "Sugar Alternatives", item: url },
+        { "@type": "ListItem", position: 2, name: pickText(c, "crumb.label", lang, ""), item: url },
       ],
     };
 
@@ -238,13 +114,14 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
       ],
     };
 
+    const faqItems = pickList<any>(c, "faq.items", []);
     const faq = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: FAQS.map((f) => ({
+      mainEntity: faqItems.map((f) => ({
         "@type": "Question",
-        name: f.q[isAr ? "ar" : "en"],
-        acceptedAnswer: { "@type": "Answer", text: f.a[isAr ? "ar" : "en"] },
+        name: itemText(f, "q", lang),
+        acceptedAnswer: { "@type": "Answer", text: itemText(f, "a", lang) },
       })),
     };
 
@@ -252,12 +129,7 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
       meta: [
         { title },
         { name: "description", content: desc },
-        {
-          name: "keywords",
-          content: isAr
-            ? "بدائل السكر, بديل السكر, محليات صحية, محليات طبيعية, ستيفيا, ستيفيولا, نوكال, Steviola, NO CAL, محلي لمرضى السكري, بدائل السكر في اليمن, محليات بدون أسبارتام, سكر دايت"
-            : "sugar alternatives, sugar substitutes, natural sweeteners, stevia, Steviola, NO CAL, diabetic sweeteners, Yemen",
-        },
+        { name: "keywords", content: keywords },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
@@ -277,28 +149,32 @@ export const Route = createFileRoute("/$lang/sugar-alternatives")({
         { type: "application/ld+json", children: JSON.stringify(breadcrumb) },
         { type: "application/ld+json", children: JSON.stringify(webpage) },
         { type: "application/ld+json", children: JSON.stringify(itemList) },
-        { type: "application/ld+json", children: JSON.stringify(faq) },
+        ...(faqItems.length ? [{ type: "application/ld+json", children: JSON.stringify(faq) }] : []),
       ],
     };
   },
   loader: async ({ context }) => {
-    await Promise.all([
+    const [, page] = await Promise.all([
       context.queryClient.ensureQueryData(identityQO),
+      context.queryClient.ensureQueryData(pageQO),
       context.queryClient.ensureQueryData(nocalQO),
       context.queryClient.ensureQueryData(steviolaQO),
       context.queryClient.ensureQueryData(nocalProductsQO),
       context.queryClient.ensureQueryData(steviolaProductsQO),
       context.queryClient.ensureQueryData(relatedArticlesQO),
     ]);
+    return { content: withDefaults(SLUG, page?.content) };
   },
   component: SugarAlternativesHub,
 });
 
-function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+function SectionHeading({ eyebrow, heading, html }: { eyebrow: string; heading: HeadingValue; html: string }) {
   return (
     <div>
       <div className="hq-eyebrow">{eyebrow}</div>
-      <h2 className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">{title}</h2>
+      <StyledHeading heading={heading} level={2} className="mt-3 font-arabic text-3xl font-bold leading-tight text-foreground md:text-4xl">
+        <RichText value={html} />
+      </StyledHeading>
       <div className="mt-4 h-px w-16 prem-divider" />
     </div>
   );
@@ -308,6 +184,7 @@ function SugarAlternativesHub() {
   const { lang } = useLocale();
   const isAr = lang === "ar";
   const { data: id } = useSuspenseQuery(identityQO);
+  const { data: page } = useSuspenseQuery(pageQO);
   const { data: nocal } = useSuspenseQuery(nocalQO);
   const { data: steviola } = useSuspenseQuery(steviolaQO);
   const { data: nocalProducts } = useSuspenseQuery(nocalProductsQO);
@@ -315,533 +192,347 @@ function SugarAlternativesHub() {
   const { data: relatedArticles } = useSuspenseQuery(relatedArticlesQO);
   const ident = useLocalizedIdentity(id);
 
+  const c = withDefaults(SLUG, page?.content);
+  const T = (key: string) => pickText(c, key, lang, "");
+  const R = (key: string) => pickRich(c, key, lang, "");
+  const H = (key: string) => pickHeading(c, key, lang);
+  const on = (key: string) => pickFlag(c, key);
+  const L = (key: string) => pickList<any>(c, key, []);
+
+  const Bullets = ({ items, className }: { items: any[]; className?: string }) => (
+    <ul className={className ?? "mt-4 list-disc ps-5"}>
+      {items.map((it, i) => (
+        <li key={i}>
+          <RichText as="span" value={itemRich(it, "text", lang)} />
+        </li>
+      ))}
+    </ul>
+  );
+
+  const tocItems = L("toc.items");
+  const diffRows = L("diff.rows");
+  const convRows = L("conv.rows");
+  const faqs = L("faq.items");
+  const usefulLinks = L("links.items");
+
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader
-        legalName={ident.legalName}
-        parentGroup={ident.parentGroup}
-        whatsappNumber={id.whatsapp_number}
-        logoUrl={id.logo_url}
-      />
+      <SiteHeader legalName={ident.legalName} parentGroup={ident.parentGroup} whatsappNumber={id.whatsapp_number} logoUrl={id.logo_url} />
 
-      {/* Breadcrumb */}
       <nav aria-label={isAr ? "مسار التنقل" : "Breadcrumb"} className="mx-auto max-w-7xl px-4 pt-8 md:px-8">
         <ol className="flex flex-wrap items-center gap-2 text-xs text-ink-600">
-          <li>
-            <LLink to="/$lang" className="hover:text-trust-700">
-              {isAr ? "الرئيسية" : "Home"}
-            </LLink>
-          </li>
+          <li><LLink to="/$lang" className="hover:text-trust-700">{isAr ? "الرئيسية" : "Home"}</LLink></li>
           <li aria-hidden>›</li>
-          <li className="font-semibold text-foreground">{isAr ? "بدائل السكر" : "Sugar alternatives"}</li>
+          <li className="font-semibold text-foreground">{T("crumb.label")}</li>
         </ol>
       </nav>
 
       {/* HERO */}
       <section className="cinema-hero relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <div className="hq-eyebrow">{isAr ? "الدليل المرجعي" : "Authority guide"}</div>
-          <h1 className="mt-3 font-arabic text-4xl font-bold leading-[1.1] text-foreground md:text-6xl">
-            {isAr ? (
-              <>
-                بدائل السكر في اليمن <span className="text-trust-700">— الدليل الشامل</span>
-              </>
-            ) : (
-              <>
-                Sugar Alternatives in Yemen <span className="text-trust-700">— The Complete Guide</span>
-              </>
-            )}
-          </h1>
+          <div className="hq-eyebrow">{T("hero.eyebrow")}</div>
+          <StyledHeading heading={H("hero.title")} level={1} className="mt-3 font-arabic text-4xl font-bold leading-[1.1] text-foreground md:text-6xl">
+            <RichText value={R("hero.title")} />
+          </StyledHeading>
           <div className="mt-6 h-px w-28 prem-divider" />
-          <p className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg">
-            {isAr
-              ? "مرجع ركن التوفير كوزمتك للتجارة لكل ما يخصّ بدائل السكر الصحية والمحليات الطبيعية في اليمن. نشرح الفروق بين السكر والمحليات، ونقدّم خيارات Steviola (ستيفيولا) و NO CAL (نوكال) الموثوقة لمرضى السكري ومتّبعي الحميات، مع إجابات عملية لأكثر الأسئلة شيوعًا."
-              : "Rukn Al-Tawfir's authoritative reference for healthy sugar alternatives and natural sweeteners in Yemen. We explain the difference between sugar and sweeteners, present the trusted Steviola and NO CAL options for diabetics and dieters, and answer the most common practical questions."}
-          </p>
+          <RichText as="p" className="mt-6 max-w-3xl text-base leading-loose text-ink-600 md:text-lg" value={R("hero.subtitle")} />
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <WhatsAppCTA
-              number={id.whatsapp_number}
-              message={
-                isAr
-                  ? "السلام عليكم، أرغب بالاستفسار عن بدائل السكر المتوفرة (Steviola / NO CAL)."
-                  : "Hello, I'd like to inquire about your sugar alternatives (Steviola / NO CAL)."
-              }
-            >
-              {isAr ? "تواصل عبر واتساب" : "Inquire on WhatsApp"}
+            <WhatsAppCTA number={id.whatsapp_number} message={T("hero.waMsg")}>
+              {T("hero.waLabel")}
             </WhatsAppCTA>
-            <LLink
-              to="/$lang/brands/$slug"
-              params={{ slug: "steviola" }}
-              className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
-            >
-              {isAr ? "تصفّح Steviola" : "Explore Steviola"}
+            <LLink to="/$lang/brands/$slug" params={{ slug: "steviola" }} className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700">
+              {T("hero.link1Label")}
             </LLink>
-            <LLink
-              to="/$lang/brands/$slug"
-              params={{ slug: "nocal" }}
-              className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700"
-            >
-              {isAr ? "تصفّح NO CAL" : "Explore NO CAL"}
+            <LLink to="/$lang/brands/$slug" params={{ slug: "nocal" }} className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-trust-700 hover:text-trust-700">
+              {T("hero.link2Label")}
             </LLink>
           </div>
         </div>
       </section>
 
       {/* TABLE OF CONTENTS */}
-      <section className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <div className="prem-card p-6 md:p-8">
-          <h2 className="font-arabic text-lg font-bold text-foreground">
-            {isAr ? "محتويات الدليل" : "On this page"}
-          </h2>
-          <ol className="mt-4 grid gap-2 text-sm text-ink-700 md:grid-cols-2">
-            {[
-              ["what", isAr ? "ما هي بدائل السكر؟" : "What are sugar alternatives?"],
-              ["diff", isAr ? "الفرق بين السكر والمحليات" : "Sugar vs. sweeteners"],
-              ["stevia", isAr ? "ستيفيا — المحلي الطبيعي" : "Stevia — the natural sweetener"],
-              ["steviola", isAr ? "Steviola (ستيفيولا)" : "Steviola"],
-              ["nocal", isAr ? "NO CAL (نوكال)" : "NO CAL"],
-              ["yemen", isAr ? "بدائل السكر في اليمن" : "Sugar alternatives in Yemen"],
-              ["articles", isAr ? "مقالات ذات صلة" : "Related articles"],
-              ["faq", isAr ? "الأسئلة الشائعة" : "Frequently asked questions"],
-            ].map(([id2, label]) => (
-              <li key={id2}>
-                <a href={`#${id2}`} className="text-trust-700 hover:underline">
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {on("toc.enabled") && tocItems.length > 0 ? (
+        <section className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+          <div className="prem-card p-6 md:p-8">
+            <h2 className="font-arabic text-lg font-bold text-foreground">{T("toc.title")}</h2>
+            <ol className="mt-4 grid gap-2 text-sm text-ink-700 md:grid-cols-2">
+              {tocItems.map((it, i) => (
+                <li key={i}>
+                  <a href={`#${it?.anchor ?? ""}`} className="text-trust-700 hover:underline">
+                    {itemText(it, "label", lang)}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      ) : null}
 
       {/* WHAT */}
-      <section id="what" className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
-        <SectionHeading
-          eyebrow={isAr ? "تعريف" : "Definition"}
-          title={isAr ? "ما هي بدائل السكر؟" : "What are sugar alternatives?"}
-        />
-        <div className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700">
-          <p>
-            {isAr
-              ? "بدائل السكر هي مواد تمنح المذاق الحلو دون أن تحمل السعرات الحرارية العالية للسكر التقليدي (السكروز). تنقسم إلى محليات طبيعية مستخلصة من النباتات مثل الستيفيا، ومحليات منخفضة السعرات مصمّمة لتقديم خيار يومي عملي لمن يرغب في خفض استهلاك السكر، أو لمرضى السكري الذين يحتاجون إلى ضبط مؤشر السكر في الدم."
-              : "Sugar alternatives are substances that provide a sweet taste without the high calories of regular sugar (sucrose). They include natural sweeteners extracted from plants — such as stevia — and low-calorie sweeteners designed for daily use by those reducing sugar intake or by diabetics who need to manage blood-sugar response."}
-          </p>
-          <p>
-            {isAr
-              ? "في اليمن، يتنامى الطلب على البدائل الصحية مع تزايد الوعي بالأنماط الغذائية المتوازنة. توفّر ركن التوفير كوزمتك للتجارة، الوكيل الحصري في الجمهورية اليمنية لعدد من العلامات العالمية، خيارات موثوقة مفحوصة بمواصفات دولية."
-              : "Demand for healthy alternatives is growing in Yemen with rising awareness of balanced eating. Rukn Al-Tawfir Cosmetic for Trade — exclusive agent in Yemen for several international brands — provides trusted, internationally compliant options."}
-          </p>
-        </div>
-      </section>
+      {on("what.enabled") ? (
+        <section id="what" className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
+          <SectionHeading eyebrow={T("what.eyebrow")} heading={H("what.title")} html={R("what.title")} />
+          <RichText className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700" value={R("what.body")} />
+        </section>
+      ) : null}
 
-      {/* DIFFERENCE */}
-      <section id="diff" className="border-y border-border bg-card">
-        <div className="mx-auto max-w-5xl px-4 py-14 md:px-8 md:py-20">
-          <SectionHeading
-            eyebrow={isAr ? "مقارنة" : "Comparison"}
-            title={isAr ? "الفرق بين السكر التقليدي والمحليات الصحية" : "Regular sugar vs. healthy sweeteners"}
-          />
-          <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-background">
-            <table className="w-full min-w-[640px] text-start text-sm">
-              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-ink-600">
-                <tr>
-                  <th className="px-4 py-3 text-start">{isAr ? "المعيار" : "Criterion"}</th>
-                  <th className="px-4 py-3 text-start">{isAr ? "السكر التقليدي" : "Regular sugar"}</th>
-                  <th className="px-4 py-3 text-start">{isAr ? "المحليات الطبيعية" : "Natural sweeteners"}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border text-ink-700">
-                {[
-                  [isAr ? "السعرات الحرارية" : "Calories", isAr ? "~387 سعرة / 100 جم" : "~387 kcal / 100 g", isAr ? "≈ 0 سعرة" : "≈ 0 kcal"],
-                  [isAr ? "مؤشر السكر" : "Glycemic index", isAr ? "65 (مرتفع)" : "65 (high)", isAr ? "0 (لا يرفع السكر)" : "0 (no blood-sugar spike)"],
-                  [isAr ? "مناسب لمرضى السكري" : "Diabetic-friendly", isAr ? "لا" : "No", isAr ? "نعم" : "Yes"],
-                  [isAr ? "ملائم للحميات" : "Diet-friendly", isAr ? "لا" : "No", isAr ? "نعم" : "Yes"],
-                  [isAr ? "الثبات الحراري" : "Heat-stable", isAr ? "نعم" : "Yes", isAr ? "نعم" : "Yes"],
-                ].map((row) => (
-                  <tr key={row[0]}>
-                    {row.map((cell, i) => (
-                      <td key={i} className={`px-4 py-3 ${i === 0 ? "font-semibold text-foreground" : ""}`}>
-                        {cell}
-                      </td>
-                    ))}
+      {/* DIFFERENCE TABLE */}
+      {on("diff.enabled") && diffRows.length > 0 ? (
+        <section id="diff" className="border-y border-border bg-card">
+          <div className="mx-auto max-w-5xl px-4 py-14 md:px-8 md:py-20">
+            <SectionHeading eyebrow={T("diff.eyebrow")} heading={H("diff.title")} html={R("diff.title")} />
+            <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-background">
+              <table className="w-full min-w-[640px] text-start text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-ink-600">
+                  <tr>
+                    <th className="px-4 py-3 text-start">{T("diff.col1")}</th>
+                    <th className="px-4 py-3 text-start">{T("diff.col2")}</th>
+                    <th className="px-4 py-3 text-start">{T("diff.col3")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* STEVIA vs SUGAR — CONVERSION GUIDE */}
-      <section id="conversion" className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
-        <SectionHeading
-          eyebrow={isAr ? "دليل التحويل" : "Conversion guide"}
-          title={isAr ? "دليل تحويل الستيفيا مقابل السكر — للطبخ والمشروبات" : "Stevia vs sugar conversion guide — for cooking and beverages"}
-        />
-        <p className="mt-4 max-w-3xl text-base leading-loose text-ink-700">
-          {isAr
-            ? "الستيفيا النقية أحلى من السكر بنحو 200–300 مرة، لذلك يُستبدل السكر بكميات صغيرة جدًا. الجدول التالي يعرض النِسَب التقريبية باستخدام Steviola (نقط ومسحوق) و NO CAL (أكياس وحجم عائلي) لتحلية المشروبات والخبز. المقادير إرشادية — عدّلها حسب ذوقك واقرأ الملصق دائمًا."
-            : "Pure stevia is roughly 200–300× sweeter than sugar, so it replaces sugar in very small amounts. The table below shows approximate ratios using Steviola (drops & powder) and NO CAL (sachets & family-size) for beverages and baking. Values are guidance — adjust to taste and always check the pack label."}
-        </p>
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-background">
-          <table className="w-full min-w-[720px] text-start text-sm">
-            <thead className="bg-muted/40 text-xs uppercase tracking-wider text-ink-600">
-              <tr>
-                <th className="px-4 py-3 text-start">{isAr ? "كمية السكر" : "Amount of sugar"}</th>
-                <th className="px-4 py-3 text-start">{isAr ? "Steviola نقط" : "Steviola drops"}</th>
-                <th className="px-4 py-3 text-start">{isAr ? "Steviola / NO CAL مسحوق" : "Steviola / NO CAL powder"}</th>
-                <th className="px-4 py-3 text-start">{isAr ? "NO CAL أكياس" : "NO CAL sachets"}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border text-ink-700">
-              {[
-                [isAr ? "1 ملعقة صغيرة (4 جم)" : "1 tsp (4 g)", isAr ? "2–3 نقط" : "2–3 drops", isAr ? "⅛ ملعقة صغيرة" : "⅛ tsp", isAr ? "1 كيس" : "1 sachet"],
-                [isAr ? "1 ملعقة كبيرة (12 جم)" : "1 tbsp (12 g)", isAr ? "6–9 نقط" : "6–9 drops", isAr ? "⅓ ملعقة صغيرة" : "⅓ tsp", isAr ? "3 أكياس" : "3 sachets"],
-                [isAr ? "¼ كوب (50 جم)" : "¼ cup (50 g)", isAr ? "24 نقطة" : "24 drops", isAr ? "1½ ملعقة صغيرة" : "1½ tsp", isAr ? "12 كيس" : "12 sachets"],
-                [isAr ? "½ كوب (100 جم)" : "½ cup (100 g)", isAr ? "48 نقطة" : "48 drops", isAr ? "1 ملعقة كبيرة" : "1 tbsp", isAr ? "24 كيس" : "24 sachets"],
-                [isAr ? "1 كوب (200 جم)" : "1 cup (200 g)", isAr ? "—" : "—", isAr ? "2 ملعقة كبيرة" : "2 tbsp", isAr ? "الحجم العائلي" : "Use family-size"],
-              ].map((row) => (
-                <tr key={row[0]}>
-                  {row.map((cell, i) => (
-                    <td key={i} className={`px-4 py-3 ${i === 0 ? "font-semibold text-foreground" : ""}`}>
-                      {cell}
-                    </td>
+                </thead>
+                <tbody className="divide-y divide-border text-ink-700">
+                  {diffRows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-3 font-semibold text-foreground">{itemText(row, "c1", lang)}</td>
+                      <td className="px-4 py-3">{itemText(row, "c2", lang)}</td>
+                      <td className="px-4 py-3">{itemText(row, "c3", lang)}</td>
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-6">
-            <h3 className="font-arabic text-lg font-bold text-foreground">
-              {isAr ? "للمشروبات (شاي، قهوة، عصائر)" : "For beverages (tea, coffee, juice)"}
-            </h3>
-            <ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700">
-              <li>{isAr ? "ابدأ بنقطتين من Steviola لكل كوب واذق قبل الزيادة." : "Start with 2 drops of Steviola per cup and taste before adding more."}</li>
-              <li>{isAr ? "لتحلية إبريق شاي 1 لتر: 8–12 نقطة." : "For a 1-litre teapot: 8–12 Steviola drops."}</li>
-              <li>{isAr ? "كيس NO CAL واحد يعادل ملعقة سكر صغيرة تقريبًا." : "One NO CAL sachet ≈ 1 teaspoon of sugar."}</li>
-            </ul>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-6">
-            <h3 className="font-arabic text-lg font-bold text-foreground">
-              {isAr ? "للخبز والحلويات" : "For baking and desserts"}
-            </h3>
-            <ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700">
-              <li>{isAr ? "استخدم الحجم العائلي المخصص للخبز لضمان الحجم والقوام." : "Use the family-size baking pack to preserve batter volume and texture."}</li>
-              <li>{isAr ? "لتعويض حجم السكر أضف ملعقة زبادي أو تفاح مبشور لكل كوب." : "Compensate the missing sugar bulk with a tablespoon of yogurt or grated apple per cup."}</li>
-              <li>{isAr ? "الستيفيا ثابتة حراريًا حتى 200°م، مناسبة للفرن." : "Stevia is heat-stable up to 200°C — oven-safe."}</li>
-            </ul>
+        </section>
+      ) : null}
+
+      {/* CONVERSION GUIDE */}
+      {on("conv.enabled") ? (
+        <section id="conversion" className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <SectionHeading eyebrow={T("conv.eyebrow")} heading={H("conv.title")} html={R("conv.title")} />
+          <RichText as="p" className="mt-4 max-w-3xl text-base leading-loose text-ink-700" value={R("conv.intro")} />
+          {convRows.length > 0 ? (
+            <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-background">
+              <table className="w-full min-w-[720px] text-start text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-ink-600">
+                  <tr>
+                    <th className="px-4 py-3 text-start">{T("conv.col1")}</th>
+                    <th className="px-4 py-3 text-start">{T("conv.col2")}</th>
+                    <th className="px-4 py-3 text-start">{T("conv.col3")}</th>
+                    <th className="px-4 py-3 text-start">{T("conv.col4")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border text-ink-700">
+                  {convRows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-3 font-semibold text-foreground">{itemText(row, "c1", lang)}</td>
+                      <td className="px-4 py-3">{itemText(row, "c2", lang)}</td>
+                      <td className="px-4 py-3">{itemText(row, "c3", lang)}</td>
+                      <td className="px-4 py-3">{itemText(row, "c4", lang)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-6">
+              <h3 className="font-arabic text-lg font-bold text-foreground">{T("conv.card1Title")}</h3>
+              <Bullets items={L("conv.card1Items")} className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700" />
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-6">
+              <h3 className="font-arabic text-lg font-bold text-foreground">{T("conv.card2Title")}</h3>
+              <Bullets items={L("conv.card2Items")} className="mt-3 list-disc space-y-2 ps-5 text-sm leading-loose text-ink-700" />
+            </div>
           </div>
-        </div>
-        <p className="mt-6 text-xs text-ink-600">
-          {isAr
-            ? "ملاحظة: النِسَب تقديرية وقد تختلف حسب صيغة المنتج. راجع الملصق على العبوة، واستشر طبيبك في حالات السكري أو الحمل."
-            : "Note: ratios are approximate and vary by product formulation. Check the pack label, and consult your physician for diabetes or pregnancy."}
-        </p>
-      </section>
+          <p className="mt-6 text-xs text-ink-600">{T("conv.note")}</p>
+        </section>
+      ) : null}
 
       {/* STEVIA */}
-      <section id="stevia" className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
-        <SectionHeading
-          eyebrow={isAr ? "النبتة" : "The plant"}
-          title={isAr ? "ستيفيا — المحلي الطبيعي الأول عالميًا" : "Stevia — the world's leading natural sweetener"}
-        />
-        <div className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700">
-          <p>
-            {isAr
-              ? "ستيفيا (Stevia rebaudiana) نبتة جنوب أمريكية تُستخلص من أوراقها مركّبات حلوة (الستيفيوسيد والريباوديوسيد) تصل حلاوتها إلى 200–300 ضعف حلاوة السكر العادي مع صفر سعرات حرارية تقريبًا. اعتُمدت ستيفيا من قِبل هيئات صحية دولية، واستُخدمت لعقود في اليابان وأمريكا الجنوبية قبل انتشارها عالميًا."
-              : "Stevia (Stevia rebaudiana) is a South American plant whose leaves yield sweet compounds (stevioside and rebaudioside) up to 200–300 times sweeter than regular sugar, with near-zero calories. Stevia has been approved by international health authorities and used for decades in Japan and South America before its global expansion."}
-          </p>
-          <h3 className="font-arabic text-xl font-bold text-foreground">
-            {isAr ? "أبرز استخدامات ستيفيا" : "Key uses of stevia"}
-          </h3>
-          <ul>
-            <li>{isAr ? "تحلية المشروبات الساخنة (الشاي، القهوة، الأعشاب)." : "Sweetening hot drinks (tea, coffee, herbal infusions)."}</li>
-            <li>{isAr ? "تحلية العصائر والمشروبات الباردة." : "Sweetening juices and cold beverages."}</li>
-            <li>{isAr ? "الخبز والحلويات بأحجام عائلية مخصصة للطهي." : "Baking and desserts using family-size cooking packs."}</li>
-            <li>{isAr ? "حمية مرضى السكري والحميات منخفضة الكربوهيدرات." : "Diabetic diets and low-carb meal plans."}</li>
-          </ul>
-        </div>
-      </section>
+      {on("stevia.enabled") ? (
+        <section id="stevia" className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
+          <SectionHeading eyebrow={T("stevia.eyebrow")} heading={H("stevia.title")} html={R("stevia.title")} />
+          <div className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700">
+            <RichText value={R("stevia.body")} />
+            <h3 className="font-arabic text-xl font-bold text-foreground">{T("stevia.usesTitle")}</h3>
+            <Bullets items={L("stevia.uses")} className="list-disc ps-5" />
+          </div>
+        </section>
+      ) : null}
 
       {/* STEVIOLA */}
-      <section id="steviola" className="border-y border-border bg-card">
-        <div className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
-          <SectionHeading
-            eyebrow={isAr ? "العلامة" : "Brand"}
-            title={isAr ? "Steviola (ستيفيولا) — ستيفيا طبيعية 100%" : "Steviola — 100% natural stevia"}
-          />
-          <div className="mt-8 grid gap-8 md:grid-cols-[1fr,1.4fr]">
-            {steviola?.logo_url && (
-              <div className="podium grid aspect-square place-items-center p-8">
-                <img src={steviola.logo_url} alt="Steviola" className="max-h-32 w-auto" />
+      {on("steviola.enabled") ? (
+        <section id="steviola" className="border-y border-border bg-card">
+          <div className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
+            <SectionHeading eyebrow={T("steviola.eyebrow")} heading={H("steviola.title")} html={R("steviola.title")} />
+            <div className="mt-8 grid gap-8 md:grid-cols-[1fr,1.4fr]">
+              {steviola?.logo_url && (
+                <div className="podium grid aspect-square place-items-center p-8">
+                  <img src={steviola.logo_url} alt="Steviola" className="max-h-32 w-auto" />
+                </div>
+              )}
+              <div className="text-base leading-loose text-ink-700">
+                <RichText value={R("steviola.body")} />
+                <Bullets items={L("steviola.points")} />
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <LLink to="/$lang/brands/$slug" params={{ slug: "steviola" }} className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white">
+                    {T("steviola.ctaLabel")}
+                  </LLink>
+                </div>
+              </div>
+            </div>
+
+            {steviolaProducts.length > 0 && (
+              <div className="mt-10">
+                <h3 className="font-arabic text-xl font-bold text-foreground">{T("steviola.productsTitle")}</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {steviolaProducts.map((p) => (
+                    <LLink key={p.id} to="/$lang/brands/$slug/$productSlug" params={{ slug: "steviola", productSlug: p.slug }} className="prem-card group flex gap-3 p-3 transition-transform hover:-translate-y-0.5">
+                      {p.cover_url && <img src={p.cover_url} alt={p.name_ar} loading="lazy" className="size-20 shrink-0 rounded-xl bg-muted object-contain p-1" />}
+                      <div className="min-w-0">
+                        <div className="font-arabic text-sm font-bold text-foreground">{isAr ? p.name_ar : p.name_en}</div>
+                        {p.short_description_ar && <p className="mt-1 line-clamp-2 text-xs text-ink-600">{p.short_description_ar}</p>}
+                      </div>
+                    </LLink>
+                  ))}
+                </div>
               </div>
             )}
+          </div>
+        </section>
+      ) : null}
+
+      {/* NOCAL */}
+      {on("nocal.enabled") ? (
+        <section id="nocal" className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
+          <SectionHeading eyebrow={T("nocal.eyebrow")} heading={H("nocal.title")} html={R("nocal.title")} />
+          <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr,1fr]">
             <div className="text-base leading-loose text-ink-700">
-              <p>
-                {isAr
-                  ? "Steviola هي علامة محليات الستيفيا الطبيعية المعتمدة بنسبة 100%، تأتي بصيغ عملية (نقط، أقراص، أكياس وحجم عائلي للخبز والطهي). خالية من السعرات، خالية من الأسبارتام، بدون طعم مرارة، ومثالية لمرضى السكري ومتّبعي الحميات."
-                  : "Steviola is the 100% natural stevia-based sweetener brand, available in practical formats (drops, tablets, sachets and family-size for baking and cooking). Zero-calorie, aspartame-free, no bitter aftertaste, and ideal for diabetics and dieters."}
-              </p>
-              <ul className="mt-4 list-disc ps-5">
-                <li>{isAr ? "100% ستيفيا طبيعية" : "100% natural stevia"}</li>
-                <li>{isAr ? "صفر سعرات حرارية" : "Zero calories"}</li>
-                <li>{isAr ? "خالٍ من الأسبارتام" : "Aspartame-free"}</li>
-                <li>{isAr ? "مناسب لمرضى السكري" : "Diabetic-friendly"}</li>
-              </ul>
+              <RichText value={R("nocal.body")} />
+              <Bullets items={L("nocal.points")} />
               <div className="mt-6 flex flex-wrap gap-3">
-                <LLink
-                  to="/$lang/brands/$slug"
-                  params={{ slug: "steviola" }}
-                  className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white"
-                >
-                  {isAr ? "صفحة Steviola الكاملة" : "Full Steviola page"}
+                <LLink to="/$lang/brands/$slug" params={{ slug: "nocal" }} className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white">
+                  {T("nocal.ctaLabel")}
                 </LLink>
               </div>
             </div>
+            {nocal?.logo_url && (
+              <div className="podium grid aspect-square place-items-center p-8">
+                <img src={nocal.logo_url} alt="NO CAL" className="max-h-32 w-auto" />
+              </div>
+            )}
           </div>
 
-          {steviolaProducts.length > 0 && (
+          {nocalProducts.length > 0 && (
             <div className="mt-10">
-              <h3 className="font-arabic text-xl font-bold text-foreground">
-                {isAr ? "منتجات Steviola" : "Steviola products"}
-              </h3>
+              <h3 className="font-arabic text-xl font-bold text-foreground">{T("nocal.productsTitle")}</h3>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {steviolaProducts.map((p) => (
-                  <LLink
-                    key={p.id}
-                    to="/$lang/brands/$slug/$productSlug"
-                    params={{ slug: "steviola", productSlug: p.slug }}
-                    className="prem-card group flex gap-3 p-3 transition-transform hover:-translate-y-0.5"
-                  >
-                    {p.cover_url && (
-                      <img src={p.cover_url} alt={p.name_ar} loading="lazy" className="size-20 shrink-0 rounded-xl bg-muted object-contain p-1" />
-                    )}
+                {nocalProducts.map((p) => (
+                  <LLink key={p.id} to="/$lang/brands/$slug/$productSlug" params={{ slug: "nocal", productSlug: p.slug }} className="prem-card group flex gap-3 p-3 transition-transform hover:-translate-y-0.5">
+                    {p.cover_url && <img src={p.cover_url} alt={p.name_ar} loading="lazy" className="size-20 shrink-0 rounded-xl bg-muted object-contain p-1" />}
                     <div className="min-w-0">
                       <div className="font-arabic text-sm font-bold text-foreground">{isAr ? p.name_ar : p.name_en}</div>
-                      {p.short_description_ar && (
-                        <p className="mt-1 line-clamp-2 text-xs text-ink-600">{p.short_description_ar}</p>
-                      )}
+                      {p.short_description_ar && <p className="mt-1 line-clamp-2 text-xs text-ink-600">{p.short_description_ar}</p>}
                     </div>
                   </LLink>
                 ))}
               </div>
             </div>
           )}
-        </div>
-      </section>
+        </section>
+      ) : null}
 
-      {/* NOCAL */}
-      <section id="nocal" className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
-        <SectionHeading
-          eyebrow={isAr ? "العلامة" : "Brand"}
-          title={isAr ? "NO CAL (نوكال) — محلٍّ منخفض السعرات" : "NO CAL — low-calorie sweetener"}
-        />
-        <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr,1fr]">
-          <div className="text-base leading-loose text-ink-700">
-            <p>
-              {isAr
-                ? "NO CAL محلٍّ منخفض السعرات الحرارية بتركيبة عملية للاستخدام اليومي. متوفر بأحجام عائلية مناسبة للخبز والطهي، وخالٍ من الأسبارتام في الحجم العائلي، وآمن لمرضى السكري ضمن نظام غذائي متوازن."
-                : "NO CAL is a low-calorie sweetener with a practical everyday formula. Available in family-size packs suitable for baking and cooking, aspartame-free in the family size, and safe for diabetics as part of a balanced diet."}
-            </p>
-            <ul className="mt-4 list-disc ps-5">
-              <li>{isAr ? "تركيبة عملية للاستخدام اليومي" : "Practical everyday formula"}</li>
-              <li>{isAr ? "حجم عائلي للخبز والطهي" : "Family-size for baking & cooking"}</li>
-              <li>{isAr ? "خالٍ من الأسبارتام (الحجم العائلي)" : "Aspartame-free (family size)"}</li>
-              <li>{isAr ? "آمن لمرضى السكري" : "Safe for diabetics"}</li>
-            </ul>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <LLink
-                to="/$lang/brands/$slug"
-                params={{ slug: "nocal" }}
-                className="inline-flex items-center justify-center rounded-full bg-trust-700 px-5 py-2.5 text-xs font-semibold text-white"
-              >
-                {isAr ? "صفحة NO CAL الكاملة" : "Full NO CAL page"}
-              </LLink>
+      {/* YEMEN */}
+      {on("yemen.enabled") ? (
+        <section id="yemen" className="border-y border-border bg-card">
+          <div className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-20">
+            <SectionHeading eyebrow={T("yemen.eyebrow")} heading={H("yemen.title")} html={R("yemen.title")} />
+            <div className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700">
+              <RichText value={R("yemen.body")} />
+              <Bullets items={L("yemen.points")} className="list-disc ps-5" />
             </div>
           </div>
-          {nocal?.logo_url && (
-            <div className="podium grid aspect-square place-items-center p-8">
-              <img src={nocal.logo_url} alt="NO CAL" className="max-h-32 w-auto" />
-            </div>
-          )}
-        </div>
-
-        {nocalProducts.length > 0 && (
-          <div className="mt-10">
-            <h3 className="font-arabic text-xl font-bold text-foreground">
-              {isAr ? "منتجات NO CAL" : "NO CAL products"}
-            </h3>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {nocalProducts.map((p) => (
-                <LLink
-                  key={p.id}
-                  to="/$lang/brands/$slug/$productSlug"
-                  params={{ slug: "nocal", productSlug: p.slug }}
-                  className="prem-card group flex gap-3 p-3 transition-transform hover:-translate-y-0.5"
-                >
-                  {p.cover_url && (
-                    <img src={p.cover_url} alt={p.name_ar} loading="lazy" className="size-20 shrink-0 rounded-xl bg-muted object-contain p-1" />
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-arabic text-sm font-bold text-foreground">{isAr ? p.name_ar : p.name_en}</div>
-                    {p.short_description_ar && (
-                      <p className="mt-1 line-clamp-2 text-xs text-ink-600">{p.short_description_ar}</p>
-                    )}
-                  </div>
-                </LLink>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* YEMEN INTENT */}
-      <section id="yemen" className="border-y border-border bg-card">
-        <div className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-20">
-          <SectionHeading
-            eyebrow={isAr ? "السوق اليمني" : "Yemen market"}
-            title={isAr ? "بدائل السكر في اليمن: لماذا تختار ركن التوفير؟" : "Sugar alternatives in Yemen: why choose Rukn Al-Tawfir?"}
-          />
-          <div className="prose prose-neutral mt-6 max-w-none text-base leading-loose text-ink-700">
-            <p>
-              {isAr
-                ? "ركن التوفير كوزمتك للتجارة هو الوكيل الحصري في الجمهورية اليمنية لعلامتي Steviola و NO CAL، إضافة إلى منظومة من العلامات الصحية والاستهلاكية العالمية. يضمن هذا التمثيل الحصري وصول منتجات أصلية بمواصفات مطابقة، عبر قنوات توزيع موثوقة في المحافظات الرئيسية."
-                : "Rukn Al-Tawfir Cosmetic for Trade is the exclusive agent in Yemen for both Steviola and NO CAL, alongside a portfolio of international health and consumer brands. This exclusive representation ensures authentic, spec-compliant products are delivered through trusted distribution channels across major governorates."}
-            </p>
-            <ul>
-              <li>{isAr ? "وكيل حصري مرخّص في الجمهورية اليمنية." : "Licensed exclusive agent in the Republic of Yemen."}</li>
-              <li>{isAr ? "منتجات أصلية بضمان العلامة." : "Authentic products with brand-backed guarantee."}</li>
-              <li>{isAr ? "قنوات توزيع للجملة والتجزئة." : "Wholesale and retail distribution channels."}</li>
-              <li>{isAr ? "خدمة استفسار وطلب مباشرة عبر واتساب الأعمال." : "Direct inquiry & order service via WhatsApp Business."}</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* RELATED ARTICLES */}
-      <section id="articles" className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
-        <SectionHeading
-          eyebrow={isAr ? "أدلة بدائل السكر" : "Sugar-alternatives guides"}
-          title={isAr ? "مقالات ذات صلة" : "Related articles"}
-        />
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {relatedArticles.map((n) => {
-            const title = (isAr ? n.title_ar : n.title_en || n.title_ar) || "";
-            const excerpt = (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "";
-            const eyebrow = n.tags[0] || (isAr ? "مقال" : "Article");
-            return (
-              <LLink
-                key={n.slug}
-                to="/$lang/news/$slug"
-                params={{ slug: n.slug }}
-                className="prem-card group overflow-hidden"
-              >
-                {n.cover_url ? (
-                  <img src={n.cover_url} alt={title} loading="lazy" className="block aspect-[16/9] w-full object-cover" />
-                ) : null}
-                <div className="p-5">
-                  <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">
-                    {eyebrow}
+      {on("articles.enabled") && relatedArticles.length > 0 ? (
+        <section id="articles" className="mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
+          <SectionHeading eyebrow={T("articles.eyebrow")} heading={H("articles.title")} html={R("articles.title")} />
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            {relatedArticles.map((n) => {
+              const title = (isAr ? n.title_ar : n.title_en || n.title_ar) || "";
+              const excerpt = (isAr ? n.excerpt_ar : n.excerpt_en || n.excerpt_ar) || "";
+              const eyebrow = n.tags[0] || (isAr ? "مقال" : "Article");
+              return (
+                <LLink key={n.slug} to="/$lang/news/$slug" params={{ slug: n.slug }} className="prem-card group overflow-hidden">
+                  {n.cover_url ? <img src={n.cover_url} alt={title} loading="lazy" className="block aspect-[16/9] w-full object-cover" /> : null}
+                  <div className="p-5">
+                    <div className="text-[11px] font-bold tracking-[0.18em] text-trust-700">{eyebrow}</div>
+                    <h3 className="mt-2 font-arabic text-lg font-bold text-foreground group-hover:text-trust-700">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink-600">{excerpt}</p>
                   </div>
-                  <h3 className="mt-2 font-arabic text-lg font-bold text-foreground group-hover:text-trust-700">
-                    {title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-600">{excerpt}</p>
+                </LLink>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {/* FAQ + LINKS */}
+      {on("faq.enabled") || on("links.enabled") ? (
+        <section id="faq" className="border-y border-border bg-card">
+          <div className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-20">
+            {on("faq.enabled") && faqs.length > 0 ? (
+              <>
+                <SectionHeading eyebrow={T("faq.eyebrow")} heading={H("faq.title")} html={R("faq.title")} />
+                <div className="mt-8 space-y-3">
+                  {faqs.map((f, i) => (
+                    <details key={i} className="prem-card group p-5 [&_summary::-webkit-details-marker]:hidden">
+                      <summary className="flex cursor-pointer items-start justify-between gap-4">
+                        <h3 className="font-arabic text-base font-bold text-foreground group-open:text-trust-700">{itemText(f, "q", lang)}</h3>
+                        <span aria-hidden className="mt-1 text-trust-700 transition-transform group-open:rotate-45">+</span>
+                      </summary>
+                      <RichText className="mt-4 text-sm leading-loose text-ink-700" value={itemRich(f, "a", lang)} />
+                    </details>
+                  ))}
                 </div>
-              </LLink>
-            );
-          })}
-        </div>
-      </section>
+              </>
+            ) : null}
 
-      {/* FAQ */}
-      <section id="faq" className="border-y border-border bg-card">
-        <div className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-20">
-          <SectionHeading
-            eyebrow={isAr ? "الأسئلة الشائعة" : "FAQ"}
-            title={isAr ? "أسئلة يطرحها العملاء حول بدائل السكر" : "Common customer questions about sugar alternatives"}
-          />
-          <div className="mt-8 space-y-3">
-            {FAQS.map((f, i) => (
-              <details key={i} className="prem-card group p-5 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer items-start justify-between gap-4">
-                  <h3 className="font-arabic text-base font-bold text-foreground group-open:text-trust-700">
-                    {f.q[isAr ? "ar" : "en"]}
-                  </h3>
-                  <span aria-hidden className="mt-1 text-trust-700 transition-transform group-open:rotate-45">+</span>
-                </summary>
-                <p className="mt-4 text-sm leading-loose text-ink-700">{f.a[isAr ? "ar" : "en"]}</p>
-              </details>
-            ))}
+            {on("links.enabled") && usefulLinks.length > 0 ? (
+              <div className="mt-10 rounded-2xl border border-border bg-background p-6 md:p-8">
+                <h3 className="font-arabic text-lg font-bold text-foreground">{T("links.title")}</h3>
+                <ul className="mt-3 grid gap-2 text-sm text-trust-700 md:grid-cols-2">
+                  {usefulLinks.map((l, i) => (
+                    <li key={i}>
+                      <LLink to={`/$lang${l?.url ?? ""}`} className="hover:underline">
+                        ← {itemText(l, "label", lang)}
+                      </LLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
-
-          <div className="mt-10 rounded-2xl border border-border bg-background p-6 md:p-8">
-            <h3 className="font-arabic text-lg font-bold text-foreground">
-              {isAr ? "روابط مفيدة" : "Useful links"}
-            </h3>
-            <ul className="mt-3 grid gap-2 text-sm text-trust-700 md:grid-cols-2">
-              <li>
-                <LLink to="/$lang/brands/$slug" params={{ slug: "steviola" }} className="hover:underline">
-                  ← {isAr ? "صفحة علامة Steviola" : "Steviola brand page"}
-                </LLink>
-              </li>
-              <li>
-                <LLink to="/$lang/brands/$slug" params={{ slug: "nocal" }} className="hover:underline">
-                  ← {isAr ? "صفحة علامة NO CAL" : "NO CAL brand page"}
-                </LLink>
-              </li>
-              <li>
-                <LLink to="/$lang/brands" className="hover:underline">
-                  ← {isAr ? "كل العلامات التجارية" : "All brands"}
-                </LLink>
-              </li>
-              <li>
-                <LLink to="/$lang/catalogs" className="hover:underline">
-                  ← {isAr ? "الكتالوجات الرسمية" : "Official catalogs"}
-                </LLink>
-              </li>
-              <li>
-                <LLink to="/$lang/about" className="hover:underline">
-                  ← {isAr ? "من نحن" : "About Rukn Al-Tawfir"}
-                </LLink>
-              </li>
-              <li>
-                <LLink to="/$lang/contact" className="hover:underline">
-                  ← {isAr ? "تواصل معنا" : "Contact us"}
-                </LLink>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
-        <h2 className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
-          {isAr ? "جاهز للتحوّل إلى بديل صحي للسكر؟" : "Ready to switch to a healthy sugar alternative?"}
-        </h2>
-        <p className="mt-4 text-ink-600">
-          {isAr
-            ? "تواصل مع فريق ركن التوفير عبر واتساب الأعمال للاستفسار عن المنتجات والأسعار والتوفّر."
-            : "Talk to the Rukn Al-Tawfir team on WhatsApp Business for products, pricing and availability."}
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <WhatsAppCTA number={id.whatsapp_number}>
-            {isAr ? "تواصل عبر واتساب" : "Chat on WhatsApp"}
-          </WhatsAppCTA>
-        </div>
-      </section>
+      {on("cta.enabled") ? (
+        <section className="mx-auto max-w-5xl px-4 py-20 text-center md:px-8">
+          <StyledHeading heading={H("cta.title")} level={2} className="font-arabic text-3xl font-bold text-foreground md:text-4xl">
+            <RichText value={R("cta.title")} />
+          </StyledHeading>
+          <RichText as="p" className="mt-4 text-ink-600" value={R("cta.desc")} />
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <WhatsAppCTA number={id.whatsapp_number}>{T("cta.waLabel")}</WhatsAppCTA>
+          </div>
+        </section>
+      ) : null}
 
-      <SiteFooter
-        legalName={ident.legalName}
-        parentGroup={ident.parentGroup}
-        whatsappNumber={id.whatsapp_number}
-        email={id.email}
-        address={ident.address}
-      />
+      <SiteFooter legalName={ident.legalName} parentGroup={ident.parentGroup} whatsappNumber={id.whatsapp_number} email={id.email} address={ident.address} />
       <StickyWhatsApp number={id.whatsapp_number} />
     </div>
   );
