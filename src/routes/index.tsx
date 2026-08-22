@@ -42,7 +42,7 @@ export const Route = createFileRoute("/")({
       params: { lang },
       search: { hp_lang: undefined, hp_preview: undefined },
       replace: true,
-      statusCode: 301,
+      statusCode: 302,
     });
   },
   component: () => null,
